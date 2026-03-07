@@ -21,15 +21,15 @@
   --op-add:#43e8a8; --op-sub:#ff7eb3; --op-mul:#ffd166; --op-div:#6c8bff;
   --radius:14px; --shadow:0 8px 32px rgba(0,0,0,.45);
 }
-html,body{height:100%;}
+html,body{height:100%;margin:0;padding:0;}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 body::before{content:'';position:fixed;inset:0;background:
   radial-gradient(ellipse 60% 40% at 20% 20%,rgba(108,139,255,.08) 0%,transparent 70%),
   radial-gradient(ellipse 50% 50% at 80% 70%,rgba(67,232,168,.06) 0%,transparent 70%),
   radial-gradient(ellipse 40% 60% at 60% 10%,rgba(255,126,179,.05) 0%,transparent 70%);
   pointer-events:none;z-index:0;}
-#app{position:relative;z-index:1;min-height:100vh;}
-.screen{display:none;animation:fadeIn .4s ease;}
+#app{position:relative;z-index:1;min-height:100vh;overflow:hidden;}
+.screen{display:none;}
 .screen.active{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 
@@ -3137,6 +3137,7 @@ function startGame(level) {
   document.getElementById('input-panel-title').textContent=S.mode==='strategy'?'🧠 Välj operation':'✏️ Din beräkning';
   updateModeBadge();
   updateScoreDisplay();
+  window.scrollTo(0,0);
   loadEquation();
 }
 
@@ -3205,11 +3206,13 @@ function startAnalog() {
   document.getElementById('analog-screen').classList.add('active');
   document.getElementById('analog-level-badge').textContent = 'Nivå ' + ANALOG.level;
   updateAnalogScore();
+  window.scrollTo(0,0);
   loadAnalogEquation();
 }
 function analogHome() {
   document.getElementById('analog-screen').classList.remove('active');
   document.getElementById('start-screen').classList.add('active');
+  window.scrollTo(0,0);
 }
 function updateAnalogScore() {
   document.getElementById('analog-score-correct').textContent = ANALOG.correct;
@@ -3577,6 +3580,7 @@ function goHome() {
   document.getElementById('game-screen').classList.remove('active');
   document.getElementById('result-screen').classList.remove('active');
   document.getElementById('start-screen').classList.add('active');
+  window.scrollTo(0,0);
   renderProgressSection();
 }
 
@@ -3779,7 +3783,7 @@ function renderSignature() {
   el.style.cssText='width:100%;max-width:900px;margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;';
   el.innerHTML=`
     <div style="display:flex;align-items:center;gap:.75rem;">
-      <img src="pt_logo.jpg" alt="Patrick Tegnefur" style="height:36px;width:auto;opacity:.85;">
+      <img src="pt_logo.png" alt="Patrick Tegnefur" style="height:36px;width:auto;opacity:.85;">
       <div style="font-size:.78rem;color:var(--muted);line-height:1.6;">
         <span style="font-weight:700;color:var(--text);">\u00a9 ${new Date().getFullYear()} ${author}</span><br>
         ${title}
