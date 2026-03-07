@@ -1,0 +1,3796 @@
+<!DOCTYPE html>
+<!--
+  Balansmetoden – Ekvationsträning
+  © 2025 Patrick Tegnefur, Förstelärare i matematik, Alfred Dalinskolan
+  Länken får delas fritt. Koden får ej kopieras, modifieras eller
+  distribueras utan skriftligt tillstånd från upphovsmannen.
+-->
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balansmetoden – Ekvationsträning</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="pt_logo.jpg">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#0f1117; --surface:#191c27; --card:#20243a; --border:#2e3354;
+  --accent:#6c8bff; --accent3:#43e8a8; --accent4:#ffd166;
+  --text:#e8eaff; --muted:#7880a8; --danger:#ff5e7a; --success:#43e8a8;
+  --op-add:#43e8a8; --op-sub:#ff7eb3; --op-mul:#ffd166; --op-div:#6c8bff;
+  --radius:14px; --shadow:0 8px 32px rgba(0,0,0,.45);
+}
+html,body{height:100%;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 60% 40% at 20% 20%,rgba(108,139,255,.08) 0%,transparent 70%),
+  radial-gradient(ellipse 50% 50% at 80% 70%,rgba(67,232,168,.06) 0%,transparent 70%),
+  radial-gradient(ellipse 40% 60% at 60% 10%,rgba(255,126,179,.05) 0%,transparent 70%);
+  pointer-events:none;z-index:0;}
+#app{position:relative;z-index:1;min-height:100vh;}
+.screen{display:none;animation:fadeIn .4s ease;}
+.screen.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ── START SCREEN ── */
+#start-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;}
+#start-screen.active{display:flex;}
+.logo-mark{width:80px;height:80px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin-bottom:1.5rem;box-shadow:0 0 40px rgba(108,139,255,.4);animation:pulse 3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(108,139,255,.4)}50%{box-shadow:0 0 60px rgba(108,139,255,.6),0 0 80px rgba(67,232,168,.2)}}
+.app-title{font-family:'DM Serif Display',serif;font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin-bottom:.5rem;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.app-subtitle{color:var(--muted);font-size:1.1rem;margin-bottom:3rem;}
+.level-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;width:100%;max-width:900px;margin-bottom:1rem;}
+@media(max-width:480px){.level-grid{grid-template-columns:1fr;}}
+.level-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.4rem;cursor:pointer;transition:all .25s ease;text-align:left;position:relative;overflow:hidden;display:flex;align-items:center;gap:1rem;}
+.level-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--lc-color,var(--accent));opacity:.9;}
+.level-card:hover{border-color:var(--lc-color,var(--accent));transform:translateY(-2px);box-shadow:var(--shadow);}
+.level-card .lc-text{flex:1;min-width:0;}
+.level-card .lc-num{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--lc-color,var(--accent));letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem;}
+.level-card .lc-title{font-weight:800;font-size:.92rem;margin-bottom:.2rem;}
+.level-card .lc-desc{font-size:.78rem;color:var(--muted);line-height:1.4;}
+.level-card .lc-example{font-family:'DM Mono',monospace;font-size:.72rem;margin-top:.35rem;color:var(--lc-color,var(--accent));opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.level-card .lc-icon{font-size:1.6rem;flex-shrink:0;opacity:.8;}
+.mode-select{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;justify-content:center;}
+.mode-btn{padding:.8rem 2rem;border-radius:50px;border:2px solid var(--border);background:var(--card);color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;}
+.mode-btn:hover,.mode-btn.selected{border-color:var(--accent);background:rgba(108,139,255,.15);color:var(--accent);}
+.mode-btn.selected{box-shadow:0 0 20px rgba(108,139,255,.3);}
+
+/* ── GAME SCREEN ── */
+#game-screen{display:none;flex-direction:column;height:100dvh;max-height:100dvh;overflow:hidden;padding:.6rem 1rem;}
+#game-screen.active{display:flex;}
+.topbar{display:flex;align-items:center;gap:.75rem;padding:.35rem 0;margin-bottom:.5rem;flex-shrink:0;}
+.btn-back{background:var(--card);border:1.5px solid var(--border);color:var(--muted);border-radius:8px;padding:.35rem .75rem;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
+.btn-back:hover{border-color:var(--accent);color:var(--accent);}
+.topbar-info{display:flex;gap:.6rem;align-items:center;flex:1;min-width:0;}
+.level-badge{font-family:'DM Mono',monospace;font-size:.72rem;background:rgba(108,139,255,.15);border:1px solid rgba(108,139,255,.35);color:var(--accent);border-radius:50px;padding:.25rem .7rem;white-space:nowrap;}
+.mode-badge{font-family:'DM Mono',monospace;font-size:.72rem;background:rgba(67,232,168,.1);border:1px solid rgba(67,232,168,.3);color:var(--accent3);border-radius:50px;padding:.25rem .7rem;}
+
+/* In-game mode switcher */
+.mode-switcher{position:relative;display:inline-flex;align-items:center;gap:.25rem;font-family:'DM Mono',monospace;font-size:.75rem;background:rgba(67,232,168,.1);border:1px solid rgba(67,232,168,.3);color:var(--accent3);border-radius:50px;padding:.3rem .75rem;cursor:pointer;user-select:none;transition:all .2s;}
+.mode-switcher:hover{background:rgba(67,232,168,.18);border-color:var(--accent3);}
+.mode-switcher.competition{background:rgba(255,94,122,.1);border-color:rgba(255,94,122,.3);color:var(--danger);cursor:default;}
+.mode-switcher-arrow{font-size:.65rem;opacity:.7;transition:transform .2s;}
+.mode-switcher.open .mode-switcher-arrow{transform:rotate(180deg);}
+.mode-switcher-drop{display:none;position:absolute;top:calc(100% + 6px);left:0;background:var(--card);border:1.5px solid var(--border);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;min-width:170px;z-index:200;}
+.mode-switcher.open .mode-switcher-drop{display:block;animation:fadeIn .15s ease;}
+.mode-switcher-drop button{display:block;width:100%;padding:.6rem 1rem;background:transparent;border:none;color:var(--text);font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;text-align:left;cursor:pointer;transition:background .15s;}
+.mode-switcher-drop button:hover{background:rgba(108,139,255,.1);}
+.mode-switcher-drop button.active-mode{color:var(--accent3);}
+.score-box{margin-left:auto;display:flex;gap:1rem;}
+.score-item{text-align:center;}
+.score-item .sv{font-weight:800;font-size:1.2rem;color:var(--accent4);}
+.score-item .sl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.game-area{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;flex:1;max-width:1100px;width:100%;margin:0 auto;min-height:0;}
+@media(max-width:760px){.game-area{grid-template-columns:1fr;overflow-y:auto;}}
+
+/* ── PANELS ── */
+.panel{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.2rem;display:flex;flex-direction:column;box-shadow:var(--shadow);min-height:0;overflow:hidden;}
+.panel-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:1rem;font-weight:700;}
+.section-title{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:.4rem;}
+
+/* ── HISTORY ── */
+#eq-panel{gap:.5rem;}
+.eq-history{flex:1;display:flex;flex-direction:column;gap:.3rem;overflow-y:auto;min-height:0;padding-top:.5rem;}
+.eq-row{
+  display:flex; align-items:center; gap:.3rem; flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:.65rem 1rem;font-family:'DM Mono',monospace;font-size:1rem;
+  position:relative;transition:all .3s ease; line-height:1;
+}
+.eq-row.new-row{animation:slideIn .35s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes currentPulse{0%,100%{box-shadow:0 0 0 1px rgba(108,139,255,.2)}50%{box-shadow:0 0 0 3px rgba(108,139,255,.35),0 0 12px rgba(108,139,255,.15)}}
+.eq-row.current{border-color:var(--accent);background:rgba(108,139,255,.07);animation:currentPulse 2.5s ease-in-out infinite;}
+.eq-row.solved{border-color:var(--success);background:rgba(67,232,168,.07);}
+/* The equation expression itself – LHS = RHS tight together */
+.eq-expr{display:inline-flex;align-items:center;gap:.25rem;flex-wrap:wrap;flex:1;}
+.eq-lhs,.eq-rhs{display:inline-flex;align-items:center;gap:.15rem;flex-wrap:wrap;}
+.eq-equals{color:var(--muted);font-size:1.1rem;font-weight:bold;padding:0 .1rem;vertical-align:middle;}
+.eq-step-label{position:absolute;top:-9px;left:12px;font-size:.65rem;color:var(--muted);background:var(--card);padding:0 .4rem;border-radius:4px;font-family:'Nunito',sans-serif;letter-spacing:.04em;}
+/* Op-row between eq rows: bubble + the "rad 2" annotation row */
+.op-row{display:flex;justify-content:center;align-items:center;gap:.5rem;padding:.15rem .5rem;}
+.op-row-label{font-size:.8rem;font-family:'DM Mono',monospace;color:var(--muted);}
+.op-bubble{font-family:'DM Mono',monospace;font-size:.85rem;padding:.25rem .65rem;border-radius:50px;font-weight:500;}
+.op-bubble.add{background:rgba(67,232,168,.15);color:var(--op-add);border:1px solid rgba(67,232,168,.3);}
+.op-bubble.sub{background:rgba(255,126,179,.15);color:var(--op-sub);border:1px solid rgba(255,126,179,.3);}
+.op-bubble.mul{background:rgba(255,209,102,.15);color:var(--op-mul);border:1px solid rgba(255,209,102,.3);}
+.op-bubble.div{background:rgba(108,139,255,.15);color:var(--op-div);border:1px solid rgba(108,139,255,.3);}
+.op-bubble.simplify{background:rgba(255,209,102,.15);color:var(--accent4);border:1px solid rgba(255,209,102,.3);}
+/* Rad-2 row: the equation with colored op additions shown inline */
+.eq-row-op{
+  display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;
+  background:rgba(255,255,255,.02);border:1px dashed var(--border);border-radius:10px;
+  padding:.55rem 1rem;font-family:'DM Mono',monospace;font-size:.95rem;
+  position:relative;
+}
+.eq-row-op.new-row{animation:slideIn .35s ease;}
+.op-row.new-row .op-bubble{animation:bubblePop .3s cubic-bezier(.175,.885,.32,1.4) both;}
+@keyframes bubblePop{from{transform:scale(0);opacity:0}to{transform:none;opacity:1}}
+.op-addition{font-family:'DM Mono',monospace;font-size:.9rem;font-weight:700;padding:0 .1rem;}
+.op-addition.add{color:var(--op-add);}
+.op-addition.sub{color:var(--op-sub);}
+.op-addition.mul{color:var(--op-mul);}
+.op-addition.div{color:var(--op-div);}
+.tok-x{color:var(--accent4);font-weight:600;vertical-align:middle;}
+.tok-num{color:var(--text);vertical-align:middle;}
+.tok-op-add{color:var(--op-add);font-weight:700;vertical-align:middle;}
+.tok-op-sub{color:var(--op-sub);font-weight:700;vertical-align:middle;}
+.tok-op-mul{color:var(--op-mul);font-weight:700;}
+.tok-op-div{color:var(--op-div);font-weight:700;}
+.tok-paren{color:var(--muted);}
+.solved-display{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:.8rem;text-align:center;}
+.solved-display.visible{display:flex;animation:solvedPop .5s cubic-bezier(.175,.885,.32,1.4) both;}
+@keyframes solvedPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.solved-icon{font-size:3.5rem;animation:iconBounce .6s cubic-bezier(.175,.885,.32,1.4) .1s both;}
+@keyframes iconBounce{from{transform:scale(0) rotate(-15deg)}to{transform:none}}
+.solved-title{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--success);}
+.solved-answer{font-family:'DM Mono',monospace;font-size:1.4rem;color:var(--accent4);background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);border-radius:10px;padding:.4rem 1.2rem;}
+.solved-steps-feedback{font-size:.88rem;color:var(--muted);text-align:center;line-height:1.5;max-width:240px;}
+.solved-steps-feedback strong{color:var(--accent4);}
+.solved-steps-feedback.optimal{color:var(--success);}
+.btn-next{margin-top:.5rem;padding:.8rem 2.5rem;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(108,139,255,.4);}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(108,139,255,.5);}
+
+/* Show-solution button */
+.btn-show-solution{width:100%;padding:.55rem;border-radius:8px;border:1.5px solid rgba(108,139,255,.3);background:rgba(108,139,255,.06);color:var(--accent);font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.4rem;}
+.btn-show-solution:hover{background:rgba(108,139,255,.14);border-color:var(--accent);}
+.btn-show-solution:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Solution replay: highlight eq-rows one by one */
+.eq-row.replay-flash{border-color:var(--accent4)!important;background:rgba(255,209,102,.1)!important;box-shadow:0 0 0 2px rgba(255,209,102,.3)!important;transition:all .3s;}
+
+/* Error hint box */
+.calc-hint-box{font-size:.82rem;line-height:1.55;padding:.5rem .75rem;border-radius:8px;background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.25);color:var(--accent4);display:none;}
+.calc-hint-box.visible{display:block;animation:fadeIn .25s ease;}
+
+/* ── INPUT PANEL ── */
+#input-panel{gap:.8rem;}
+.panel-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;}
+
+/* Input mode toggle */
+.imt{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:.2rem .25rem;gap:.15rem;}
+.imt-btn{padding:.28rem .65rem;border-radius:50px;border:none;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--muted);background:transparent;white-space:nowrap;}
+.imt-btn.active{background:var(--card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.4);}
+
+/* Shared input area */
+.input-area{display:flex;flex-direction:column;gap:.6rem;flex:1;overflow-y:auto;min-height:0;}
+
+.op-chip-decoy{opacity:.8;border-style:dashed;}
+.op-chip-decoy:hover{opacity:1;}
+.chip-shake{animation:shake .35s ease;}
+.chip-toggle-btn{padding:.32rem .85rem;border-radius:50px;border:1.5px solid rgba(255,209,102,.35);background:rgba(255,209,102,.07);color:var(--accent4);font-family:'Nunito',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:all .2s;}
+.chip-toggle-btn:hover{background:rgba(255,209,102,.15);border-color:var(--accent4);}
+.chip-toggle-btn.active{background:rgba(255,209,102,.18);border-color:var(--accent4);box-shadow:0 0 0 2px rgba(255,209,102,.2);}
+/* Op suggestion chips */
+.op-chips{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;min-height:1.8rem;margin-top:.1rem;}
+.op-chip{padding:.38rem .9rem;border-radius:50px;border:1.5px solid;font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .15s;background:transparent;display:inline-flex;align-items:center;gap:.3rem;}
+.op-chip:hover{filter:brightness(1.25);transform:translateY(-1px);}
+.op-chip-add{color:var(--op-add);border-color:rgba(67,232,168,.4);background:rgba(67,232,168,.07);}
+.op-chip-add:hover{background:rgba(67,232,168,.18);}
+.op-chip-sub{color:var(--op-sub);border-color:rgba(255,126,179,.4);background:rgba(255,126,179,.07);}
+.op-chip-sub:hover{background:rgba(255,126,179,.18);}
+.op-chip-mul{color:var(--op-mul);border-color:rgba(255,209,102,.4);background:rgba(255,209,102,.07);}
+.op-chip-mul:hover{background:rgba(255,209,102,.18);}
+.op-chip-div{color:var(--op-div);border-color:rgba(108,139,255,.4);background:rgba(108,139,255,.07);}
+.op-chip-div:hover{background:rgba(108,139,255,.18);}
+.op-chip-detour{opacity:.75;border-style:dashed;}
+.op-chip-detour:hover{opacity:1;}
+.chip-warn{font-size:.7rem;opacity:.85;}
+.op-chip-hint{font-size:.72rem;color:var(--muted);font-style:italic;}
+.op-chip-hint code{font-family:'DM Mono',monospace;color:var(--accent);background:rgba(108,139,255,.1);padding:1px 4px;border-radius:3px;}
+.detour-warn-box{display:none;font-size:.78rem;color:var(--accent4);background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.25);border-radius:8px;padding:.45rem .75rem;line-height:1.5;margin-top:.1rem;}
+.detour-warn-box.visible{display:block;animation:fadeIn .2s ease;}
+
+/* Free-text op field */
+.free-op-input{background:var(--surface);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Mono',monospace;font-size:1.4rem;padding:.75rem 1.1rem;outline:none;transition:all .2s;width:100%;letter-spacing:.04em;}
+.free-op-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,139,255,.12);}
+.free-op-input.op-add{border-color:var(--op-add);box-shadow:0 0 0 3px rgba(67,232,168,.1);color:var(--op-add);}
+.free-op-input.op-sub{border-color:var(--op-sub);box-shadow:0 0 0 3px rgba(255,126,179,.1);color:var(--op-sub);}
+.free-op-input.op-mul{border-color:var(--op-mul);box-shadow:0 0 0 3px rgba(255,209,102,.1);color:var(--op-mul);}
+.free-op-input.op-div{border-color:var(--op-div);box-shadow:0 0 0 3px rgba(108,139,255,.1);color:var(--op-div);}
+.free-op-input.op-err{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,94,122,.1);}
+.free-op-hint{font-size:.76rem;color:var(--muted);line-height:1.6;}
+.free-op-hint code{font-family:'DM Mono',monospace;color:var(--accent);background:rgba(108,139,255,.1);padding:1px 4px;border-radius:3px;}
+.parsed-badge{font-family:'DM Mono',monospace;font-size:.85rem;padding:.3rem .7rem;border-radius:8px;display:none;align-items:center;gap:.4rem;}
+.parsed-badge.visible{display:flex;}
+.parsed-badge.add{background:rgba(67,232,168,.12);color:var(--op-add);border:1px solid rgba(67,232,168,.25);}
+.parsed-badge.sub{background:rgba(255,126,179,.12);color:var(--op-sub);border:1px solid rgba(255,126,179,.25);}
+.parsed-badge.mul{background:rgba(255,209,102,.12);color:var(--op-mul);border:1px solid rgba(255,209,102,.25);}
+.parsed-badge.div{background:rgba(108,139,255,.12);color:var(--op-div);border:1px solid rgba(108,139,255,.25);}
+
+/* Button mode inputs */
+.op-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;}
+.op-btn{padding:.55rem .3rem;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);font-family:'DM Mono',monospace;font-size:.88rem;cursor:pointer;transition:all .18s;text-align:center;font-weight:700;}
+.op-btn:hover{filter:brightness(1.2);}
+.op-btn.add{color:var(--op-add);}  .op-btn.add.active{background:rgba(67,232,168,.18);border-color:var(--op-add);}
+.op-btn.sub{color:var(--op-sub);}  .op-btn.sub.active{background:rgba(255,126,179,.18);border-color:var(--op-sub);}
+.op-btn.mul{color:var(--op-mul);}  .op-btn.mul.active{background:rgba(255,209,102,.18);border-color:var(--op-mul);}
+.op-btn.div{color:var(--op-div);}  .op-btn.div.active{background:rgba(108,139,255,.18);border-color:var(--op-div);}
+.val-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.4rem;}
+.op-sym{font-family:'DM Mono',monospace;font-size:1.1rem;color:var(--muted);min-width:14px;}
+.val-input{background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:1rem;padding:.5rem .8rem;width:88px;outline:none;transition:border-color .2s;}
+.val-input:focus{border-color:var(--accent);}
+.val-input::placeholder{color:var(--muted);opacity:.5;}
+.xterm-row{display:flex;align-items:center;gap:.45rem;font-size:.82rem;color:var(--muted);cursor:pointer;user-select:none;flex-wrap:wrap;}
+.xterm-row input{accent-color:var(--accent4);width:15px;height:15px;cursor:pointer;}
+.xcoeff-wrap{display:none;align-items:center;gap:.3rem;}
+.xcoeff-wrap span{font-family:'DM Mono',monospace;color:var(--accent4);font-size:1.1rem;}
+
+/* Simplify button */
+.btn-simplify{padding:.7rem 1.1rem;border-radius:8px;border:1.5px solid rgba(255,209,102,.4);background:rgba(255,209,102,.08);color:var(--accent4);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem;width:100%;}
+.btn-simplify:hover{background:rgba(255,209,102,.18);border-color:var(--accent4);}
+
+/* Distribute button */
+.btn-distribute{padding:.7rem 1.1rem;border-radius:8px;border:1.5px solid rgba(108,139,255,.4);background:rgba(108,139,255,.08);color:var(--accent);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem;width:100%;}
+.btn-distribute:hover{background:rgba(108,139,255,.18);border-color:var(--accent);}
+
+/* Hint button */
+.btn-hint{padding:.55rem 1.1rem;border-radius:8px;border:1.5px solid rgba(255,209,102,.35);background:rgba(255,209,102,.08);color:var(--accent4);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem;}
+.btn-hint:hover{background:rgba(255,209,102,.15);border-color:var(--accent4);}
+.hint-box{font-size:.82rem;color:var(--muted);background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.2);border-radius:8px;padding:.6rem .9rem;display:none;line-height:1.55;}
+.hint-box.visible{display:block;}
+
+/* Primary action buttons */
+.btn-primary{width:100%;padding:1rem;border-radius:10px;background:var(--accent);border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all .2s;margin-top:auto;}
+.btn-primary:hover:not(:disabled){background:#8aa3ff;transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.32;cursor:not-allowed;}
+.btn-primary.green{background:linear-gradient(135deg,var(--accent3),var(--accent));}
+.btn-primary.green:hover:not(:disabled){box-shadow:0 4px 20px rgba(67,232,168,.3);}
+
+/* Calc answer fields */
+.answer-section{display:none;flex-direction:column;gap:.6rem;animation:fadeIn .3s ease;}
+.answer-section.visible{display:flex;}
+.answer-op-preview{font-family:'DM Mono',monospace;font-size:.9rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;}
+.answer-fields{display:grid;grid-template-columns:1fr auto 1fr;gap:.5rem;align-items:center;}
+.afield-group{display:flex;flex-direction:column;gap:.35rem;}
+.afield-label{font-size:.74rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;}
+.afield-input{background:var(--surface);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Mono',monospace;font-size:1.05rem;padding:.75rem 1rem;outline:none;transition:all .2s;width:100%;text-align:center;}
+.afield-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,139,255,.15);}
+.afield-input.correct{border-color:var(--success);background:rgba(67,232,168,.07);}
+.afield-input.wrong{border-color:var(--danger);background:rgba(255,94,122,.07);animation:shake .3s;}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.eq-sep{font-family:'DM Mono',monospace;font-size:1.5rem;color:var(--muted);text-align:center;}
+
+/* Calc step indicator (sequential flow) */
+.calc-step-indicator{display:flex;gap:.35rem;margin-bottom:.2rem;}
+.csi-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s;}
+.csi-dot.active{background:var(--accent);}
+.csi-dot.done{background:var(--success);}
+
+/* Error */
+.err-msg{font-size:.82rem;color:var(--danger);padding:.4rem .7rem;background:rgba(255,94,122,.1);border-radius:6px;border:1px solid rgba(255,94,122,.25);display:none;}
+.err-msg.visible{display:block;}
+
+/* Confetti */
+.confetti-burst{position:fixed;inset:0;pointer-events:none;z-index:9999;}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:cfFall 1.2s ease-in forwards;}
+@keyframes cfFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* Misc */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ── RESPONSIVE / MOBILE ───────────────────────────────────── */
+@media(max-width:760px){
+  .game-area{gap:.5rem;}
+  .panel{padding:.85rem;}
+  .topbar{padding:.25rem 0;gap:.4rem;margin-bottom:.35rem;}
+  .btn-back{padding:.3rem .55rem;font-size:.78rem;}
+  .topbar-info{gap:.35rem;}
+  .level-badge,.mode-badge{font-size:.65rem;padding:.2rem .5rem;}
+  .score-item .sv{font-size:1rem;}
+  .score-item .sl{font-size:.6rem;}
+  .eq-row{font-size:.85rem;padding:.45rem .7rem;}
+  .eq-row-op{font-size:.8rem;padding:.4rem .7rem;}
+  .op-grid{grid-template-columns:repeat(2,1fr);gap:.4rem;}
+  .op-btn{padding:.65rem .3rem;font-size:.9rem;border-radius:10px;}
+  .val-input{width:76px;font-size:.95rem;padding:.5rem .6rem;}
+  .free-op-input{font-size:1.1rem;padding:.55rem .8rem;}
+  .afield-input{font-size:.95rem;padding:.55rem .55rem;}
+  .split-fields-row{grid-template-columns:1fr auto 1fr;gap:.3rem;}
+  .split-eq-sep{font-size:1.2rem;}
+  .btn-primary{padding:.85rem;font-size:.95rem;}
+  .btn-simplify,.btn-distribute{padding:.6rem .85rem;font-size:.85rem;}
+  .btn-skip,.btn-undo{padding:.6rem;font-size:.82rem;}
+  .btn-show-solution{padding:.6rem;font-size:.78rem;}
+  .mode-select{gap:.5rem;}
+  .mode-btn{padding:.7rem 1.2rem;font-size:.9rem;}
+  .level-grid{grid-template-columns:1fr;}
+  .parsed-badge{font-size:.78rem;}
+}
+@media(max-width:400px){
+  .answer-fields,.split-fields-row{grid-template-columns:1fr;gap:.3rem;}
+  .eq-sep,.split-eq-sep{display:none;}
+  .afield-input{font-size:1.05rem;}
+  .eq-row{font-size:.8rem;padding:.45rem .6rem;}
+  .topbar-info .mode-badge{display:none;}
+}
+
+/* Skip / new equation button */
+.btn-skip{
+  width:100%; padding:.55rem; border-radius:8px;
+  border:1.5px solid var(--border); background:transparent;
+  color:var(--muted); font-family:'Nunito',sans-serif; font-weight:700; font-size:.85rem;
+  cursor:pointer; transition:all .2s; margin-top:.1rem;
+}
+.btn-skip:hover{border-color:var(--danger);color:var(--danger);background:rgba(255,94,122,.06);}
+
+/* Undo button */
+.btn-undo{width:100%;padding:.55rem;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;}
+.btn-undo:hover:not(:disabled){border-color:var(--accent4);color:var(--accent4);background:rgba(255,209,102,.06);}
+.btn-undo:disabled{opacity:.3;cursor:not-allowed;}
+
+/* Answer field split-mode */
+.split-fields-row{display:grid;grid-template-columns:1fr auto 1fr;gap:.4rem;align-items:center;}
+.split-eq-sep{font-family:'DM Mono',monospace;font-size:1.4rem;color:var(--muted);text-align:center;padding:0 .1rem;}
+.answer-mode-toggle{display:flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none;font-size:.72rem;color:var(--muted);font-weight:700;margin-left:auto;}
+.amt-track{width:28px;height:16px;border-radius:50px;background:var(--border);position:relative;transition:background .2s;flex-shrink:0;}
+.amt-track.on{background:var(--accent);}
+.amt-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.35);}
+.amt-track.on .amt-thumb{transform:translateX(12px);}
+
+/* History panel header with toggle */
+.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem;}
+.history-header .panel-title{margin-bottom:0;}
+.bubble-toggle{display:flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none;font-size:.75rem;color:var(--muted);font-weight:700;}
+.bubble-toggle-track{width:32px;height:18px;border-radius:50px;background:var(--border);position:relative;transition:background .2s;flex-shrink:0;}
+.bubble-toggle-track.on{background:var(--accent);}
+.bubble-toggle-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+.bubble-toggle-track.on .bubble-toggle-thumb{transform:translateX(14px);}
+/* Progress bars on start screen */
+.progress-section{width:100%;max-width:860px;margin-bottom:1.5rem;}
+.progress-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:.6rem;text-align:center;}
+.progress-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:.4rem;}
+.prog-cell{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:.5rem .3rem;text-align:center;font-size:.7rem;color:var(--muted);transition:all .3s;}
+.prog-cell.has-data{border-color:rgba(108,139,255,.3);}
+.prog-cell .pc-level{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:.2rem;}
+.prog-cell .pc-count{font-size:1.1rem;font-weight:800;color:var(--accent);line-height:1;}
+.prog-cell .pc-best{font-family:'DM Mono',monospace;font-size:.62rem;color:var(--accent4);margin-top:.15rem;}
+.prog-cell .pc-bar-wrap{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:.3rem;}
+.prog-cell .pc-bar{height:3px;background:var(--accent);border-radius:2px;transition:width .5s ease;}
+@media(max-width:500px){.progress-grid{grid-template-columns:repeat(4,1fr);}}
+/* ── TÄVLINGSLÄGE ───────────────────────────────────────────── */
+/* Setup dialog */
+.comp-setup{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center;padding:1rem;}
+.comp-setup.active{display:flex;}
+.comp-setup-box{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:420px;width:100%;box-shadow:var(--shadow);animation:solvedPop .3s cubic-bezier(.175,.885,.32,1.4) both;text-align:left;}
+.comp-setup-title{font-family:'DM Serif Display',serif;font-size:1.5rem;margin-bottom:.3rem;}
+.comp-setup-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;}
+.comp-opt-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:.5rem;}
+.comp-opt-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem;}
+.comp-opt-btn{padding:.5rem 1rem;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.comp-opt-btn.active{border-color:var(--accent);background:rgba(108,139,255,.15);color:var(--accent);}
+.comp-opt-btn.time.active{border-color:var(--danger);background:rgba(255,94,122,.12);color:var(--danger);}
+
+/* ── QUICK ANSWER FIELD (in-game) ── */
+.quick-answer-wrap{margin-top:.3rem;padding:.7rem .9rem;background:rgba(108,139,255,.05);border:1.5px solid rgba(108,139,255,.2);border-radius:10px;}
+.quick-answer-row{display:flex;align-items:center;gap:.5rem;}
+.quick-answer-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;white-space:nowrap;}
+.quick-answer-prefix{font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--accent);white-space:nowrap;}
+.quick-answer-input{flex:1;min-width:0;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:1rem;padding:.45rem .7rem;outline:none;transition:all .2s;text-align:center;}
+.quick-answer-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(108,139,255,.15);}
+.quick-answer-input.correct{border-color:var(--success);background:rgba(67,232,168,.08);}
+.quick-answer-input.wrong{border-color:var(--danger);animation:shake .3s;}
+.quick-answer-btn{padding:.45rem .9rem;border-radius:8px;background:linear-gradient(135deg,var(--accent3),var(--accent));border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.quick-answer-btn:hover{transform:translateY(-1px);}
+
+/* ── ANALOG SCREEN ── */
+#analog-screen{display:none;flex-direction:column;height:100dvh;overflow:hidden;padding:.6rem 1rem;}
+#analog-screen.active{display:flex;}
+.analog-eq-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:2rem 2.5rem;text-align:center;width:100%;box-shadow:var(--shadow);animation:slideIn .3s ease;}
+.analog-eq-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700;margin-bottom:1rem;}
+.analog-eq-display{font-family:'DM Mono',monospace;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:600;color:var(--text);line-height:1.8;display:inline-flex;align-items:center;gap:.35rem;flex-wrap:wrap;justify-content:center;}
+.analog-answer-wrap{display:flex;align-items:center;gap:.75rem;width:100%;max-width:340px;}
+.analog-answer-prefix{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--accent);white-space:nowrap;}
+.analog-answer-input{flex:1;background:var(--surface);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Mono',monospace;font-size:1.5rem;padding:.75rem 1rem;outline:none;transition:all .2s;text-align:center;}
+.analog-answer-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,139,255,.15);}
+.analog-answer-input.correct{border-color:var(--success);background:rgba(67,232,168,.07);}
+.analog-answer-input.wrong{border-color:var(--danger);background:rgba(255,94,122,.07);animation:shake .3s;}
+.analog-feedback{display:none;flex-direction:column;align-items:center;gap:.8rem;text-align:center;}
+.analog-feedback.visible{display:flex;animation:solvedPop .4s cubic-bezier(.175,.885,.32,1.4) both;}
+.analog-feedback-icon{font-size:3rem;animation:iconBounce .5s cubic-bezier(.175,.885,.32,1.4) both;}
+.analog-feedback-text{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--success);}
+.analog-feedback-actions{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center;margin-top:.3rem;}
+.analog-feedback-actions button{padding:.7rem 1.4rem;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;cursor:pointer;transition:all .2s;}
+.analog-btn-solution{background:rgba(108,139,255,.12);border:1.5px solid rgba(108,139,255,.35);color:var(--accent);}
+.analog-btn-solution:hover{background:rgba(108,139,255,.22);}
+.analog-btn-next{background:linear-gradient(135deg,var(--accent3),var(--accent));border:none;color:#0f1117;}
+.analog-btn-next:hover{transform:translateY(-1px);}
+.analog-solution-box{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:1rem 1.5rem;width:100%;max-width:480px;}
+
+/* Timer in topbar */
+.timer-box{display:flex;align-items:center;gap:.5rem;font-family:'DM Mono',monospace;}
+.timer-display{font-size:1.4rem;font-weight:700;color:var(--accent4);min-width:2.8rem;text-align:center;transition:color .3s;}
+.timer-display.urgent{color:var(--danger);animation:timerPulse .5s ease-in-out infinite;}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.timer-bar-wrap{width:80px;height:5px;background:var(--border);border-radius:3px;}
+.timer-bar{height:5px;border-radius:3px;background:var(--accent4);transition:width .95s linear,background .3s;}
+.timer-bar.urgent{background:var(--danger);}
+
+/* Points flash */
+.points-flash{position:fixed;pointer-events:none;font-family:'DM Mono',monospace;font-weight:800;font-size:1.4rem;color:var(--accent3);text-shadow:0 2px 8px rgba(67,232,168,.5);z-index:9999;animation:ptsFly .9s ease-out forwards;}
+@keyframes ptsFly{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(.7)}}
+.points-flash.bonus{color:var(--accent4);text-shadow:0 2px 8px rgba(255,209,102,.5);}
+
+/* Competition score in topbar */
+.comp-score-box{display:flex;flex-direction:column;align-items:center;margin-left:.5rem;}
+.comp-score-val{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:800;color:var(--accent4);line-height:1;}
+.comp-score-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+
+/* Result screen */
+#result-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;}
+#result-screen.active{display:flex;}
+.result-title{font-family:'DM Serif Display',serif;font-size:clamp(2rem,6vw,3.5rem);background:linear-gradient(135deg,var(--accent4),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.4rem;}
+.result-score{font-family:'DM Mono',monospace;font-size:4rem;font-weight:800;color:var(--accent4);line-height:1;margin:.5rem 0;}
+.result-meta{color:var(--muted);font-size:.95rem;margin-bottom:1.5rem;line-height:1.8;}
+.result-highscore{font-size:.88rem;padding:.5rem 1.2rem;border-radius:8px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.25);color:var(--accent4);margin-bottom:1.5rem;display:none;}
+.result-highscore.visible{display:block;}
+.result-stats{display:flex;gap:1.5rem;margin-bottom:2rem;flex-wrap:wrap;justify-content:center;}
+.result-stat{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:.8rem 1.4rem;text-align:center;}
+.result-stat .rs-val{font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:800;color:var(--accent);line-height:1;}
+.result-stat .rs-lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:.2rem;}
+.result-buttons{display:flex;gap:.8rem;flex-wrap:wrap;justify-content:center;}
+.result-buttons button{padding:.8rem 1.8rem;border-radius:50px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all .2s;}
+.btn-play-again{background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#0f1117;box-shadow:0 4px 20px rgba(108,139,255,.4);}
+.btn-play-again:hover{transform:translateY(-2px);}
+.btn-result-home{background:transparent;border:2px solid var(--border);color:var(--muted);}
+.btn-result-home:hover{border-color:var(--accent);color:var(--accent);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══════ START SCREEN ═══════ -->
+<div id="start-screen" class="screen active">
+  <div class="logo-mark">⚖️</div>
+  <h1 class="app-title">Balansmetoden</h1>
+  <p class="app-subtitle">Välj nivå och läge för att börja träna</p>
+
+  <!-- Mode selector – compact toggle style -->
+  <div style="width:100%;max-width:900px;margin-bottom:1.2rem;">
+    <p style="text-align:center;font-size:.68rem;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;">Träningsläge</p>
+    <div style="display:flex;gap:.5rem;justify-content:center;">
+      <button class="mode-btn selected" id="mode-strategy-btn" onclick="selectMode('strategy')">🧠 Strategiläge</button>
+      <button class="mode-btn" id="mode-calc-btn" onclick="selectMode('calc')">🖊 Beräkningsläge</button>
+    </div>
+    <p id="mode-desc" style="text-align:center;font-size:.8rem;color:var(--muted);max-width:460px;margin:.5rem auto 0;line-height:1.5;">
+      Du väljer vilken operation som ska göras i båda led — programmet räknar åt dig och visar historiken steg för steg.
+    </p>
+  </div>
+
+  <!-- Analog + Competition banners -->
+  <div style="width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.4rem;">
+    <div style="padding:.9rem 1.2rem;background:rgba(108,139,255,.07);border:1.5px solid rgba(108,139,255,.2);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;gap:.8rem;">
+      <div>
+        <div style="font-weight:800;font-size:.88rem;margin-bottom:.1rem;">✏️ Analogläge</div>
+        <div style="font-size:.75rem;color:var(--muted);">Lös på papper, kontrollera svaret.</div>
+      </div>
+      <button onclick="openAnalogSetup()" style="padding:.5rem 1.1rem;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">Starta</button>
+    </div>
+    <div style="padding:.9rem 1.2rem;background:rgba(255,94,122,.07);border:1.5px solid rgba(255,94,122,.2);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;gap:.8rem;">
+      <div>
+        <div style="font-weight:800;font-size:.88rem;margin-bottom:.1rem;">⏱ Tävlingsläge</div>
+        <div style="font-size:.75rem;color:var(--muted);">Lös så många som möjligt på tid.</div>
+      </div>
+      <button onclick="openCompSetup()" style="padding:.5rem 1.1rem;border-radius:50px;background:linear-gradient(135deg,var(--danger),#ff9f4a);border:none;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">Starta</button>
+    </div>
+  </div>
+
+  <!-- Progress bars (shown after first solve) -->
+  <div class="progress-section" id="progress-section" style="display:none;">
+    <div class="progress-title">Dina framsteg</div>
+    <div class="progress-grid" id="progress-grid"></div>
+  </div>
+
+  <!-- Section label -->
+  <div style="width:100%;max-width:900px;margin-bottom:.6rem;">
+    <p style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin:0;">Välj nivå</p>
+  </div>
+
+  <!-- Level cards 2×4, row colors: row1=#6c8bff, row2=#ff7eb3, row3=#b8a4ff, row4=#43e8a8 -->
+  <div class="level-grid">
+    <!-- Row 1: blå – grundläggande linjärt -->
+    <div class="level-card" style="--lc-color:#6c8bff" onclick="startGame(1)">
+      <span class="lc-icon">📐</span>
+      <div class="lc-text">
+        <div class="lc-num">Nivå 1</div><div class="lc-title">Linjära ekvationer</div>
+        <div class="lc-desc">Ax ± B = C och varianter med division.</div>
+        <div class="lc-example">2x + 3 = 11 · x/4 − 2 = 6</div>
+      </div>
+    </div>
+    <div class="level-card" style="--lc-color:#5a7aee" onclick="startGame(2)">
+      <span class="lc-icon">✦</span>
+      <div class="lc-text">
+        <div class="lc-num">Nivå 2</div><div class="lc-title">Förenkling i VL</div>
+        <div class="lc-desc">Samla termer i vänsterledet.</div>
+        <div class="lc-example">3x + 5 + x − 2 = 11</div>
+      </div>
+    </div>
+    <!-- Row 2: rosa – x i ledet -->
+    <div class="level-card" style="--lc-color:#ff7eb3" onclick="startGame(3)">
+      <span class="lc-icon">⚖️</span>
+      <div class="lc-text">
+        <div class="lc-num">Nivå 3</div><div class="lc-title">x i båda led</div>
+        <div class="lc-desc">x-termer på båda sidor.</div>
+        <div class="lc-example">5x + 3 = 2x + 12</div>
+      </div>
+    </div>
+    <div class="level-card" style="--lc-color:#e86da0" onclick="startGame(4)">
+      <span class="lc-icon">✦✦</span>
+      <div class="lc-text">
+        <div class="lc-num">Nivå 4</div><div class="lc-title">Förenkla båda led</div>
+        <div class="lc-desc">Samla termer i båda led.</div>
+        <div class="lc-example">3x + 2x = x + 4 + x</div>
+      </div>
+    </div>
+    <!-- Row 3: lila – parenteser -->
+    <div class="level-card" style="--lc-color:#ff9f4a" onclick="startGame(5)">
+      <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1.1rem;">( )</span>
+      <div class="lc-text">
+        <div class="lc-num">Nivå 5</div><div class="lc-title">Parenteser</div>
+        <div class="lc-desc">Distribuera en positiv faktor.</div>
+        <div class="lc-example">3(x + 4) = 21</div>
+      </div>
+    </div>
+    <div class="level-card" style="--lc-color:#e07a20" onclick="startGame(6)">
+      <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1rem;">−( )</span>
+      <div class="lc-text">
+        <div class="lc-num">Nivå 6</div><div class="lc-title">Negativ distribution</div>
+        <div class="lc-desc">Negativ faktor – passa teckenbytena!</div>
+        <div class="lc-example">−2(x + 3) = −10</div>
+      </div>
+    </div>
+    <!-- Row 4: unika färger – avancerat -->
+    <div class="level-card" style="--lc-color:#43e8a8;border-color:rgba(67,232,168,.3);background:linear-gradient(135deg,var(--card),rgba(67,232,168,.03));" onclick="startGame(7)">
+      <span class="lc-icon">🔀</span>
+      <div class="lc-text">
+        <div class="lc-num" style="letter-spacing:.05em;">Nivå 7 · Avancerad</div><div class="lc-title">Kombinerat</div>
+        <div class="lc-desc">Bråk, parenteser och x i båda led.</div>
+        <div class="lc-example">3x/2 + 1 = 4x − 5</div>
+      </div>
+    </div>
+    <div class="level-card" style="--lc-color:#ffd166;border-color:rgba(255,209,102,.3);background:linear-gradient(135deg,var(--card),rgba(255,209,102,.03));" onclick="startGame(8)">
+      <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1.1rem;">a/b</span>
+      <div class="lc-text">
+        <div class="lc-num" style="letter-spacing:.05em;">Nivå 8 · Fördjupning</div><div class="lc-title">Bråk i båda led</div>
+        <div class="lc-desc">Rensa alla bråk med LCM.</div>
+        <div class="lc-example">x/2 + 3 = x/3 + 5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signature rendered by JS – see renderSignature() -->
+  <div id="app-signature"></div>
+</div>
+<div class="comp-setup" id="comp-setup">
+  <div class="comp-setup-box">
+    <div class="comp-setup-title">⏱ Tävlingsläge</div>
+    <div class="comp-setup-sub">Lös så många ekvationer som möjligt innan tiden tar slut. Bonuspoäng för optimalt antal steg!</div>
+    <div class="comp-opt-label">Välj nivå</div>
+    <div class="comp-opt-row" id="comp-level-row">
+      <button class="comp-opt-btn active" onclick="setCompLevel(1)">Niv 1</button>
+      <button class="comp-opt-btn" onclick="setCompLevel(2)">Niv 2</button>
+      <button class="comp-opt-btn" onclick="setCompLevel(3)">Niv 3</button>
+      <button class="comp-opt-btn" onclick="setCompLevel(4)">Niv 4</button>
+      <button class="comp-opt-btn" onclick="setCompLevel(5)">Niv 5</button>
+      <button class="comp-opt-btn" onclick="setCompLevel(6)">Niv 6</button>
+      <button class="comp-opt-btn" onclick="setCompLevel(7)">Niv 7</button>
+      <button class="comp-opt-btn" onclick="setCompLevel(8)">Niv 8</button>
+    </div>
+    <div class="comp-opt-label">Välj tid</div>
+    <div class="comp-opt-row" id="comp-time-row">
+      <button class="comp-opt-btn time active" onclick="setCompTime(60)">60 sek</button>
+      <button class="comp-opt-btn time" onclick="setCompTime(90)">90 sek</button>
+      <button class="comp-opt-btn time" onclick="setCompTime(120)">120 sek</button>
+    </div>
+    <div style="display:flex;gap:.6rem;margin-top:.5rem;">
+      <button onclick="closeCompSetup()" style="flex:1;padding:.7rem;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;">Avbryt</button>
+      <button onclick="startCompetition()" style="flex:2;padding:.7rem;border-radius:8px;background:linear-gradient(135deg,var(--danger),#ff9f4a);border:none;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;">Starta tävling! 🚀</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ═══════ ANALOG SETUP DIALOG ═══════ -->
+<div class="comp-setup" id="analog-setup">
+  <div class="comp-setup-box">
+    <div class="comp-setup-title">✏️ Analogläge</div>
+    <div class="comp-setup-sub">Lös ekvationerna med papper och penna – skriv in ditt svar för kontroll.</div>
+    <div class="comp-opt-label">Välj nivå</div>
+    <div class="comp-opt-row">
+      <button class="comp-opt-btn active" onclick="setAnalogLevel(1)">Niv 1</button>
+      <button class="comp-opt-btn" onclick="setAnalogLevel(2)">Niv 2</button>
+      <button class="comp-opt-btn" onclick="setAnalogLevel(3)">Niv 3</button>
+      <button class="comp-opt-btn" onclick="setAnalogLevel(4)">Niv 4</button>
+      <button class="comp-opt-btn" onclick="setAnalogLevel(5)">Niv 5</button>
+      <button class="comp-opt-btn" onclick="setAnalogLevel(6)">Niv 6</button>
+      <button class="comp-opt-btn" onclick="setAnalogLevel(7)">Niv 7</button>
+      <button class="comp-opt-btn" onclick="setAnalogLevel(8)">Niv 8</button>
+    </div>
+    <div style="display:flex;gap:.6rem;margin-top:.5rem;">
+      <button onclick="closeAnalogSetup()" style="flex:1;padding:.7rem;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;">Avbryt</button>
+      <button onclick="startAnalog()" style="flex:2;padding:.7rem;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;">Starta ✏️</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ANALOG GAME SCREEN ═══════ -->
+<div id="analog-screen" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="analogHome()">← Hem</button>
+    <div class="topbar-info">
+      <span class="level-badge" id="analog-level-badge">Nivå 1</span>
+      <span class="mode-badge" style="background:rgba(108,139,255,.15);border-color:rgba(108,139,255,.35);color:var(--accent);">✏️ Analogläge</span>
+    </div>
+    <div class="score-box">
+      <div class="score-item"><div class="sv" id="analog-score-correct">0</div><div class="sl">Rätt</div></div>
+      <div class="score-item"><div class="sv" id="analog-score-total">0</div><div class="sl">Totalt</div></div>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:1rem;max-width:600px;margin:0 auto;width:100%;">
+
+    <!-- The equation displayed large -->
+    <div class="analog-eq-card" id="analog-eq-card">
+      <div class="analog-eq-label">Lös ekvationen</div>
+      <div class="analog-eq-display" id="analog-eq-display"></div>
+    </div>
+
+    <!-- Answer input -->
+    <div class="analog-answer-wrap" id="analog-answer-wrap">
+      <div class="analog-answer-prefix">x =</div>
+      <input class="analog-answer-input" id="analog-answer-inp" type="text" placeholder="?" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="err-msg" id="analog-err"></div>
+    <button class="btn-primary" id="analog-check-btn" onclick="checkAnalogAnswer()" style="max-width:340px;">Kontrollera ✓</button>
+
+    <!-- Feedback after correct answer -->
+    <div class="analog-feedback" id="analog-feedback">
+      <div class="analog-feedback-icon" id="analog-feedback-icon">🎉</div>
+      <div class="analog-feedback-text" id="analog-feedback-text">Rätt!</div>
+      <div class="analog-feedback-actions" id="analog-feedback-actions"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ RESULT SCREEN ═══════ -->
+<div id="result-screen" class="screen">
+  <div style="font-size:4rem;margin-bottom:.5rem;animation:iconBounce .6s cubic-bezier(.175,.885,.32,1.4) both;">🏆</div>
+  <div class="result-title">Tid ute!</div>
+  <div class="result-score" id="result-score">0</div>
+  <div class="result-meta" id="result-meta"></div>
+  <div class="result-highscore" id="result-highscore">🎉 Nytt highscore!</div>
+  <div class="result-stats" id="result-stats"></div>
+  <div class="result-buttons">
+    <button class="btn-play-again" onclick="replayCompetition()">🔄 Spela igen</button>
+    <button class="btn-result-home" onclick="goHome()">← Hem</button>
+  </div>
+</div>
+
+<!-- ═══════ GAME SCREEN ═══════ -->
+<div id="game-screen" class="screen">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← Hem</button>
+    <div class="topbar-info">
+      <span class="level-badge" id="level-badge">Nivå 1</span>
+      <div class="mode-switcher" id="mode-switcher" onclick="toggleModeDropdown()" title="Byt läge">
+        <span id="mode-badge">🧠 Strategiläge</span>
+        <span class="mode-switcher-arrow">⌄</span>
+        <div class="mode-switcher-drop" id="mode-switcher-drop">
+          <button onclick="switchInGameMode('strategy')">🧠 Strategiläge</button>
+          <button onclick="switchInGameMode('calc')">✏️ Beräkningsläge</button>
+        </div>
+      </div>
+    </div>
+    <div class="score-box">
+      <div class="score-item"><div class="sv" id="score-correct">0</div><div class="sl">Rätt</div></div>
+      <div class="score-item"><div class="sv" id="score-total">0</div><div class="sl">Totalt</div></div>
+    </div>
+    <!-- Competition timer (hidden in normal mode) -->
+    <div class="timer-box" id="timer-box" style="display:none;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+        <div class="timer-display" id="timer-display">60</div>
+        <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+      </div>
+      <div class="comp-score-box">
+        <div class="comp-score-val" id="comp-score-val">0</div>
+        <div class="comp-score-lbl">poäng</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-area">
+    <!-- LEFT: history -->
+    <div class="panel" id="eq-panel">
+      <div class="history-header">
+        <div class="panel-title">⚖️ Ekvationshistorik</div>
+        <label class="bubble-toggle" title="Visa/dölj 'båda led'-bubbla">
+          <span>Bubblor</span>
+          <div class="bubble-toggle-track on" id="bubble-toggle-track" onclick="toggleBubbles()">
+            <div class="bubble-toggle-thumb"></div>
+          </div>
+        </label>
+      </div>
+      <div class="eq-history" id="eq-history"></div>
+      <div class="solved-display" id="solved-display">
+        <div class="solved-icon">🎉</div>
+        <div class="solved-title">Löst!</div>
+        <div class="solved-answer" id="solved-answer-text"></div>
+        <div class="solved-steps-feedback" id="solved-steps-feedback"></div>
+        <button class="btn-next" onclick="nextEquation()">Nästa ekvation →</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: input -->
+    <div class="panel" id="input-panel">
+      <div class="panel-top-row">
+        <div class="panel-title" id="input-panel-title" style="margin-bottom:0;">🧠 Välj operation</div>
+        <div class="imt" id="input-mode-toggle">
+          <button class="imt-btn" id="imt-btn-buttons" onclick="setInputMode('buttons')">🔘 Knappar</button>
+          <button class="imt-btn active" id="imt-btn-text" onclick="setInputMode('text')">⌨️ Skriv</button>
+        </div>
+      </div>
+
+      <div class="input-area" id="input-area">
+        <!-- Filled dynamically by renderInputUI() -->
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+const S = {
+  level: 1, mode: 'strategy', inputMode: 'text',
+  equation: null, original: null, history: [],
+  scoreCorrect: 0, scoreTotal: 0, solved: false,
+  showBubbles: true,   // toggle: show "båda led" bubble rows
+  splitFields: false,  // toggle: split answer into separate VL / HL inputs
+  // parsed op (both modes)
+  parsedOp: null,   // { opType, value, valueIsX, xCoeffVal, label }
+  // calc sequential state: 'op' | 'answer'
+  calcStep: 'op',
+  calcExpectedLhs: null, calcExpectedRhs: null,
+  needsSimplify: false,
+};
+
+// ══════════════════════════════════════════════════════════════
+//  TERM MATH
+// ══════════════════════════════════════════════════════════════
+const mkT = (c,x,d=1) => ({coeff:c,isX:x,denom:d});
+const cloneTerms = ts => ts.map(t=>{
+  const c={...t};
+  if(t.paren) c.paren={...t.paren, inner:t.paren.inner.map(i=>({...i}))};
+  if(t.compound) c.compound={...t.compound, inner:t.compound.inner.map(i=>({...i}))};
+  return c;
+});
+const cloneEq = eq => ({lhsTerms:cloneTerms(eq.lhsTerms), rhsTerms:cloneTerms(eq.rhsTerms)});
+
+function summarize(terms) {
+  let xCoeff=0, constant=0;
+  for(const t of terms) {
+    const v=t.coeff/t.denom;
+    if(t.isX) xCoeff+=v; else constant+=v;
+  }
+  return {xCoeff,constant};
+}
+
+function expandParens(terms) {
+  const out=[];
+  for(const t of terms) {
+    if(t.paren){
+      for(const i of t.paren.inner) out.push(mkT(t.coeff*i.coeff, i.isX, i.denom));
+    } else if(t.compound){
+      for(const i of t.compound.inner) out.push(mkT(i.coeff, i.isX, t.denom*i.denom));
+    } else out.push(t);
+  }
+  return out;
+}
+
+// ── Rational arithmetic helpers ──────────────────────────────
+function gcd(a, b) { a=Math.abs(Math.round(a)); b=Math.abs(Math.round(b)); while(b){[a,b]=[b,a%b];} return a||1; }
+function lcm(a, b) { return Math.abs(a*b)/gcd(a,b); }
+
+// Add two fractions p1/q1 + p2/q2, return {p,q} in lowest terms
+function fracAdd(p1,q1,p2,q2) {
+  const p = p1*q2 + p2*q1;
+  const q = q1*q2;
+  const g = gcd(Math.abs(p), Math.abs(q));
+  return {p: p/g, q: q/g};
+}
+function fracMul(p1,q1,p2,q2) {
+  const p = p1*p2, q = q1*q2;
+  const g = gcd(Math.abs(p), Math.abs(q));
+  return {p: p/g, q: q/g};
+}
+function fracDiv(p1,q1,p2,q2) { return fracMul(p1,q1,q2,p2); }
+
+// Summarize terms as exact rationals {xP,xQ,cP,cQ}
+function summarizeRational(terms) {
+  let xP=0,xQ=1,cP=0,cQ=1;
+  for(const t of terms) {
+    if(t.paren) { for(const i of t.paren.inner) {
+      const r=fracMul(t.coeff,1,i.coeff,i.denom);
+      if(i.isX){const s=fracAdd(xP,xQ,r.p,r.q);xP=s.p;xQ=s.q;}
+      else{const s=fracAdd(cP,cQ,r.p,r.q);cP=s.p;cQ=s.q;}
+    }} else if(t.compound) { for(const i of t.compound.inner) {
+      const r={p:i.coeff,q:t.denom*i.denom}; const g=gcd(Math.abs(r.p),Math.abs(r.q));
+      if(i.isX){const s=fracAdd(xP,xQ,r.p/g,r.q/g);xP=s.p;xQ=s.q;}
+      else{const s=fracAdd(cP,cQ,r.p/g,r.q/g);cP=s.p;cQ=s.q;}
+    }} else {
+      const g=gcd(Math.abs(t.coeff),Math.abs(t.denom));
+      if(t.isX){const s=fracAdd(xP,xQ,t.coeff/g,t.denom/g);xP=s.p;xQ=s.q;}
+      else{const s=fracAdd(cP,cQ,t.coeff/g,t.denom/g);cP=s.p;cQ=s.q;}
+    }
+  }
+  return {xP,xQ,cP,cQ};
+}
+
+// Build terms from rational {xP,xQ,cP,cQ}, preserving fraction form when denom>1
+function buildFromRational(xP,xQ,cP,cQ) {
+  const out=[];
+  // normalise signs: keep denom positive
+  if(xQ<0){xP=-xP;xQ=-xQ;} if(cQ<0){cP=-cP;cQ=-cQ;}
+  const xg=gcd(Math.abs(xP),xQ); const cg=gcd(Math.abs(cP),cQ);
+  const xn=xP/xg, xd=xQ/xg, cn=cP/cg, cd=cQ/cg;
+  if(xn!==0) out.push(mkT(xn,true,xd));
+  if(cn!==0||xn===0) out.push(mkT(cn,false,cd));
+  if(!out.length) out.push(mkT(0,false));
+  return out;
+}
+
+// Legacy float-based build (still used for checking solved/equality)
+function buildFromSummary(xCoeff, constant) {
+  // Route through rational to avoid decimals
+  // Convert floats to fractions with limited denominator (up to 1000)
+  function toFrac(v) {
+    if(Number.isInteger(v)) return {p:v,q:1};
+    for(let q=2;q<=1000;q++) { const p=Math.round(v*q); if(Math.abs(p/q-v)<1e-9) return {p,q}; }
+    return {p:Math.round(v*1000),q:1000};
+  }
+  const xf=toFrac(xCoeff), cf=toFrac(constant);
+  return buildFromRational(xf.p,xf.q,cf.p,cf.q);
+}
+
+function simplifyTerms(terms) {
+  const r = summarizeRational(terms);
+  return buildFromRational(r.xP,r.xQ,r.cP,r.cQ);
+}
+
+function applyOpToSide(terms, opType, value, valueIsX, xCoeffVal) {
+  // Operate term-by-term to preserve fraction structure (e.g. 4x/2 stays as 4x/2)
+  // Only summarize if we need to combine like terms (add/sub of x-terms)
+  const out = [];
+
+  if(valueIsX) {
+    // Adding/subtracting an x-term: copy all terms, then add/sub the x coefficient
+    for(const t of terms) out.push({...t, paren:t.paren, compound:t.compound});
+    // Find existing x-term to modify, or add new one
+    const xi = out.findIndex(t=>t.isX && !t.paren && !t.compound);
+    const delta = opType==='add' ? xCoeffVal : -xCoeffVal;
+    if(xi>=0) {
+      // Both terms are plain fractions: add them
+      const s = fracAdd(out[xi].coeff, out[xi].denom, delta, 1);
+      if(s.p===0) out.splice(xi,1);
+      else { out[xi] = mkT(s.p, true, s.q); }
+    } else {
+      if(delta!==0) out.push(mkT(delta, true));
+    }
+    if(out.length===0) out.push(mkT(0,false));
+    return out;
+  }
+
+  // Scalar operation (add/sub/mul/div a number): apply to each term individually
+  let hasParenOrCompound = terms.some(t=>t.paren||t.compound);
+
+  for(const t of terms) {
+    if(t.paren || t.compound) {
+      // For mul/div: apply factor to the paren coefficient
+      if(opType==='mul') {
+        out.push({...t, coeff: t.coeff * value, paren:t.paren, compound:t.compound});
+      } else if(opType==='div') {
+        out.push({...t, coeff: t.coeff / value, paren:t.paren, compound:t.compound});
+      } else {
+        // add/sub: copy the structural term unchanged; constant added separately below
+        out.push({...t, paren:t.paren, compound:t.compound});
+      }
+      continue;
+    }
+    let {coeff, denom, isX} = t;
+    if(opType==='add' && !isX)      { const s=fracAdd(coeff,denom,value,1); out.push(mkT(s.p,false,s.q)); }
+    else if(opType==='sub' && !isX) { const s=fracAdd(coeff,denom,-value,1); out.push(mkT(s.p,false,s.q)); }
+    else if(opType==='mul')         { const s=fracMul(coeff,denom,value,1); out.push(mkT(s.p,isX,s.q)); }
+    else if(opType==='div')         { const s=fracDiv(coeff,denom,value,1); out.push(mkT(s.p,isX,s.q)); }
+    else out.push({...t}); // add/sub doesn't touch x-terms
+  }
+
+  // When add/sub was applied to a side that has paren/compound terms,
+  // those terms were copied unchanged — now append the constant delta as a new term.
+  if(hasParenOrCompound && (opType==='add' || opType==='sub')) {
+    const delta = opType==='add' ? value : -value;
+    // Check if there's already a plain constant term to merge into
+    const ci = out.findIndex(t=>!t.isX&&!t.paren&&!t.compound);
+    if(ci>=0) {
+      const s = fracAdd(out[ci].coeff, out[ci].denom, delta, 1);
+      if(s.p===0) out.splice(ci,1);
+      else out[ci] = mkT(s.p, false, s.q);
+    } else {
+      if(delta!==0) out.push(mkT(delta, false));
+    }
+  }
+
+  // Remove zero constants (but keep if only term)
+  const filtered = out.filter((t,i) => {
+    if(t.paren||t.compound) return true;
+    if(t.coeff===0 && out.length>1) return false;
+    return true;
+  });
+  return filtered.length ? filtered : [mkT(0,false)];
+}
+
+// Does any term have a reducible fraction (e.g. 4x/2, 6/3)?
+function needsFracSimplify(terms) {
+  return terms.some(t => {
+    if(t.paren||t.compound) return false;
+    if(t.denom<=1) return false;
+    return gcd(Math.abs(t.coeff), t.denom) > 1;
+  });
+}
+
+// Get all denominators present across both sides (plain terms only)
+function collectDenoms(lhs, rhs) {
+  const denoms = new Set();
+  for(const t of [...lhs,...rhs]) {
+    if(t.paren||t.compound) continue;
+    if(t.denom>1) denoms.add(t.denom);
+  }
+  return [...denoms];
+}
+
+// Should we offer "Rensa bråk" (fractions on BOTH sides)?
+function needsClearFractions(lhs, rhs) {
+  const lhsFrac = lhs.some(t=>!t.paren&&!t.compound&&t.denom>1);
+  const rhsFrac = rhs.some(t=>!t.paren&&!t.compound&&t.denom>1);
+  return lhsFrac && rhsFrac;
+}
+
+// LCM of all denominators in both sides
+function equationLCM(lhs, rhs) {
+  const denoms = collectDenoms(lhs, rhs);
+  if(denoms.length===0) return 1;
+  return denoms.reduce((acc,d)=>lcm(acc,d), 1);
+}
+
+// Does this side need simplification? (more than one x-term OR more than one const-term)
+function needsSimplification(terms) {
+  if(terms.some(t=>t.paren||t.compound)) return false;
+  const xCount = terms.filter(t=>t.isX).length;
+  const cCount = terms.filter(t=>!t.isX).length;
+  return xCount>1 || cCount>1;
+}
+
+function needsSimplifyBothSides(eq) {
+  return needsSimplification(eq.lhsTerms) && needsSimplification(eq.rhsTerms);
+}
+
+// Does this side have a paren term to distribute?
+function needsDistribution(terms) {
+  return terms.some(t => t.paren);
+}
+
+// Distribute: A(Bx+C) + other terms → [ABx, AC, other terms] (keeps order)
+function distributeTerms(terms) {
+  const out = [];
+  for(const t of terms) {
+    if(t.paren) {
+      for(const i of t.paren.inner) out.push(mkT(t.coeff * i.coeff, i.isX, i.denom));
+    } else {
+      out.push({...t});
+    }
+  }
+  return out;
+}
+
+function applyOperation(eq, opType, value, valueIsX, xCoeffVal) {
+  // Handle paren special cases first
+  const lhsParen = eq.lhsTerms.find(t=>t.paren);
+  const lhsCompound = eq.lhsTerms.find(t=>t.compound);
+  if(lhsParen && !valueIsX && opType==='div' && lhsParen.coeff===value) {
+    const newLhs = lhsParen.paren.inner.map(t=>({...t}));
+    const rs=summarize(eq.rhsTerms);
+    return {lhsTerms:newLhs, rhsTerms:buildFromSummary(0,rs.constant/value)};
+  }
+  if(lhsCompound && !valueIsX) {
+    if(opType==='mul' && value===lhsCompound.denom) {
+      const newLhs=lhsCompound.compound.inner.map(t=>({...t}));
+      const rs=summarize(eq.rhsTerms);
+      return {lhsTerms:newLhs, rhsTerms:buildFromSummary(0,rs.constant*value)};
+    }
+    if(opType==='div' && lhsCompound.denom===1) {
+      // treat compound like normal
+    }
+  }
+  return {
+    lhsTerms: applyOpToSide(eq.lhsTerms, opType, value, valueIsX, xCoeffVal),
+    rhsTerms: applyOpToSide(eq.rhsTerms, opType, value, valueIsX, xCoeffVal),
+  };
+}
+
+function checkSolved(eq) {
+  const l=summarize(expandParens(eq.lhsTerms));
+  const r=summarize(expandParens(eq.rhsTerms));
+  if(l.xCoeff===1&&l.constant===0&&r.xCoeff===0) return {solved:true,x:r.constant};
+  if(r.xCoeff===1&&r.constant===0&&l.xCoeff===0) return {solved:true,x:l.constant};
+  return {solved:false};
+}
+
+// ══════════════════════════════════════════════════════════════
+//  GENERATORS
+// ══════════════════════════════════════════════════════════════
+const rI=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const rOf=(...a)=>a[Math.floor(Math.random()*a.length)];
+const rNZ=(a,b)=>{let v;do{v=rI(a,b);}while(v===0);return v;}
+
+function genLevel1() {
+  const form=rOf('AxpB','AxmB','xdApB','xdAmB');
+  let lhs,rhs;
+  if(form==='AxpB'){const A=rI(2,6),B=rI(1,10),x=rI(1,10);lhs=[mkT(A,true),mkT(B,false)];rhs=[mkT(A*x+B,false)];}
+  else if(form==='AxmB'){const A=rI(2,6),B=rI(1,9),x=rI(1,10);lhs=[mkT(A,true),mkT(-B,false)];rhs=[mkT(A*x-B,false)];if(rhs[0].coeff<=0)return genLevel1();}
+  else if(form==='xdApB'){const A=rOf(2,3,4,5),x=A*rI(1,8),B=rI(1,10);lhs=[mkT(1,true,A),mkT(B,false)];rhs=[mkT(x/A+B,false)];}
+  else {const A=rOf(2,3,4,5),x=A*rI(2,8),B=rI(1,rI(1,8));lhs=[mkT(1,true,A),mkT(-B,false)];rhs=[mkT(x/A-B,false)];if(rhs[0].coeff<=0)return genLevel1();}
+  return {lhsTerms:lhs,rhsTerms:rhs};
+}
+function genLevel2() {
+  const a=rI(1,5),c=rI(1,5),b=rOf(1,-1)*rI(1,8),d=rOf(1,-1)*rI(1,8),x=rOf(1,-1)*rI(1,8);
+  const rhs=(a+c)*x+(b+d);
+  if(rhs===0||(a+c)===0) return genLevel2();
+  return {lhsTerms:[mkT(a,true),mkT(b,false),mkT(c,true),mkT(d,false)],rhsTerms:[mkT(rhs,false)]};
+}
+function genLevel3() {
+  let A,B,C,D,x,tries=0;
+  do{
+    A=rI(2,8);C=rI(1,6);if(A===C)continue;
+    x=rOf(1,-1)*rI(1,12);B=rNZ(-8,8);D=B-(A-C)*x;tries++;
+  }while(A===C&&tries<50);
+  if(A*x+B!==C*x+D) return genLevel3();
+  return {lhsTerms:[mkT(A,true),mkT(B,false)],rhsTerms:[mkT(C,true),mkT(D,false)]};
+}
+// Level 4: Förenkla båda led (inga parenteser) – bygger vidare på nivå 3
+function genLevel4() {
+  // Focus: BOTH sides have multiple terms that need collecting before balancing.
+  const form = rOf('both_simple','both_x_heavy','both_constants','both_negative');
+
+  if(form==='both_simple') {
+    const xL=rI(2,6),cL=rNZ(-8,8),xR=rI(1,4),cR=rNZ(-8,8);
+    if(xL===xR) return genLevel4();
+    const a=rI(1,xL-1), c=xL-a;
+    const bVal=rNZ(-6,6), dVal=cL-bVal;
+    const e=rI(1,Math.max(1,xR-1)), g=xR-e;
+    const fVal=rNZ(-6,6), hVal=cR-fVal;
+    return {
+      lhsTerms:[mkT(a,true),mkT(bVal,false),mkT(c,true),mkT(dVal,false)],
+      rhsTerms:[mkT(e,true),mkT(fVal,false),mkT(g,true),mkT(hVal,false)]
+    };
+  }
+  if(form==='both_x_heavy') {
+    const xL=rI(3,8), xR=rI(1,xL-1), C=rNZ(-8,8), F=rNZ(-8,8);
+    if(xL===xR) return genLevel4();
+    const a=rI(1,xL-1), b=xL-a, d=rI(1,xR-1)||1, e=xR-d;
+    return {
+      lhsTerms:[mkT(a,true),mkT(b,true),mkT(C,false)],
+      rhsTerms:[mkT(d,true),mkT(e,true),mkT(F,false)]
+    };
+  }
+  if(form==='both_constants') {
+    const xL=rI(3,8), xR=rI(1,xL-1), b=rNZ(-8,8), c=rNZ(-8,8), d=rNZ(-8,8), e=rNZ(-8,8);
+    if(xL===xR || b+c===d+e) return genLevel4();
+    return {
+      lhsTerms:[mkT(xL,true),mkT(b,false),mkT(c,false)],
+      rhsTerms:[mkT(xR,true),mkT(d,false),mkT(e,false)]
+    };
+  }
+  // both_negative
+  const xL=rI(2,6), xR=rI(1,xL-1);
+  if(xL===xR) return genLevel4();
+  const a=rI(2,xL+2), b=-(a-xL);
+  const d=rI(2,xR+2), e=-(d-xR);
+  const C=rNZ(-8,8), F=rNZ(-8,8);
+  return {
+    lhsTerms:[mkT(a,true),mkT(b,true),mkT(C,false)],
+    rhsTerms:[mkT(d,true),mkT(e,true),mkT(F,false)]
+  };
+}
+
+// Level 5: Parenteser – positiv faktor, distribuera och lös
+function genLevel5() {
+  const form=rOf('simple','twoterm','neginside');
+  if(form==='simple'){
+    const A=rI(2,5),B=rI(1,5),C=rI(1,8),x=rI(1,8);
+    return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(C,false)]}}],rhsTerms:[mkT(A*(B*x+C),false)]};
+  } else if(form==='twoterm'){
+    const A=rI(2,6),C=rI(1,8),x=rI(2,10);
+    return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(C,false)]}}],rhsTerms:[mkT(A*(x+C),false)]};
+  } else {
+    // A(Bx − C) – negativ inre konstant, positiv faktor
+    const A=rI(2,5),B=rI(1,3),C=rI(1,8),x=rI(2,10);
+    return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(-C,false)]}}],rhsTerms:[mkT(A*(B*x-C),false)]};
+  }
+}
+
+// Level 6: Negativ distribution – teckenbyte när negativ faktor multipliceras in
+function genLevel6() {
+  const form=rOf('negfactor_simple','negfactor_twoterm','neg_minus_inside','negfactor_rhs');
+  if(form==='negfactor_simple'){
+    // −A(Bx + C) = rhs  (x positiv → rhs negativ)
+    const A=rI(2,4),B=rI(1,3),C=rI(1,6),x=rI(1,6);
+    return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(C,false)]}}],rhsTerms:[mkT(-A*(B*x+C),false)]};
+  } else if(form==='negfactor_twoterm'){
+    // −A(x + C) = rhs
+    const A=rI(2,5),C=rI(1,8),x=rI(1,8);
+    return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(C,false)]}}],rhsTerms:[mkT(-A*(x+C),false)]};
+  } else if(form==='neg_minus_inside'){
+    // −A(Bx − C) = rhs  (dubbelt teckenbyte: −·− = +)
+    const A=rI(2,4),B=rI(1,3),C=rI(1,8),x=rI(1,8);
+    return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(-C,false)]}}],rhsTerms:[mkT(-A*(B*x-C),false)]};
+  } else {
+    // A(x + B) = −C  (positiv faktor men negativt svar på x)
+    const A=rI(2,4),B=rI(1,6),x=-rI(1,6);
+    const rhs=A*(x+B);
+    return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(B,false)]}}],rhsTerms:[mkT(rhs,false)]};
+  }
+}
+
+// Level 7: Kombinerade utmaningar – bråk + parenteser, x i båda led med bråk, dubbel negation
+function genLevel7() {
+  const form=rOf('frac_paren','neg_compound','xboth_frac','double_neg_paren');
+  if(form==='frac_paren'){
+    const D=rOf(2,3),A=rI(1,3),B=rI(1,3),C=rI(1,8),x=rI(1,8);
+    const E=A*(B*x+C)/D; if(!Number.isInteger(E)) return genLevel7();
+    return {lhsTerms:[{coeff:1,isX:false,denom:D,compound:{inner:[mkT(A*B,true),mkT(A*C,false)]}}],rhsTerms:[mkT(E,false)]};
+  } else if(form==='neg_compound'){
+    const C=rOf(2,3,4),A=rI(2,5),x=rI(1,8),B=rI(1,10),D=-(A*x+B)/C;
+    if(!Number.isInteger(D)) return genLevel7();
+    return {lhsTerms:[{coeff:-1,isX:false,denom:C,compound:{inner:[mkT(A,true),mkT(B,false)]}}],rhsTerms:[mkT(D,false)]};
+  } else if(form==='xboth_frac'){
+    const B=rOf(2,3),A=rI(2,5),C=rNZ(-6,6),D=rI(1,3),x=B*rI(1,6);
+    const E=A*x/B+C-D*x; if(!Number.isInteger(E)) return genLevel7();
+    return {lhsTerms:[mkT(A,true,B),mkT(C,false)],rhsTerms:[mkT(D,true),mkT(E,false)]};
+  } else {
+    const A=rI(2,4),B=rI(1,8),x=rI(1,8),C=-A*(x-B);
+    return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(-B,false)]}}],rhsTerms:[mkT(C,false)]};
+  }
+}
+
+// Level 8: Bråk i båda led – fördjupning/bonus
+function genLevel8() {
+  const form = rOf('simple_both', 'const_both', 'mixed_sides', 'three_denoms');
+
+  if(form==='simple_both') {
+    const B=rOf(2,3,4), D=rOf(2,3,5);
+    const A=rI(1,4), C=rI(1,3), x=lcm(B,D)*rI(1,4);
+    const E = A*x/B - C*x/D;
+    if(!Number.isInteger(E) || E===0) return genLevel8();
+    return {lhsTerms:[mkT(A,true,B)], rhsTerms:[mkT(C,true,D),mkT(E,false)]};
+  }
+  if(form==='const_both') {
+    const B=rOf(2,3,4), D=rOf(2,3,5);
+    if(B===D) return genLevel8();
+    const A=rI(1,4), C=rI(1,8), x=lcm(B,D)*rI(1,4);
+    const E = A*x/B + C - x/D;
+    if(!Number.isInteger(E)) return genLevel8();
+    return {lhsTerms:[mkT(A,true,B),mkT(C,false)], rhsTerms:[mkT(1,true,D),mkT(E,false)]};
+  }
+  if(form==='mixed_sides') {
+    const A=rOf(2,3,4), B=rOf(3,4,5);
+    if(A===B) return genLevel8();
+    const L=lcm(A,B), x=L*rI(1,5);
+    const C = x/A + x/B;
+    if(!Number.isInteger(C)) return genLevel8();
+    return {lhsTerms:[mkT(1,true,A),mkT(1,true,B)], rhsTerms:[mkT(C,false)]};
+  }
+  const B=rOf(2,3), D=rOf(3,4), F=rOf(4,5);
+  const A=rI(1,3), E=rI(1,2), x=lcm(lcm(B,D),F)*rI(1,3);
+  const diff = A*x/B - E*x/F;
+  const CoverD = rI(1,6);
+  const G = diff + CoverD/D;
+  if(!Number.isInteger(G)) return genLevel8();
+  return {
+    lhsTerms:[mkT(A,true,B), mkT(CoverD,false,D)],
+    rhsTerms:[mkT(E,true,F), mkT(G,false)]
+  };
+}
+
+const genEq = lvl => {
+  const generators = [null,genLevel1,genLevel2,genLevel3,genLevel4,genLevel5,genLevel6,genLevel7,genLevel8];
+  const gen = generators[lvl];
+  if(!gen) return genLevel1();
+  // Reject identities (infinite solutions) and contradictions (no solutions)
+  for(let tries=0; tries<30; tries++) {
+    const eq = gen();
+    const l = summarize(expandParens(eq.lhsTerms));
+    const r = summarize(expandParens(eq.rhsTerms));
+    // Identity: same x-coeff and same constant → infinite solutions
+    if(Math.abs(l.xCoeff-r.xCoeff)<0.001 && Math.abs(l.constant-r.constant)<0.001) continue;
+    // Contradiction: same x-coeff but different constant → no solution
+    if(Math.abs(l.xCoeff-r.xCoeff)<0.001 && Math.abs(l.constant-r.constant)>0.001) continue;
+    return eq;
+  }
+  return gen(); // fallback after 30 tries
+};
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER TERMS TO HTML
+// ══════════════════════════════════════════════════════════════
+function renderTerms(terms) {
+  let html='';
+  terms.forEach((t,i)=>{
+    if(t.paren){
+      const coeffAbs = Math.abs(t.coeff);
+      const coeffSign = t.coeff < 0 ? `<span class="tok-op-sub">−</span>` : (i>0 ? `<span class="tok-op-add">+</span>` : '');
+      const coeffNum = coeffAbs !== 1 ? `<span class="tok-num">${coeffAbs}</span>` : '';
+      html += coeffSign + coeffNum + `<span class="tok-paren">(</span>`;
+      t.paren.inner.forEach((inn,j)=>html+=renderTerm(inn,j===0));
+      html+=`<span class="tok-paren">)</span>`;
+    } else if(t.compound){
+      // Render as a proper vertical fraction: (numerator) over denominator
+      let numHtml='';
+      t.compound.inner.forEach((inn,j)=>numHtml+=renderTerm(inn,j===0));
+      const cSign = t.coeff < 0 ? `<span class="tok-op-sub">−</span>` : (i>0 ? `<span class="tok-op-add">+</span>` : '');
+      const cAbs = Math.abs(t.coeff);
+      const cNum = cAbs !== 1 ? `<span class="tok-num">${cAbs}</span>` : '';
+      html += cSign + cNum +
+            `<span class="frac-block" style="display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:.9em;line-height:1.2;">` +
+            `<span class="frac-num" style="padding:0 4px 2px;border-bottom:2px solid currentColor;white-space:nowrap;">${numHtml}</span>` +
+            `<span class="frac-den" style="padding:2px 4px 0;white-space:nowrap;"><span class="tok-num">${t.denom}</span></span>` +
+            `</span>`;
+    } else {
+      html+=renderTerm(t,i===0);
+    }
+  });
+  return html||`<span class="tok-num">0</span>`;
+}
+function renderTerm(t,first) {
+  let h='';
+  const abs=Math.abs(t.coeff), den=Math.abs(t.denom||1);
+  if(t.coeff>=0&&!first) h+=`<span class="tok-op-add">+</span>`;
+  else if(t.coeff<0) h+=`<span class="tok-op-sub">−</span>`;
+  if(t.isX){
+    if(den>1) h+=`<span class="tok-x" style="display:inline-flex;flex-direction:column;align-items:center;font-size:.85em;vertical-align:middle;"><span style="border-bottom:1px solid currentColor;padding:0 2px 1px;">${abs===1?'':abs}x</span><span style="padding:1px 2px 0">${den}</span></span>`;
+    else {if(abs!==1)h+=`<span class="tok-num">${abs}</span>`; h+=`<span class="tok-x">x</span>`;}
+  } else {
+    if(den>1) h+=`<span class="tok-num" style="display:inline-flex;flex-direction:column;align-items:center;font-size:.85em;vertical-align:middle;"><span style="border-bottom:1px solid currentColor;padding:0 2px 1px;">${abs}</span><span style="padding:1px 2px 0">${den}</span></span>`;
+    else h+=`<span class="tok-num">${abs}</span>`;
+  }
+  return h;
+}
+
+function toggleBubbles() {
+  S.showBubbles = !S.showBubbles;
+  const track = document.getElementById('bubble-toggle-track');
+  if(track) track.classList.toggle('on', S.showBubbles);
+  buildHistory();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════════════════════
+
+// For non-division ops: returns the colored addition token (e.g. "−3", "+2x")
+function opAdditionHTML(op) {
+  if(!op) return '';
+  const sym = {add:'+', sub:'−', mul:'×'}[op.opType];
+  if(!sym) return ''; // division handled separately
+  let valStr;
+  if(op.valueIsX !== undefined) {
+    valStr = op.valueIsX ? `${op.xCoeffVal===1?'':op.xCoeffVal}x` : `${op.value}`;
+  } else {
+    valStr = (op.label||'').replace(/^[+\-×÷]\s*/,'').trim();
+  }
+  if(!valStr||valStr==='undefined') return '';
+  return `<span class="op-addition ${op.opType}">${sym}${valStr}</span>`;
+}
+
+// For division: wraps `innerHTML` in a fraction bar with the divisor
+function wrapInFraction(innerHTML, divisor, opType) {
+  return `<span class="frac-wrap op-addition ${opType}" style="display:inline-flex;flex-direction:column;align-items:center;font-size:.88em;vertical-align:middle;gap:0;">
+    <span style="padding:0 4px 1px;border-bottom:2px solid currentColor;">${innerHTML}</span>
+    <span style="padding:1px 4px 0;">${divisor}</span>
+  </span>`;
+}
+
+function buildHistory() {
+  const c=document.getElementById('eq-history');
+  c.innerHTML='';
+  let eqCount=0;
+
+  for(let i=0; i<S.history.length; i++) {
+    const e=S.history[i];
+
+    if(e.type==='equation') {
+      const lh=renderTerms(e.eq.lhsTerms), rh=renderTerms(e.eq.rhsTerms);
+      const isLast = i===S.history.length-1;
+      const div=document.createElement('div');
+      div.className='eq-row'+(isLast&&!S.solved?' current':'')+(e.solved?' solved':'')+(isLast?' new-row':'');
+      div.innerHTML=`
+        <span class="eq-step-label">${eqCount===0?'Startuttryck':'Steg '+eqCount}</span>
+        <span class="eq-expr">
+          <span class="eq-lhs">${lh}</span>
+          <span class="eq-equals">=</span>
+          <span class="eq-rhs">${rh}</span>
+        </span>`;
+      c.appendChild(div);
+      eqCount++;
+
+    } else if(e.type==='op') {
+      // Bubble row
+      if(S.showBubbles) {
+        const bubble=document.createElement('div');
+        bubble.className='op-row'+(i===S.history.length-1?' new-row':'');
+        // For division: show the bubble as a clean fraction (no ÷ prefix)
+        let bubbleLabel = e.label;
+        if(e.opType==='div') {
+          const divisor = e.value != null ? `${e.value}` : (e.label||'').replace(/^[÷]\s*/,'').trim();
+          bubbleLabel = `<span style="display:inline-flex;flex-direction:column;align-items:center;font-size:.82em;line-height:1.1;"><span style="padding:0 4px 2px;border-bottom:1.5px solid currentColor;">·</span><span style="padding:2px 4px 0;">${divisor}</span></span>`;
+        }
+        bubble.innerHTML=`<span class="op-row-label">båda led</span><span class="op-bubble ${e.opType}">${bubbleLabel}</span>`;
+        c.appendChild(bubble);
+      }
+
+      // Rad-2 row
+      const prevEqEntry = [...S.history].slice(0,i).reverse().find(h=>h.type==='equation');
+      const nextEqEntry = S.history[i+1];
+      if(prevEqEntry && nextEqEntry && nextEqEntry.type==='equation') {
+        const lhBase = renderTerms(prevEqEntry.eq.lhsTerms);
+        const rhBase = renderTerms(prevEqEntry.eq.rhsTerms);
+        const rad2=document.createElement('div');
+        rad2.className='eq-row-op'+(i===S.history.length-2?' new-row':'');
+
+        let lhExpr, rhExpr;
+        if(e.opType==='div') {
+          // Show as fractions: (VL)/n = (HL)/n
+          const divisorVal = e.valueIsX !== undefined
+            ? `${e.value}`
+            : (e.label||'').replace(/^[÷×]\s*/,'').trim();
+          lhExpr = wrapInFraction(lhBase, divisorVal, 'div');
+          rhExpr = wrapInFraction(rhBase, divisorVal, 'div');
+        } else if(e.opType==='mul') {
+          // Show as: n · VL = n · HL
+          const mulVal = e.valueIsX !== undefined
+            ? `${e.value}`
+            : (e.label||'').replace(/^[×]\s*/,'').trim();
+          const mulToken = `<span class="op-addition mul">${mulVal} ×</span>`;
+          lhExpr = `${mulToken} <span class="eq-lhs">${lhBase}</span>`;
+          rhExpr = `${mulToken} <span class="eq-rhs">${rhBase}</span>`;
+        } else {
+          const addHtml = opAdditionHTML(e);
+          lhExpr = `<span class="eq-lhs">${lhBase}</span>${addHtml}`;
+          rhExpr = `<span class="eq-rhs">${rhBase}</span>${addHtml}`;
+        }
+
+        rad2.innerHTML=`
+          <span class="eq-step-label" style="background:var(--card);">rad 2</span>
+          <span class="eq-expr" style="align-items:center;">
+            ${lhExpr}
+            <span class="eq-equals">=</span>
+            ${rhExpr}
+          </span>`;
+        c.appendChild(rad2);
+      }
+
+    } else if(e.type==='simplify') {
+      const d=document.createElement('div');
+      d.className='op-row'+(i===S.history.length-1?' new-row':'');
+      d.innerHTML=`<span class="op-row-label">förenkla</span><span class="op-bubble simplify">✦ Förenkla led</span>`;
+      c.appendChild(d);
+    } else if(e.type==='simplify-both') {
+      const d=document.createElement('div');
+      d.className='op-row'+(i===S.history.length-1?' new-row':'');
+      d.innerHTML=`<span class="op-row-label">förenkla</span><span class="op-bubble simplify">✦ Förenkla båda led</span>`;
+      c.appendChild(d);
+    } else if(e.type==='fracSimplify') {
+      const d=document.createElement('div');
+      d.className='op-row'+(i===S.history.length-1?' new-row':'');
+      d.innerHTML=`<span class="op-row-label">förenkla</span><span class="op-bubble simplify">✦ Förenkla bråk</span>`;
+      c.appendChild(d);
+    } else if(e.type==='distribute') {
+      const d=document.createElement('div');
+      d.className='op-row'+(i===S.history.length-1?' new-row':'');
+      d.innerHTML=`<span class="op-row-label">distribuera</span><span class="op-bubble div">⊗ Multiplicera ut</span>`;
+      c.appendChild(d);
+    }
+  }
+
+  c.scrollTop=c.scrollHeight;
+
+  // Stagger slide-in animations for newly added rows
+  const newRows = c.querySelectorAll('.new-row');
+  newRows.forEach((el,i) => {
+    el.style.animationDelay = (i * 60) + 'ms';
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  FREE-TEXT PARSER
+// ══════════════════════════════════════════════════════════════
+function parseFreeOp(raw) {
+  const s=raw.trim().replace(/\s+/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+  if(!s||!['+',' -','*','/'].some(_=>true)) { /* check below */ }
+  if(!['+','-','*','/'].includes(s[0])) return null;
+  const opChar=s[0], rest=s.slice(1);
+  if(!rest) return null;
+  let opType,value,valueIsX=false,xCoeffVal=0;
+  if(rest.endsWith('x')) {
+    if(opChar==='*'||opChar==='/') return null;
+    const cs=rest.slice(0,-1);
+    xCoeffVal=cs===''?1:parseFloat(cs);
+    if(isNaN(xCoeffVal)||xCoeffVal===0) return null;
+    opType=opChar==='+'?'add':'sub'; value=xCoeffVal; valueIsX=true;
+  } else {
+    value=parseFloat(rest);
+    if(isNaN(value)||value===0) return null;
+    if(opChar==='+')opType='add'; else if(opChar==='-')opType='sub';
+    else if(opChar==='*')opType='mul'; else opType='div';
+  }
+  const sym={add:'+',sub:'−',mul:'×',div:'÷'}[opType];
+  // For display: division uses a fraction, others use sym + value
+  const label = opType==='div'
+    ? `<span style="display:inline-flex;flex-direction:column;align-items:center;font-size:.9em;vertical-align:middle;"><span style="padding:0 3px 1px;border-bottom:1.5px solid currentColor;">·</span><span style="padding:1px 3px 0;">${value}</span></span>`
+    : valueIsX ? `${sym} ${xCoeffVal===1?'':xCoeffVal}x` : `${sym} ${value}`;
+  return {opType,value,valueIsX,xCoeffVal,label};
+}
+
+// ══════════════════════════════════════════════════════════════
+//  UI RENDERING
+// ══════════════════════════════════════════════════════════════
+function renderInputUI() {
+  const area=document.getElementById('input-area');
+  area.innerHTML='';
+  if(S.solved) return;
+
+  const isStrategy = S.mode==='strategy';
+  const isBtns = S.inputMode==='buttons';
+
+  // — Special: simplify-both step (calc mode, both sides have multiple terms) —
+  if(!isStrategy && S.calcStep==='simplify-both') {
+    renderCalcSimplifyBothUI();
+    return;
+  }
+
+  // — Step indicator for calc mode —
+  if(!isStrategy) {
+    const si=document.createElement('div');
+    si.className='calc-step-indicator';
+    ['op','answer'].forEach(step=>{
+      const d=document.createElement('div');
+      d.className='csi-dot'+(S.calcStep===step?' active':(S.calcStep==='answer'&&step==='op')?' done':'');
+      si.appendChild(d);
+    });
+    area.appendChild(si);
+  }
+
+  // — Simplify button (strategy mode: both sides / only LHS) —
+  const bothNeedSimplify = needsSimplifyBothSides(S.equation);
+  if(isStrategy && bothNeedSimplify) {
+    const btn=document.createElement('button');
+    btn.className='btn-simplify';
+    btn.innerHTML='✦ Förenkla båda led';
+    btn.onclick=doSimplifyBoth;
+    area.appendChild(btn);
+  } else if(S.needsSimplify && needsSimplification(S.equation.lhsTerms)) {
+    const btn=document.createElement('button');
+    btn.className='btn-simplify';
+    btn.innerHTML='✦ Förenkla vänsterled';
+    btn.onclick=doSimplify;
+    area.appendChild(btn);
+  }
+
+  // — Clear fractions button (fractions on BOTH sides → multiply by LCM) —
+  if(needsClearFractions(S.equation.lhsTerms, S.equation.rhsTerms)) {
+    const L = equationLCM(S.equation.lhsTerms, S.equation.rhsTerms);
+    const btn=document.createElement('button');
+    btn.className='btn-distribute';
+    btn.innerHTML=`✕ Rensa bråk (× ${L})`;
+    btn.title=`Multiplicera båda led med ${L} för att ta bort alla bråk`;
+    btn.onclick=()=>doClearFractions(L);
+    area.appendChild(btn);
+  }
+
+  // — Fraction-simplify button (e.g. 4x/2 → 2x) —
+  if(needsFracSimplify(S.equation.lhsTerms) || needsFracSimplify(S.equation.rhsTerms)) {
+    const btn=document.createElement('button');
+    btn.className='btn-simplify';
+    btn.innerHTML='✦ Förenkla bråk';
+    btn.title='Reducera bråktermer, t.ex. 4x/2 → 2x';
+    btn.onclick=doFracSimplify;
+    area.appendChild(btn);
+  }
+
+  // — Distribute button (if paren terms exist) —
+  if(needsDistribution(S.equation.lhsTerms) || needsDistribution(S.equation.rhsTerms)) {
+    const btn=document.createElement('button');
+    btn.className='btn-distribute';
+    btn.innerHTML='⊗ Distribuera';
+    btn.title='Multiplicera faktorn in i parentesen';
+    btn.onclick=doDistribute;
+    area.appendChild(btn);
+  }
+
+  // — Operation input (only if not awaiting answer in calc) —
+  const awaitingAnswer = !isStrategy && S.calcStep==='answer';
+
+  if(!awaitingAnswer) {
+    if(isBtns) renderBtnOpSection(area, isStrategy);
+    else renderFreeTextSection(area, isStrategy);
+  }
+
+  // — Confirm op button (calc mode, step 1) —
+  if(!isStrategy && S.calcStep==='op') {
+    const btn=document.createElement('button');
+    btn.className='btn-primary';
+    btn.id='btn-confirm-op';
+    btn.disabled=!S.parsedOp;
+    btn.textContent='Välj denna operation →';
+    btn.onclick=confirmCalcOp;
+    area.appendChild(btn);
+  }
+
+  // — Answer fields (calc mode, step 2) —
+  if(!isStrategy) {
+    renderCalcAnswerSection(area);
+  }
+
+  // — Hint —
+  if(S.level>=4) {
+    const hintDiv=document.createElement('div');
+    hintDiv.innerHTML=`
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+        <button class="btn-hint" onclick="toggleHint()">💡 Ledtråd</button>
+      </div>
+      <div class="hint-box" id="hint-box"></div>`;
+    area.appendChild(hintDiv);
+  }
+
+  // — Primary action button (strategy) —
+  if(isStrategy) {
+    const btn=document.createElement('button');
+    btn.className='btn-primary';
+    btn.id='btn-apply';
+    btn.disabled=!S.parsedOp;
+    btn.textContent='Utför i båda led';
+    btn.onclick=doApply;
+    area.appendChild(btn);
+  }
+
+  // — Quick answer field (always visible, any mode) —
+  const qaWrap = document.createElement('div');
+  qaWrap.className = 'quick-answer-wrap';
+  qaWrap.innerHTML = `
+    <div class="quick-answer-row">
+      <span class="quick-answer-label">Svar:</span>
+      <span class="quick-answer-prefix">x =</span>
+      <input class="quick-answer-input" id="quick-ans-inp" type="text" placeholder="?" autocomplete="off" spellcheck="false">
+      <button class="quick-answer-btn" id="quick-ans-btn" onclick="checkQuickAnswer()">✓</button>
+    </div>
+    <div class="err-msg" id="quick-ans-err"></div>`;
+  area.appendChild(qaWrap);
+
+  // — Skip / new equation button + Show solution + Undo —
+  const bottomRow = document.createElement('div');
+  bottomRow.style.cssText='display:flex;flex-direction:column;gap:.4rem;';
+
+  const solBtn = document.createElement('button');
+  solBtn.className = 'btn-show-solution';
+  solBtn.innerHTML = '💡 Visa lösning';
+  solBtn.onclick = showSolution;
+  bottomRow.appendChild(solBtn);
+
+  const undoBtn = document.createElement('button');
+  undoBtn.className = 'btn-undo';
+  undoBtn.innerHTML = '↩ Ångra senaste steget <span style="opacity:.5;font-size:.75em;font-weight:400;">(Esc)</span>';
+  undoBtn.disabled = S.history.length <= 1;
+  undoBtn.onclick = undoStep;
+  bottomRow.appendChild(undoBtn);
+
+  const skipBtn=document.createElement('button');
+  skipBtn.className='btn-skip';
+  skipBtn.innerHTML='↺ Ny ekvation';
+  skipBtn.onclick=skipEquation;
+  bottomRow.appendChild(skipBtn);
+
+  area.appendChild(bottomRow);
+}
+
+S.calcStepDone = step => {
+  if(step==='op') return S.calcStep==='answer';
+  return false;
+};
+
+function renderBtnOpSection(area, isStrategy) {
+  const wrap=document.createElement('div');
+  wrap.innerHTML=`
+    <div class="section-title">${isStrategy?'Operation':'Operation (steg 1/2)'}</div>
+    <div class="op-grid">
+      <button class="op-btn add" onclick="selectBtnOp('add')">+ addera</button>
+      <button class="op-btn sub" onclick="selectBtnOp('sub')">− subtrahera</button>
+      <button class="op-btn mul" onclick="selectBtnOp('mul')">× multiplicera</button>
+      <button class="op-btn div" onclick="selectBtnOp('div')">÷ dividera</button>
+    </div>
+    <div id="btn-val-section" style="display:none;margin-top:.5rem;">
+      <div class="val-row">
+        <span class="op-sym" id="btn-op-sym"></span>
+        <span class="xcoeff-wrap" id="xcoeff-wrap">
+          <input class="val-input" id="xcoeff-inp" type="number" placeholder="koeff" min="1" style="width:78px;" oninput="onBtnValChange()">
+          <span>x</span>
+        </span>
+        <input class="val-input" id="val-inp" type="number" placeholder="värde" step="any" oninput="onBtnValChange()">
+      </div>
+      <label class="xterm-row" id="xterm-label" style="display:none;margin-top:.35rem;">
+        <input type="checkbox" id="xterm-cb" onchange="onXtermToggle()"> Använd x-term (t.ex. 2x)
+      </label>
+    </div>
+    <div class="parsed-badge" id="btn-parsed-badge"></div>
+    <div class="err-msg" id="btn-err"></div>`;
+  area.appendChild(wrap);
+
+  // Restore active state if there's a parsedOp from button mode
+  if(S.parsedOp&&S.inputMode==='buttons') {
+    const btn=area.querySelector(`.op-btn.${S.parsedOp.opType}`);
+    if(btn) btn.classList.add('active');
+    document.getElementById('btn-val-section').style.display='block';
+    const symMap = {add:'+',sub:'−',mul:'×',div:'÷'};
+    document.getElementById('btn-op-sym').textContent = symMap[S.parsedOp.opType];
+    if(S.parsedOp.valueIsX){
+      document.getElementById('xterm-cb').checked=true;
+      document.getElementById('xcoeff-wrap').style.display='flex';
+      document.getElementById('val-inp').style.display='none';
+      document.getElementById('xcoeff-inp').value=S.parsedOp.xCoeffVal;
+    } else {
+      document.getElementById('val-inp').value=S.parsedOp.value;
+    }
+    const xLabel=document.getElementById('xterm-label');
+    if(S._btnOpType==='add'||S._btnOpType==='sub') xLabel.style.display='flex';
+    showBtnParsed();
+  }
+}
+
+function renderFreeTextSection(area, isStrategy) {
+  const wrap=document.createElement('div');
+  wrap.className='free-op-wrap';
+  wrap.innerHTML=`
+    <div class="section-title">${isStrategy?'Skriv operation':'Skriv operation (steg 1/2)'}</div>
+    <input class="free-op-input" id="free-inp" type="text" placeholder="+3  −2x  *4  /5 …" autocomplete="off" spellcheck="false">
+    <div style="display:flex;align-items:center;gap:.5rem;margin-top:.3rem;">
+      <button class="chip-toggle-btn" id="chip-toggle-btn" onclick="toggleChips()">💡 Förslag</button>
+    </div>
+    <div class="op-chips" id="op-chips" style="display:none;margin-top:.4rem;"></div>
+    <div class="detour-warn-box" id="detour-warn"></div>
+    <div class="parsed-badge" id="free-parsed-badge"></div>
+    <div class="err-msg" id="free-err"></div>`;
+  area.appendChild(wrap);
+  const inp=area.querySelector('#free-inp');
+  inp.addEventListener('input', e=>onFreeInput(e.target.value));
+  setTimeout(()=>inp.focus(),60);
+  if(S._freeRaw) { inp.value=S._freeRaw; onFreeInput(S._freeRaw); }
+}
+
+function toggleChips() {
+  const chips = document.getElementById('op-chips');
+  const btn = document.getElementById('chip-toggle-btn');
+  if(!chips) return;
+  const showing = chips.style.display !== 'none';
+  if(showing) {
+    chips.style.display = 'none';
+    btn.classList.remove('active');
+  } else {
+    chips.style.display = 'flex';
+    btn.classList.add('active');
+    renderOpChips();
+  }
+}
+
+// Decoy suggestions: plausible-looking but wrong moves
+function getDecoySuggestions(eq) {
+  // Never show decoys when structural terms (parens, compounds) are present –
+  // the math gets too complex and produces misleading intermediate states.
+  const hasStructural = [...eq.lhsTerms,...eq.rhsTerms].some(t=>t.paren||t.compound);
+  if(hasStructural) return [];
+  const l = summarize(expandParens(eq.lhsTerms));
+  const r = summarize(expandParens(eq.rhsTerms));
+  const decoys = [];
+  const fmt = v => {
+    if(Number.isInteger(v)) return String(v);
+    for(let q=2;q<=30;q++){const p=Math.round(v*q);if(Math.abs(p/q-v)<1e-9)return `${p}/${q}`;}
+    return String(Math.round(v*100)/100);
+  };
+
+  // Wrong direction: add the constant instead of subtracting it
+  if(l.constant !== 0 && l.xCoeff !== 0) {
+    const wrongOp = l.constant > 0 ? '+' : '-';
+    const val = Math.abs(l.constant);
+    decoys.push({
+      label: `${wrongOp}${fmt(val)}`,
+      input: `${wrongOp}${fmt(val)}`,
+      color: l.constant > 0 ? 'add' : 'sub',
+      isDecoy: true,
+      errorMsg: `${wrongOp}${fmt(val)} flyttar konstanten åt fel håll. Prova att ${l.constant>0?'subtrahera':'addera'} ${fmt(val)} istället – då försvinner konstanten från vänsterledet.`
+    });
+  }
+  // Divide by rhs constant instead of x-coeff
+  if(l.constant === 0 && l.xCoeff !== 0 && Math.abs(l.xCoeff)!==1 && r.xCoeff===0 && Math.abs(r.constant)>1 && Number.isInteger(r.constant) && r.constant !== l.xCoeff) {
+    decoys.push({
+      label: `÷${fmt(Math.abs(r.constant))}`,
+      input: `/${fmt(Math.abs(r.constant))}`,
+      color: 'div',
+      isDecoy: true,
+      errorMsg: `÷${fmt(Math.abs(r.constant))} delar inte jämnt – vänsterledet har koefficienten ${fmt(l.xCoeff)} som inte är delbar med ${fmt(Math.abs(r.constant))}. Dividera med ${fmt(Math.abs(l.xCoeff))} för att isolera x.`
+    });
+  }
+  // Multiply by xCoeff when it should be divide
+  if(l.constant === 0 && l.xCoeff > 1 && r.xCoeff === 0 && Number.isInteger(l.xCoeff)) {
+    decoys.push({
+      label: `×${fmt(l.xCoeff)}`,
+      input: `*${fmt(l.xCoeff)}`,
+      color: 'mul',
+      isDecoy: true,
+      errorMsg: `×${fmt(l.xCoeff)} gör koefficienten ännu större (${fmt(l.xCoeff*l.xCoeff)}x). Du vill istället dividera med ${fmt(l.xCoeff)} så att koefficienten blir 1.`
+    });
+  }
+  return decoys.slice(0,1);
+}
+
+// Generate smart contextual suggestions based on current equation state.
+// Each suggestion: { label, input, color, canonical, detourReason }
+// canonical=true → standard next step; canonical=false → works but unusual
+function getOpSuggestions(eq) {
+  const l = summarize(expandParens(eq.lhsTerms));
+  const r = summarize(expandParens(eq.rhsTerms));
+  const canonical = [];   // preferred steps in pedagogical order
+  const detours   = [];   // valid but non-standard
+
+  const fmt = v => {
+    if(Number.isInteger(v)) return String(v);
+    for(let q=2;q<=30;q++){const p=Math.round(v*q);if(Math.abs(p/q-v)<1e-9)return `${p}/${q}`;}
+    return String(Math.round(v*100)/100);
+  };
+  const fmtX = v => Math.abs(v)===1 ? 'x' : `${fmt(Math.abs(v))}x`;
+
+  // ── Phase 1: constant still on LHS (move it first) ──────────
+  // Canonical: subtract lhs constant to isolate x-term
+  if(l.constant !== 0 && l.xCoeff !== 0) {
+    const op = l.constant > 0 ? '-' : '+';
+    const val = Math.abs(l.constant);
+    canonical.push({
+      label: `${op}${fmt(val)}`,
+      input: `${op}${fmt(val)}`,
+      color: l.constant > 0 ? 'sub' : 'add',
+      title: `Flytta konstanten ${l.constant>0?'+':''}${fmt(l.constant)} till högerledet`
+    });
+  }
+
+  // Canonical: subtract rhs constant if x is already isolated on lhs
+  if(r.constant !== 0 && l.xCoeff !== 0 && l.constant === 0 && r.xCoeff === 0) {
+    const op = r.constant > 0 ? '-' : '+';
+    const val = Math.abs(r.constant);
+    canonical.push({
+      label: `${op}${fmt(val)}`,
+      input: `${op}${fmt(val)}`,
+      color: r.constant > 0 ? 'sub' : 'add',
+      title: `Subtrahera ${fmt(val)} från båda led för att isolera x`
+    });
+  }
+
+  // ── Phase 2: x on both sides ─────────────────────────────────
+  if(l.xCoeff !== 0 && r.xCoeff !== 0) {
+    // Canonical: move smaller x-coeff (keep positive on lhs)
+    if(r.xCoeff > 0) {
+      canonical.push({
+        label: `-${fmtX(r.xCoeff)}`,
+        input: `-${fmtX(r.xCoeff)}`,
+        color: 'sub',
+        title: `Subtrahera ${fmtX(r.xCoeff)} från båda led – x samlas på vänster sida`
+      });
+    } else {
+      canonical.push({
+        label: `+${fmtX(r.xCoeff)}`,
+        input: `+${fmtX(r.xCoeff)}`,
+        color: 'add',
+        title: `Addera ${fmtX(Math.abs(r.xCoeff))} till båda led – x samlas på vänster sida`
+      });
+    }
+  }
+
+  // ── Phase 3: isolate x (divide/multiply) ─────────────────────
+  // Only when constant is gone and x is alone on lhs
+  if(l.xCoeff !== 0 && l.xCoeff !== 1 && l.constant === 0 && r.xCoeff === 0) {
+    if(l.xCoeff === -1) {
+      canonical.push({ label:'×(−1)', input:'*-1', color:'mul', title:'Vänd tecknet – gör koefficienten positiv' });
+    } else if(Math.abs(l.xCoeff) > 1) {
+      canonical.push({
+        label: `÷${fmt(Math.abs(l.xCoeff))}`,
+        input: `/${fmt(Math.abs(l.xCoeff))}`,
+        color: 'div',
+        title: `Dividera båda led med ${fmt(Math.abs(l.xCoeff))} – x isoleras`
+      });
+      if(l.xCoeff < 0) canonical.push({ label:'×(−1)', input:'*-1', color:'mul', title:'Vänd tecknet' });
+    } else {
+      // fractional coeff (e.g. x/3 → ×3)
+      const recip = Math.round(1/Math.abs(l.xCoeff));
+      canonical.push({
+        label: `×${recip}`,
+        input: `*${recip}`,
+        color: 'mul',
+        title: `Multiplicera med ${recip} för att ta bort nämnaren och isolera x`
+      });
+    }
+  }
+
+  // ── Detours: mathematically valid but off the canonical path ─
+
+  // Dividing by a common factor when constant is still present
+  // e.g. 4x + 8 = 24 → /2 works but skips the canonical sequence
+  if(l.xCoeff !== 0 && l.constant !== 0 && r.xCoeff === 0) {
+    // find common divisors of xCoeff, constant, and rhs constant (>1)
+    const nums = [Math.abs(l.xCoeff), Math.abs(l.constant), Math.abs(r.constant)].filter(v=>v!==0&&Number.isInteger(v));
+    if(nums.length >= 2) {
+      let g = nums[0]; for(const n of nums) g = gcd(g,n);
+      if(g > 1) {
+        detours.push({
+          label: `÷${g}`,
+          input: `/${g}`,
+          color: 'div',
+          title: `Fungerar! Alla tal är delbara med ${g} – men standardvägen är att först flytta konstanten`,
+          detourReason: `Matematiskt korrekt, men standardvägen är att först subtrahera konstanten och sedan dividera.`
+        });
+      }
+    }
+    // Also suggest multiplying out a fraction denom if present
+    const frac = eq.lhsTerms.find(t=>t.denom>1&&t.isX&&!t.paren&&!t.compound);
+    if(frac && l.constant !== 0) {
+      detours.push({
+        label: `×${frac.denom}`,
+        input: `*${frac.denom}`,
+        color: 'mul',
+        title: `Tar bort nämnaren – men standardvägen är att flytta konstanten ${fmt(l.constant)} först`,
+        detourReason: `Fungerar matematiskt, men det är enklare att flytta konstanten till högerledet först.`
+      });
+    }
+  }
+
+  // Multiplying both sides by xCoeff when constant is present (e.g. x/3 + 2 = 5 → ×3)
+  const fracX = eq.lhsTerms.find(t=>t.denom>1&&t.isX&&!t.paren&&!t.compound);
+  if(fracX && l.constant !== 0) {
+    const alreadyInDetours = detours.some(d=>d.input===`*${fracX.denom}`);
+    if(!alreadyInDetours) {
+      detours.push({
+        label: `×${fracX.denom}`,
+        input: `*${fracX.denom}`,
+        color: 'mul',
+        title: `Tar bort nämnaren, men konstanten är kvar – standardvägen är att flytta konstanten först`,
+        detourReason: `Matematiskt rätt, men det är enklare att subtrahera konstanten innan du multiplicerar.`
+      });
+    }
+  }
+
+  // Cap: max 3 canonical + 1 detour shown
+  const shown = [
+    ...canonical.slice(0,3),
+    ...detours.slice(0,1)
+  ];
+  return shown;
+}
+
+function renderOpChips() {
+  const container = document.getElementById('op-chips');
+  if(!container) return;
+  const suggestions = getOpSuggestions(S.equation);
+  const decoys = getDecoySuggestions(S.equation);
+  // Shuffle decoys into the list at a random position
+  const all = [...suggestions];
+  if(decoys.length > 0) {
+    const insertAt = Math.min(Math.floor(Math.random()*3)+1, all.length);
+    all.splice(insertAt, 0, decoys[0]);
+  }
+  container.innerHTML = '';
+  if(all.length === 0) {
+    container.innerHTML = `<span class="op-chip-hint">T.ex. <code>+5</code> <code>-3</code> <code>*2</code> <code>/4</code> <code>+2x</code></span>`;
+    return;
+  }
+  all.forEach(s => {
+    const chip = document.createElement('button');
+    const isDetour = !!s.detourReason;
+    const isDecoy = !!s.isDecoy;
+    chip.className = `op-chip op-chip-${s.color}${isDetour?' op-chip-detour':''}${isDecoy?' op-chip-decoy':''}`;
+    if(isDetour) chip.innerHTML = `${s.label} <span class="chip-warn">⚠</span>`;
+    else chip.textContent = s.label;
+    chip.title = s.title || '';
+
+    chip.onclick = () => {
+      // Decoy: show error, don't apply
+      if(isDecoy) {
+        let warn = document.getElementById('detour-warn');
+        if(!warn) { warn = document.createElement('div'); warn.id='detour-warn'; warn.className='detour-warn-box'; container.after(warn); }
+        warn.textContent = `❌ ${s.errorMsg}`;
+        warn.style.borderColor='rgba(255,94,122,.3)';
+        warn.style.background='rgba(255,94,122,.07)';
+        warn.style.color='var(--danger)';
+        warn.classList.add('visible');
+        chip.classList.add('chip-shake');
+        setTimeout(()=>chip.classList.remove('chip-shake'),400);
+        return;
+      }
+      // Clear any previous detour/decoy warning
+      const warn = document.getElementById('detour-warn');
+      if(warn) { warn.classList.remove('visible'); warn.style.cssText=''; }
+
+      // Fill input and parse
+      const inp = document.getElementById('free-inp');
+      if(!inp) return;
+      inp.value = s.input;
+      onFreeInput(s.input);
+
+      // Show detour warning if applicable
+      if(isDetour) {
+        let w = document.getElementById('detour-warn');
+        if(!w){ w=document.createElement('div');w.id='detour-warn';w.className='detour-warn-box';container.after(w); }
+        w.textContent = `💡 ${s.detourReason}`;
+        w.style.cssText='';
+        w.classList.add('visible');
+      }
+
+      // Auto-apply in strategy mode; in calc mode just confirm op
+      setTimeout(()=>{
+        if(S.mode==='strategy') {
+          doApply();
+        } else {
+          confirmCalcOp();
+        }
+      }, 80);
+    };
+    container.appendChild(chip);
+  });
+}
+
+function renderCalcAnswerSection(area) {
+  if(S.calcStep==='op') return;
+  const sec=document.createElement('div');
+  sec.className='answer-section visible';
+  const opLabel = S.parsedOp ? S.parsedOp.label : '';
+
+  const fieldHTML = S.splitFields
+    ? `<div class="split-fields-row">
+        <input class="afield-input" id="calc-lhs-inp" type="text" placeholder="VL" autocomplete="off" spellcheck="false" style="text-align:center;">
+        <span class="split-eq-sep">=</span>
+        <input class="afield-input" id="calc-rhs-inp" type="text" placeholder="HL" autocomplete="off" spellcheck="false" style="text-align:center;">
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem;">T.ex. <code style="font-family:'DM Mono',monospace;background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px;">2x+5</code> &nbsp; <code style="font-family:'DM Mono',monospace;background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px;">4x/2+3</code> &nbsp; <code style="font-family:'DM Mono',monospace;background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px;">x/3</code></div>`
+    : `<input class="afield-input" id="calc-eq-inp" type="text" placeholder="t.ex. 2x+3 = 15 eller 4x/2 = 10" autocomplete="off" spellcheck="false" style="text-align:left;padding-left:1rem;">`;
+
+  sec.innerHTML=`
+    <div style="display:flex;align-items:center;margin-bottom:.3rem;">
+      <div class="section-title" style="margin-bottom:0;">Steg 2/2 – Vad blir den nya ekvationen?</div>
+      <label class="answer-mode-toggle" title="Dela upp i VL och HL">
+        <span>Dela VL/HL</span>
+        <div class="amt-track${S.splitFields?' on':''}" id="amt-track" onclick="toggleSplitFields()">
+          <div class="amt-thumb"></div>
+        </div>
+      </label>
+    </div>
+    <div class="answer-op-preview">
+      <span style="color:var(--muted);">Operation:</span>
+      <span style="color:var(--accent4);font-weight:600;">${opLabel}</span>
+      <span style="color:var(--muted);">i båda led</span>
+    </div>
+    ${fieldHTML}
+    <div class="calc-hint-box" id="calc-hint-box"></div>
+    <div class="err-msg" id="calc-err"></div>
+    <button class="btn-primary green" onclick="checkCalcStep()">Kontrollera ✓</button>`;
+
+  area.appendChild(sec);
+  setTimeout(()=>{
+    const el = S.splitFields
+      ? document.getElementById('calc-lhs-inp')
+      : document.getElementById('calc-eq-inp');
+    if(el) el.focus();
+  }, 60);
+}
+
+// ══════════════════════════════════════════════════════════════
+//  BUTTON MODE INTERACTIONS
+// ══════════════════════════════════════════════════════════════
+let _btnOpType = null;
+function selectBtnOp(type) {
+  _btnOpType = type;
+  S._btnOpType = type;
+  document.querySelectorAll('#input-area .op-btn').forEach(b=>b.classList.remove('active'));
+  const btn=document.querySelector(`#input-area .op-btn.${type}`);
+  if(btn) btn.classList.add('active');
+  document.getElementById('btn-val-section').style.display='block';
+  document.getElementById('btn-op-sym').textContent={add:'+',sub:'−',mul:'×',div:'÷'}[type];
+  // x-term toggle visibility
+  const xLabel=document.getElementById('xterm-label');
+  if(xLabel) xLabel.style.display=(type==='add'||type==='sub')?'flex':'none';
+  // Reset x-term if switching to mul/div
+  if(type==='mul'||type==='div') {
+    const cb=document.getElementById('xterm-cb');
+    if(cb){cb.checked=false; onXtermToggle();}
+  }
+  document.getElementById('btn-err').classList.remove('visible');
+  onBtnValChange();
+}
+
+function onXtermToggle() {
+  const cb=document.getElementById('xterm-cb');
+  const xw=document.getElementById('xcoeff-wrap');
+  const vi=document.getElementById('val-inp');
+  if(cb.checked){xw.style.display='flex';vi.style.display='none';}
+  else{xw.style.display='none';vi.style.display='';}
+  onBtnValChange();
+}
+
+function onBtnValChange() {
+  const cb=document.getElementById('xterm-cb');
+  const useX=cb&&cb.checked;
+  const v=useX
+    ? parseFloat(document.getElementById('xcoeff-inp').value)
+    : parseFloat(document.getElementById('val-inp').value);
+  if(!_btnOpType||isNaN(v)||v===0){S.parsedOp=null; hideBtnParsed(); updateApplyBtn(); return;}
+  const type=_btnOpType;
+  const sym={add:'+',sub:'−',mul:'×',div:'÷'}[type];
+  const label = type==='div'
+    ? `<span style="display:inline-flex;flex-direction:column;align-items:center;font-size:.9em;vertical-align:middle;"><span style="padding:0 3px 1px;border-bottom:1.5px solid currentColor;">·</span><span style="padding:1px 3px 0;">${v}</span></span>`
+    : useX ? `${sym} ${v===1?'':v}x` : `${sym} ${v}`;
+  S.parsedOp={opType:type,value:v,valueIsX:useX,xCoeffVal:useX?v:0,label};
+  showBtnParsed();
+  updateApplyBtn();
+  // In calc mode, update expected if we have enough
+  if(S.mode==='calc') maybePreviewCalcOp();
+}
+
+function showBtnParsed() {
+  const el=document.getElementById('btn-parsed-badge');
+  if(!el||!S.parsedOp) return;
+  el.className=`parsed-badge visible ${S.parsedOp.opType}`;
+  el.innerHTML=`✓ ${S.parsedOp.label} i båda led`;
+}
+function hideBtnParsed() {
+  const el=document.getElementById('btn-parsed-badge');
+  if(el) el.className='parsed-badge';
+}
+function updateApplyBtn() {
+  const btn=document.getElementById('btn-apply');
+  if(btn) btn.disabled=!S.parsedOp;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  FREE TEXT INTERACTIONS
+// ══════════════════════════════════════════════════════════════
+function onFreeInput(raw) {
+  S._freeRaw=raw;
+  const inp=document.getElementById('free-inp');
+  const parsed=parseFreeOp(raw);
+  S.parsedOp=parsed;
+
+  if(!raw.trim()){
+    inp.className='free-op-input';
+    const pb=document.getElementById('free-parsed-badge');
+    if(pb) pb.className='parsed-badge';
+    const fe=document.getElementById('free-err');
+    if(fe) fe.classList.remove('visible');
+    updateApplyBtn();
+    return;
+  }
+  if(parsed){
+    inp.className=`free-op-input op-${parsed.opType}`;
+    const pb=document.getElementById('free-parsed-badge');
+    if(pb){pb.className=`parsed-badge visible ${parsed.opType}`;pb.innerHTML=`✓ ${parsed.label} i båda led`;}
+    const fe=document.getElementById('free-err');
+    if(fe) fe.classList.remove('visible');
+    if(S.mode==='calc') maybePreviewCalcOp();
+  } else {
+    inp.className=raw?'free-op-input op-err':'free-op-input';
+    const pb=document.getElementById('free-parsed-badge');
+    if(pb) pb.className='parsed-badge';
+    const fe=document.getElementById('free-err');
+    if(fe){fe.textContent='Kan ej tolka. Prova t.ex. +5 −3 *2 /4 +2x';fe.classList.add('visible');}
+  }
+  updateApplyBtn();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  CALC MODE – SEQUENTIAL FLOW
+// ══════════════════════════════════════════════════════════════
+function maybePreviewCalcOp() {
+  if(!S.parsedOp||S.calcStep!=='op') return;
+  const p=S.parsedOp;
+  const newEq=applyOperation(S.equation, p.opType, p.value, p.valueIsX, p.xCoeffVal);
+  S.calcExpectedLhs=newEq.lhsTerms;
+  S.calcExpectedRhs=newEq.rhsTerms;
+}
+
+function confirmCalcOp() {
+  if(!S.parsedOp) return;
+  maybePreviewCalcOp();
+  S.calcStep='answer';
+  S._freeRaw='';
+  S._calcErrors = 0;
+  renderInputUI();
+}
+
+// Parse "VL = HL" combined input, e.g. "2x+1 = 7" or "x = 4"
+function parseEqInput(str) {
+  if(!str||!str.trim()) return null;
+  const parts = str.split('=');
+  if(parts.length !== 2) return null;
+  const lhs = parseStudentInput(parts[0]);
+  const rhs = parseStudentInput(parts[1]);
+  if(!lhs||!rhs) return null;
+  return {lhs, rhs};
+}
+
+function toggleSplitFields() {
+  S.splitFields = !S.splitFields;
+  renderInputUI();
+}
+
+function checkCalcStep() {
+  let parsedL, parsedR;
+
+  if(S.splitFields) {
+    const lEl = document.getElementById('calc-lhs-inp');
+    const rEl = document.getElementById('calc-rhs-inp');
+    parsedL = parseStudentInput(lEl ? lEl.value : '');
+    parsedR = parseStudentInput(rEl ? rEl.value : '');
+    if(!parsedL || !parsedR) { showCalcErr('Fyll i båda fälten.'); return; }
+  } else {
+    const inpEl = document.getElementById('calc-eq-inp');
+    const parsed = parseEqInput(inpEl ? inpEl.value : '');
+    if(!parsed) { showCalcErr('Skriv den nya ekvationen med =-tecken, t.ex. 2x+1 = 7'); return; }
+    parsedL = parsed.lhs;
+    parsedR = parsed.rhs;
+  }
+
+  const expL = summarize(expandParens(S.calcExpectedLhs));
+  const expR = summarize(expandParens(S.calcExpectedRhs));
+  const okL = Math.abs(parsedL.xCoeff-expL.xCoeff)<0.001 && Math.abs(parsedL.constant-expL.constant)<0.001;
+  const okR = Math.abs(parsedR.xCoeff-expR.xCoeff)<0.001 && Math.abs(parsedR.constant-expR.constant)<0.001;
+
+  const markFields = (correct) => {
+    if(S.splitFields) {
+      const lEl=document.getElementById('calc-lhs-inp'), rEl=document.getElementById('calc-rhs-inp');
+      if(correct) {
+        if(lEl) lEl.className='afield-input correct';
+        if(rEl) rEl.className='afield-input correct';
+      } else {
+        if(lEl) lEl.className = okL ? 'afield-input' : 'afield-input wrong';
+        if(rEl) rEl.className = okR ? 'afield-input' : 'afield-input wrong';
+        setTimeout(()=>{ if(lEl) lEl.className='afield-input'; if(rEl) rEl.className='afield-input'; }, 700);
+      }
+    } else {
+      const inpEl=document.getElementById('calc-eq-inp');
+      if(inpEl) inpEl.className = correct ? 'afield-input correct' : 'afield-input wrong';
+      if(!correct) setTimeout(()=>{ if(inpEl) inpEl.className='afield-input'; }, 700);
+    }
+  };
+
+  if(okL && okR) {
+    markFields(true);
+    setTimeout(()=>{
+      const p = S.parsedOp;
+      S.history.push({type:'op', opType:p.opType, label:p.label, value:p.value, valueIsX:p.valueIsX, xCoeffVal:p.xCoeffVal});
+      S.equation = {lhsTerms:S.calcExpectedLhs, rhsTerms:S.calcExpectedRhs};
+      S.history.push({type:'equation', eq:cloneEq(S.equation)});
+      buildHistory();
+      S.calcStep='op';
+      S.parsedOp=null; S._freeRaw=''; _btnOpType=null; S._btnOpType=null;
+      S.needsSimplify = checkNeedsSimplify();
+      const solved = checkSolved(S.equation);
+      if(solved.solved) markSolved(solved.x);
+      else renderInputUI();
+    }, 400);
+  } else {
+    markFields(false);
+    const hints = [];
+    if(!okL) hints.push('vänsterledet');
+    if(!okR) hints.push('högerledet');
+    const baseMsg = `${hints.join(' och ')} stämmer inte – försök igen!`;
+    showCalcErr(baseMsg);
+    // Increment error counter and show hint after first wrong attempt
+    S._calcErrors = (S._calcErrors || 0) + 1;
+    if(S._calcErrors >= 1 && S.parsedOp) {
+      const hint = analyzeCalcError(parsedL, parsedR, expL, expR, S.parsedOp.opType);
+      showCalcHint(hint);
+    }
+  }
+}
+
+function showCalcErr(msg){
+  const el=document.getElementById('calc-err');
+  if(el){el.textContent=msg;el.classList.add('visible');}
+}
+
+// ══════════════════════════════════════════════════════════════
+//  STRATEGY: APPLY
+// ══════════════════════════════════════════════════════════════
+function doApply() {
+  if(!S.parsedOp) return;
+  const p=S.parsedOp;
+  S.history.push({type:'op',opType:p.opType,label:p.label,value:p.value,valueIsX:p.valueIsX,xCoeffVal:p.xCoeffVal});
+  S.equation=applyOperation(S.equation,p.opType,p.value,p.valueIsX,p.xCoeffVal);
+  const solved=checkSolved(S.equation);
+  const histEq=cloneEq(S.equation); histEq.solved=solved.solved;
+  S.history.push({type:'equation',eq:histEq});
+  buildHistory();
+  S.parsedOp=null; S._freeRaw=''; S._btnOpType=null; _btnOpType=null;
+  S.needsSimplify=checkNeedsSimplify();
+  if(solved.solved) markSolved(solved.x);
+  else renderInputUI();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SIMPLIFY
+// ══════════════════════════════════════════════════════════════
+function checkNeedsSimplify() {
+  return needsSimplification(S.equation.lhsTerms);
+}
+
+function doSimplify() {
+  if(S.mode==='strategy') {
+    // Show the CURRENT (unsimplified) equation as a normal step first,
+    // then the simplify marker, then the simplified result.
+    // The current equation is already in history as the last entry,
+    // so we just push the simplify marker + the new simplified row.
+    const simplLhs = simplifyTerms(S.equation.lhsTerms);
+    const simplRhs = simplifyTerms(S.equation.rhsTerms);
+    S.history.push({type:'simplify'});
+    S.equation.lhsTerms = simplLhs;
+    S.equation.rhsTerms = simplRhs;
+    const histEq = cloneEq(S.equation);
+    S.history.push({type:'equation', eq:histEq});
+    buildHistory();
+    S.needsSimplify = checkNeedsSimplify();
+    renderInputUI();
+  } else {
+    // Calc mode: need student to write what simplified form is
+    S.calcStep='simplify-lhs';
+    const expLhs=simplifyTerms(S.equation.lhsTerms);
+    const expRhs=simplifyTerms(S.equation.rhsTerms);
+    S.calcExpectedLhs=expLhs;
+    S.calcExpectedRhs=expRhs;
+    renderCalcSimplifyUI();
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SIMPLIFY BOTH SIDES
+// ══════════════════════════════════════════════════════════════
+function renderCalcSimplifyBothUI() {
+  const area=document.getElementById('input-area');
+  area.innerHTML='';
+  const sec=document.createElement('div');
+  sec.className='answer-section visible';
+  sec.innerHTML=`
+    <div class="section-title">Förenkla – Samla termer i båda led</div>
+    <div class="afield-label" style="margin-bottom:.5rem;">Skriv den förenklade ekvationen:</div>
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:80px;">
+        <div class="afield-label">Vänsterled</div>
+        <input class="afield-input" id="sb-lhs" type="text" placeholder="t.ex. 5x + 3" autocomplete="off" spellcheck="false" style="text-align:center;">
+      </div>
+      <div style="font-size:1.4rem;font-weight:700;color:var(--muted);margin-top:1.2rem;">=</div>
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:80px;">
+        <div class="afield-label">Högerled</div>
+        <input class="afield-input" id="sb-rhs" type="text" placeholder="t.ex. 2x + 9" autocomplete="off" spellcheck="false" style="text-align:center;">
+      </div>
+    </div>
+    <div class="err-msg" id="sb-err"></div>
+    <button class="btn-primary green" onclick="checkSimplifyBoth()">Kontrollera ✓</button>`;
+  area.appendChild(sec);
+  setTimeout(()=>{const e=document.getElementById('sb-lhs');if(e)e.focus();},60);
+  // Tab from LHS → RHS
+  setTimeout(()=>{
+    const l=document.getElementById('sb-lhs');
+    const r=document.getElementById('sb-rhs');
+    if(l&&r) l.addEventListener('keydown',e=>{
+      if(e.key==='Tab'||e.key==='Enter'){e.preventDefault();r.focus();}
+    });
+    if(r) r.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();checkSimplifyBoth();}
+    });
+  },80);
+}
+
+function checkSimplifyBoth() {
+  const lInp=document.getElementById('sb-lhs');
+  const rInp=document.getElementById('sb-rhs');
+  const errEl=document.getElementById('sb-err');
+  const parsedL=parseStudentInput(lInp.value);
+  const parsedR=parseStudentInput(rInp.value);
+  if(!parsedL||!parsedR){
+    errEl.textContent='Skriv ett uttryck i varje fält, t.ex. 5x + 3';
+    errEl.classList.add('visible'); return;
+  }
+  const eL=summarize(S.calcExpectedLhs), eR=summarize(S.calcExpectedRhs);
+  const gL=summarize(expandParens(parsedL)), gR=summarize(expandParens(parsedR));
+  const okL=Math.abs(gL.xCoeff-eL.xCoeff)<.001&&Math.abs(gL.constant-eL.constant)<.001;
+  const okR=Math.abs(gR.xCoeff-eR.xCoeff)<.001&&Math.abs(gR.constant-eR.constant)<.001;
+  if(okL&&okR){
+    lInp.className='afield-input correct'; rInp.className='afield-input correct';
+    setTimeout(()=>{
+      S.history.push({type:'simplify-both'});
+      S.equation={lhsTerms:S.calcExpectedLhs, rhsTerms:S.calcExpectedRhs};
+      S.history.push({type:'equation',eq:cloneEq(S.equation)});
+      buildHistory();
+      S.calcStep='op'; S.needsSimplify=checkNeedsSimplify();
+      const solved=checkSolved(S.equation);
+      if(solved.solved) markSolved(solved.x);
+      else renderInputUI();
+    },400);
+  } else {
+    if(!okL){lInp.className='afield-input wrong';}
+    if(!okR){rInp.className='afield-input wrong';}
+    const bad=(!okL?'Vänsterledet':'')+(!okL&&!okR?' och ':'')+(!okR?'Högerledet':'')+' stämmer inte.';
+    errEl.textContent=bad+' Försök igen!';
+    errEl.classList.add('visible');
+    setTimeout(()=>{lInp.className='afield-input';rInp.className='afield-input';},700);
+  }
+}
+
+function doSimplifyBoth() {
+  // Strategy mode: auto-simplify both sides and add to history
+  S.history.push({type:'simplify-both'});
+  S.equation.lhsTerms = simplifyTerms(S.equation.lhsTerms);
+  S.equation.rhsTerms = simplifyTerms(S.equation.rhsTerms);
+  S.history.push({type:'equation', eq:cloneEq(S.equation)});
+  buildHistory();
+  S.needsSimplify = checkNeedsSimplify();
+  renderInputUI();
+}
+
+function renderCalcSimplifyUI() {
+  const area=document.getElementById('input-area');
+  area.innerHTML='';
+  const sec=document.createElement('div');
+  sec.className='answer-section visible';
+  sec.innerHTML=`
+    <div class="section-title">Förenkla – Vad blir den förenklade ekvationen?</div>
+    <div style="display:flex;flex-direction:column;gap:.35rem;">
+      <div class="afield-label">Skriv den förenklade ekvationen (t.ex. <code style="font-family:'DM Mono',monospace;color:var(--accent);background:rgba(108,139,255,.1);padding:1px 4px;border-radius:3px;">4x+3 = 11</code>)</div>
+      <input class="afield-input" id="simp-eq-inp" type="text" placeholder="VL = HL" autocomplete="off" spellcheck="false" style="text-align:left;padding-left:1rem;">
+    </div>
+    <div class="err-msg" id="simp-err"></div>
+    <button class="btn-primary green" onclick="checkSimplify()">Kontrollera ✓</button>`;
+  area.appendChild(sec);
+  setTimeout(()=>{const e=document.getElementById('simp-eq-inp');if(e)e.focus();},60);
+}
+
+function checkSimplify() {
+  const inp=document.getElementById('simp-eq-inp');
+  const parsed=parseEqInput(inp.value);
+  const errEl=document.getElementById('simp-err');
+  if(!parsed){errEl.textContent='Skriv ekvationen med ett =-tecken, t.ex. 4x+3 = 11';errEl.classList.add('visible');return;}
+  const eL=summarize(expandParens(S.calcExpectedLhs)), eR=summarize(expandParens(S.calcExpectedRhs));
+  const okL=Math.abs(parsed.lhs.xCoeff-eL.xCoeff)<.001&&Math.abs(parsed.lhs.constant-eL.constant)<.001;
+  const okR=Math.abs(parsed.rhs.xCoeff-eR.xCoeff)<.001&&Math.abs(parsed.rhs.constant-eR.constant)<.001;
+  if(okL&&okR){
+    inp.className='afield-input correct';
+    setTimeout(()=>{
+      S.history.push({type:'simplify'});
+      S.equation={lhsTerms:S.calcExpectedLhs,rhsTerms:S.calcExpectedRhs};
+      S.history.push({type:'equation',eq:cloneEq(S.equation)});
+      buildHistory();
+      S.calcStep='op'; S.needsSimplify=checkNeedsSimplify();
+      const solved=checkSolved(S.equation);
+      if(solved.solved) markSolved(solved.x);
+      else renderInputUI();
+    },400);
+  } else {
+    inp.className='afield-input wrong';
+    const bad=(!okL?'vänsterledet':'')+(!okL&&!okR?' och ':'')+(!okR?'högerledet':'')+' stämmer inte.';
+    errEl.textContent=bad[0].toUpperCase()+bad.slice(1)+' Försök igen!';
+    errEl.classList.add('visible');
+    setTimeout(()=>{inp.className='afield-input';},700);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DISTRIBUTE (multiplicera ut parentesen)
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  FRACTION SIMPLIFY (e.g. 4x/2 → 2x, term-by-term)
+// ══════════════════════════════════════════════════════════════
+function fracSimplifyTerms(terms) {
+  return terms.map(t => {
+    if(t.paren||t.compound||t.denom<=1) return {...t};
+    const g = gcd(Math.abs(t.coeff), t.denom);
+    return mkT(t.coeff/g, t.isX, t.denom/g);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  CLEAR FRACTIONS (multiply both sides by LCM of denominators)
+// ══════════════════════════════════════════════════════════════
+function clearFractionsFromTerms(terms, L) {
+  // Multiply each plain term by L, then reduce
+  return terms.map(t => {
+    if(t.paren||t.compound) return {...t};
+    const s = fracMul(t.coeff, t.denom, L, 1);
+    return mkT(s.p, t.isX, s.q);
+  });
+}
+
+function doClearFractions(L) {
+  const newLhs = clearFractionsFromTerms(S.equation.lhsTerms, L);
+  const newRhs = clearFractionsFromTerms(S.equation.rhsTerms, L);
+
+  if(S.mode==='strategy') {
+    S.history.push({type:'op', opType:'mul', value:L, valueIsX:false, label:`× ${L}`});
+    S.equation.lhsTerms = newLhs;
+    S.equation.rhsTerms = newRhs;
+    S.history.push({type:'equation', eq:cloneEq(S.equation)});
+    buildHistory();
+    S.needsSimplify = checkNeedsSimplify();
+    renderInputUI();
+  } else {
+    // Calc mode: student writes result
+    S.calcExpectedLhs = newLhs;
+    S.calcExpectedRhs = newRhs;
+    S.history.push({type:'op', opType:'mul', value:L, valueIsX:false, label:`× ${L}`});
+    S.calcStep = 'answer';
+    buildHistory();
+    renderCalcAnswerUI();
+  }
+}
+
+function doFracSimplify() {
+  const newLhs = fracSimplifyTerms(S.equation.lhsTerms);
+  const newRhs = fracSimplifyTerms(S.equation.rhsTerms);
+
+  if(S.mode==='strategy') {
+    S.history.push({type:'fracSimplify'});
+    S.equation.lhsTerms = newLhs;
+    S.equation.rhsTerms = newRhs;
+    S.history.push({type:'equation', eq:cloneEq(S.equation)});
+    buildHistory();
+    S.needsSimplify = checkNeedsSimplify();
+    renderInputUI();
+  } else {
+    // Calc mode: student writes the simplified form
+    S.calcExpectedLhs = newLhs;
+    S.calcExpectedRhs = newRhs;
+    S.calcStep = 'fracSimplify';
+    renderCalcFracSimplifyUI();
+  }
+}
+
+function renderCalcFracSimplifyUI() {
+  const area = document.getElementById('input-area');
+  area.innerHTML = '';
+  const sec = document.createElement('div');
+  sec.className = 'answer-section visible';
+  sec.innerHTML = `
+    <div class="section-title">Förenkla bråk – skriv den nya ekvationen</div>
+    <div style="font-size:.82rem;color:var(--muted);line-height:1.55;background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.2);border-radius:8px;padding:.6rem .9rem;">
+      Reducera varje bråkterm (t.ex. 4x/2 → 2x). Konstanter och andra termer skriver du oförändrade.
+    </div>
+    <div class="split-fields-row">
+      <div style="display:flex;flex-direction:column;gap:.3rem;">
+        <div class="afield-label">Vänsterled</div>
+        <input class="afield-input" id="fsimp-lhs-inp" type="text" placeholder="t.ex. 2x+3" autocomplete="off" spellcheck="false" style="text-align:center;">
+      </div>
+      <span class="split-eq-sep">=</span>
+      <div style="display:flex;flex-direction:column;gap:.3rem;">
+        <div class="afield-label">Högerled</div>
+        <input class="afield-input" id="fsimp-rhs-inp" type="text" placeholder="t.ex. 15" autocomplete="off" spellcheck="false" style="text-align:center;">
+      </div>
+    </div>
+    <div class="err-msg" id="fsimp-err"></div>
+    <button class="btn-primary green" onclick="checkFracSimplify()">Kontrollera ✓</button>`;
+  area.appendChild(sec);
+  const skipBtn = document.createElement('button');
+  skipBtn.className='btn-skip'; skipBtn.innerHTML='↺ Ny ekvation'; skipBtn.onclick=skipEquation;
+  area.appendChild(skipBtn);
+  setTimeout(()=>{ const e=document.getElementById('fsimp-lhs-inp'); if(e) e.focus(); }, 60);
+}
+
+function checkFracSimplify() {
+  const lEl = document.getElementById('fsimp-lhs-inp');
+  const rEl = document.getElementById('fsimp-rhs-inp');
+  const sL = parseStudentInput(lEl ? lEl.value : '');
+  const sR = parseStudentInput(rEl ? rEl.value : '');
+  if(!sL||!sR) {
+    const e=document.getElementById('fsimp-err');
+    e.textContent='Fyll i båda fälten.'; e.classList.add('visible'); return;
+  }
+  const expL = summarize(expandParens(S.calcExpectedLhs));
+  const expR = summarize(expandParens(S.calcExpectedRhs));
+  const okL = Math.abs(sL.xCoeff-expL.xCoeff)<0.001 && Math.abs(sL.constant-expL.constant)<0.001;
+  const okR = Math.abs(sR.xCoeff-expR.xCoeff)<0.001 && Math.abs(sR.constant-expR.constant)<0.001;
+
+  if(okL&&okR) {
+    lEl.className='afield-input correct'; rEl.className='afield-input correct';
+    setTimeout(()=>{
+      S.history.push({type:'fracSimplify'});
+      S.equation={lhsTerms:S.calcExpectedLhs, rhsTerms:S.calcExpectedRhs};
+      S.history.push({type:'equation', eq:cloneEq(S.equation)});
+      buildHistory();
+      S.calcStep='op'; S.needsSimplify=checkNeedsSimplify();
+      const solved=checkSolved(S.equation);
+      if(solved.solved) markSolved(solved.x);
+      else renderInputUI();
+    }, 400);
+  } else {
+    if(!okL) lEl.className='afield-input wrong';
+    if(!okR) rEl.className='afield-input wrong';
+    const e=document.getElementById('fsimp-err');
+    const hints=[]; if(!okL) hints.push('vänsterledet'); if(!okR) hints.push('högerledet');
+    e.textContent=`${hints.join(' och ')} stämmer inte – försök igen!`; e.classList.add('visible');
+    setTimeout(()=>{ lEl.className='afield-input'; rEl.className='afield-input'; }, 700);
+  }
+}
+
+function doDistribute() {
+  const distLhs = distributeTerms(S.equation.lhsTerms);
+  const distRhs = distributeTerms(S.equation.rhsTerms);
+
+  if(S.mode==='strategy') {
+    // Auto-distribute: push marker + result
+    S.history.push({type:'distribute'});
+    S.equation.lhsTerms = distLhs;
+    S.equation.rhsTerms = distRhs;
+    S.history.push({type:'equation', eq:cloneEq(S.equation)});
+    buildHistory();
+    S.needsSimplify = checkNeedsSimplify();
+    renderInputUI();
+  } else {
+    // Calc mode: student must write the distributed form (or simplified further)
+    // We accept any correct value, both distributed and fully simplified
+    S.calcExpectedLhs = distLhs;
+    S.calcExpectedRhs = distRhs;
+    S.calcStep = 'distribute';
+    renderCalcDistributeUI(distLhs, distRhs);
+  }
+}
+
+function renderCalcDistributeUI(expLhs, expRhs) {
+  const area = document.getElementById('input-area');
+  area.innerHTML = '';
+  const sec = document.createElement('div');
+  sec.className = 'answer-section visible';
+  sec.innerHTML = `
+    <div class="section-title">Distribuera – Skriv den nya ekvationen</div>
+    <div style="font-size:.82rem;color:var(--muted);line-height:1.55;background:rgba(108,139,255,.07);border:1px solid rgba(108,139,255,.2);border-radius:8px;padding:.6rem .9rem;">
+      Multiplicera in faktorn i parentesen. Du kan lämna kvar andra termer oförenklade eller förenkla hela ledet.
+    </div>
+    <div class="split-fields-row">
+      <div style="display:flex;flex-direction:column;gap:.3rem;">
+        <div class="afield-label">Vänsterled</div>
+        <input class="afield-input" id="dist-lhs-inp" type="text" placeholder="t.ex. 6x+21+8" autocomplete="off" spellcheck="false" style="text-align:center;">
+      </div>
+      <span class="split-eq-sep">=</span>
+      <div style="display:flex;flex-direction:column;gap:.3rem;">
+        <div class="afield-label">Högerled</div>
+        <input class="afield-input" id="dist-rhs-inp" type="text" placeholder="t.ex. 27" autocomplete="off" spellcheck="false" style="text-align:center;">
+      </div>
+    </div>
+    <div class="err-msg" id="dist-err"></div>
+    <button class="btn-primary green" onclick="checkDistribute()">Kontrollera ✓</button>`;
+  area.appendChild(sec);
+  // Also add skip button
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'btn-skip';
+  skipBtn.innerHTML = '↺ Ny ekvation';
+  skipBtn.onclick = skipEquation;
+  area.appendChild(skipBtn);
+  setTimeout(()=>{ const e=document.getElementById('dist-lhs-inp'); if(e) e.focus(); }, 60);
+}
+
+function checkDistribute() {
+  const lEl = document.getElementById('dist-lhs-inp');
+  const rEl = document.getElementById('dist-rhs-inp');
+  const sL = parseStudentInput(lEl ? lEl.value : '');
+  const sR = parseStudentInput(rEl ? rEl.value : '');
+
+  if(!sL || !sR) {
+    const e=document.getElementById('dist-err');
+    e.textContent='Fyll i båda fälten.'; e.classList.add('visible'); return;
+  }
+
+  // Expected: the fully expanded/distributed sums (parens gone)
+  const expL = summarize(expandParens(S.calcExpectedLhs));
+  const expR = summarize(expandParens(S.calcExpectedRhs));
+
+  const okL = Math.abs(sL.xCoeff - expL.xCoeff) < 0.001 && Math.abs(sL.constant - expL.constant) < 0.001;
+  const okR = Math.abs(sR.xCoeff - expR.xCoeff) < 0.001 && Math.abs(sR.constant - expR.constant) < 0.001;
+
+  if(okL && okR) {
+    lEl.className = 'afield-input correct';
+    rEl.className = 'afield-input correct';
+    setTimeout(()=>{
+      S.history.push({type:'distribute'});
+      // Use the student's simplified form if they went further; we store the
+      // expected distributed terms (structurally cleaner for next ops)
+      const newLhs = buildFromSummary(expL.xCoeff, expL.constant);
+      const newRhs = buildFromSummary(expR.xCoeff, expR.constant);
+      S.equation = {lhsTerms: newLhs, rhsTerms: newRhs};
+      S.history.push({type:'equation', eq:cloneEq(S.equation)});
+      buildHistory();
+      S.calcStep = 'op';
+      S.needsSimplify = checkNeedsSimplify();
+      const solved = checkSolved(S.equation);
+      if(solved.solved) markSolved(solved.x);
+      else renderInputUI();
+    }, 400);
+  } else {
+    if(!okL) lEl.className = 'afield-input wrong';
+    if(!okR) rEl.className = 'afield-input wrong';
+    const hints = [];
+    if(!okL) hints.push('vänsterledet');
+    if(!okR) hints.push('högerledet');
+    const e = document.getElementById('dist-err');
+    e.textContent = `${hints.join(' och ')} stämmer inte – försök igen!`;
+    e.classList.add('visible');
+    setTimeout(()=>{ lEl.className='afield-input'; rEl.className='afield-input'; }, 700);
+  }
+}
+function toggleHint() {
+  const box = document.getElementById('hint-box');
+  if(!box) return;
+  if(box.classList.contains('visible')) { box.classList.remove('visible'); return; }
+  box.innerHTML = generateHint(S.equation);
+  box.classList.add('visible');
+}
+
+function generateHint(eq) {
+  const l = summarize(expandParens(eq.lhsTerms));
+  const r = summarize(expandParens(eq.rhsTerms));
+
+  // ── Both sides need simplification (Nivå 5) ──────────────────
+  if(needsSimplifyBothSides(eq)) {
+    return `💡 <strong>Förenkla båda led:</strong> Båda sidor har flera x-termer och/eller konstanter att samla. Börja med att slå ihop alla x-termer och alla konstanter i vart och ett av leden – <em>innan</em> du börjar använda balansmetoden.`;
+  }
+
+  // ── Has parens on LHS? ───────────────────────────────────────
+  const lhsParen = eq.lhsTerms.find(t=>t.paren);
+  const rhsParen = eq.rhsTerms.find(t=>t.paren);
+  if(lhsParen || rhsParen) {
+    const t = lhsParen || rhsParen;
+    const side = lhsParen ? 'vänsterledet' : 'högerledet';
+    if(t.coeff === 1 || t.coeff === -1) {
+      const sign = t.coeff === -1 ? 'negativ' : '';
+      return `💡 <strong>Steg 1 – Distribuera:</strong> Du har en ${sign} parentes i ${side}. Använd <em>Distribuera</em>-knappen för att multiplicera faktorn in i parentesen. Kom ihåg att tecknet gäller varje term inuti.`;
+    }
+    return `💡 <strong>Steg 1 – Distribuera eller dividera:</strong> ${side.charAt(0).toUpperCase()+side.slice(1)} har ett parentesuttryck med faktorn ${t.coeff}. Du kan antingen <em>distribuera</em> faktorn in i parentesen, eller dividera båda led med ${t.coeff} direkt om det passar.`;
+  }
+
+  // ── Has compound fraction? ───────────────────────────────────
+  const lhsComp = eq.lhsTerms.find(t=>t.compound);
+  const rhsComp = eq.rhsTerms.find(t=>t.compound);
+  if(lhsComp || rhsComp) {
+    const t = lhsComp || rhsComp;
+    return `💡 <strong>Steg 1 – Rensa bråk:</strong> Du har ett uttryck delat med ${t.denom}. Multiplicera <em>båda led</em> med ${t.denom} för att ta bort nämnaren. Sedan kan du lösa en vanligare ekvation.`;
+  }
+
+  // ── Has reducible fractions? ─────────────────────────────────
+  const hasFrac = [...eq.lhsTerms,...eq.rhsTerms].some(t=>!t.paren&&!t.compound&&t.denom>1&&gcd(Math.abs(t.coeff),t.denom)>1);
+  if(hasFrac) {
+    return `💡 <strong>Förenkla bråk:</strong> Det finns bråktermer som kan reduceras, t.ex. 4x/2 = 2x. Använd <em>Förenkla bråk</em>-knappen.`;
+  }
+
+  // ── Fractions on BOTH sides → clear with LCM ────────────────
+  if(needsClearFractions(eq.lhsTerms, eq.rhsTerms)) {
+    const L = equationLCM(eq.lhsTerms, eq.rhsTerms);
+    const denoms = collectDenoms(eq.lhsTerms, eq.rhsTerms);
+    return `💡 <strong>Rensa bråk:</strong> Båda led innehåller bråk med nämnarna ${denoms.join(' och ')}. Minsta gemensamma nämnare (MGN) är <strong>${L}</strong>. Multiplicera båda led med ${L} för att ta bort alla bråk på en gång.`;
+  }
+
+  // ── Plain fractions (denom > 1, not reducible) ───────────────
+  const lhsFrac = eq.lhsTerms.find(t=>t.denom>1);
+  const rhsFrac = eq.rhsTerms.find(t=>t.denom>1);
+  if(lhsFrac || rhsFrac) {
+    const d = (lhsFrac||rhsFrac).denom;
+    return `💡 <strong>Rensa bråk:</strong> Du har en term med nämnaren ${d}. Multiplicera båda led med ${d} för att få heltal och göra ekvationen enklare.`;
+  }
+
+  // ── x on both sides ─────────────────────────────────────────
+  if(r.xCoeff !== 0 && l.xCoeff !== 0) {
+    const move = r.xCoeff > 0
+      ? `subtrahera <strong>${r.xCoeff}x</strong> från båda led`
+      : `addera <strong>${Math.abs(r.xCoeff)}x</strong> i båda led`;
+    return `💡 <strong>Samla x-termer:</strong> Du har x-termer i båda led. Nästa steg är att ${move}, så att x bara finns på ett håll.`;
+  }
+
+  // ── Constant on LHS ─────────────────────────────────────────
+  if(l.constant !== 0) {
+    const op = l.constant > 0 ? 'subtrahera' : 'addera';
+    const val = Math.abs(l.constant);
+    const fracHint = val !== Math.round(val) ? ` (${formatFracHint(l.constant)})` : '';
+    return `💡 <strong>Flytta konstanten:</strong> Vänsterledet har konstanten ${l.constant > 0 ? '+' : ''}${l.constant}${fracHint}. ${op.charAt(0).toUpperCase()+op.slice(1)} <strong>${val}</strong> i båda led för att isolera x-termen.`;
+  }
+
+  // ── Coefficient ≠ 1 ─────────────────────────────────────────
+  if(Math.abs(l.xCoeff) !== 1) {
+    const xc = l.xCoeff;
+    if(xc < 0) return `💡 <strong>Negativ koefficient:</strong> Du har <strong>${xc}x</strong>. Dividera båda led med <strong>${xc}</strong> (ett negativt tal) – kom ihåg att tecknet på högerledet ändras!`;
+    return `💡 <strong>Isolera x:</strong> Du har <strong>${xc}x</strong> kvar. Dividera båda led med <strong>${xc}</strong>.`;
+  }
+
+  // ── Nearly there ─────────────────────────────────────────────
+  if(l.xCoeff === 1 && l.constant === 0 && r.xCoeff === 0) {
+    return `💡 <strong>Nästan klart!</strong> Ekvationen är på formen x = ${r.constant}. Lösningen är redan framför dig.`;
+  }
+
+  return '💡 Fortsätt använda balansmetoden – utför samma operation på <em>båda led</em>.';
+}
+
+function formatFracHint(v) {
+  // Convert decimal to simple fraction string if possible
+  for(let q=2;q<=20;q++){const p=Math.round(v*q);if(Math.abs(p/q-v)<1e-9)return `${p}/${q}`;}
+  return v.toString();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  STUDENT INPUT PARSER
+// ══════════════════════════════════════════════════════════════
+function parseStudentInput(str) {
+  if(!str||!str.trim()) return null;
+  str = str.trim()
+    .replace(/\s+/g,'')
+    .replace(/−/g,'-')
+    .replace(/×/g,'*');
+
+  // ── Compound fraction: (expr)/n ─────────────────────────────
+  // Matches optional sign + ( ... ) / digits at top level
+  const compoundM = str.match(/^([+\-]?)\(([^)]+)\)\/(\d+\.?\d*)$/);
+  if(compoundM) {
+    const sign = compoundM[1]==='-' ? -1 : 1;
+    const inner = parseStudentInput(compoundM[2]);
+    const denom = parseFloat(compoundM[3]);
+    if(!inner || !denom) return null;
+    return { xCoeff: sign*inner.xCoeff/denom, constant: sign*inner.constant/denom };
+  }
+
+  // ── Simple expression: split on + and - (preserving signs) ──
+  let xC=0, c=0;
+  const norm = str.replace(/^-/,'NEG').replace(/([+\-])/g,'|$1').replace(/^NEG/,'-').replace(/^\|/,'');
+  const parts = norm.split('|').filter(p=>p!=='');
+  for(const p of parts){
+    if(p.includes('x')){
+      // Handles: x, 2x, x/3, 2x/3, -x, -2x/3, +x
+      const m = p.match(/^([+\-]?\d*\.?\d*)x(?:\/(\d+\.?\d*))?$/);
+      if(m) {
+        const num = m[1]===''||m[1]==='+'?1 : m[1]==='-'?-1 : parseFloat(m[1]);
+        const den = m[2] ? parseFloat(m[2]) : 1;
+        xC += num / den;
+      } else {
+        const b = p.replace('x','').trim();
+        if(b===''||b==='+') xC+=1;
+        else if(b==='-') xC-=1;
+        else xC += parseFloat(b)||0;
+      }
+    } else {
+      // Plain number or fraction: 7, -3, 3/2, -5/4
+      const fm = p.match(/^([+\-]?\d+\.?\d*)\/(\d+\.?\d*)$/);
+      if(fm) c += parseFloat(fm[1]) / parseFloat(fm[2]);
+      else c += parseFloat(p)||0;
+    }
+  }
+  if(isNaN(xC)||isNaN(c)) return null;
+  return {xCoeff:xC, constant:c};
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SOLVED / NEXT
+// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  PEDAGOGICAL FEEDBACK
+// ══════════════════════════════════════════════════════════════
+
+// Count "operation" steps the student used (each op/simplify/distribute = 1 step)
+function countStudentSteps() {
+  return S.history.filter(h => h.type==='op' || h.type==='simplify' || h.type==='simplify-both' || h.type==='distribute' || h.type==='fracSimplify' || h.type==='clearFractions').length;
+}
+
+// Compute the minimum number of steps needed for this equation
+function computeOptimalSteps(eq) {
+  const lhs = eq.lhsTerms;
+  const rhs = eq.rhsTerms;
+  let steps = 0;
+
+  // Step 1: distribute if paren exists (optional but we count if used)
+  const hasParen = lhs.some(t=>t.paren) || rhs.some(t=>t.paren);
+  const hasCompound = lhs.some(t=>t.compound) || rhs.some(t=>t.compound);
+  if(hasParen) steps++; // could also divide directly – either way is 1 step
+  if(hasCompound) steps++; // multiply to clear fraction
+
+  // Step 2: simplify if multiple like-terms in a side
+  const tempLhs = hasParen ? expandParens(lhs) : lhs;
+  const tempRhs = hasCompound ? expandParens(rhs) : rhs;
+  if(needsSimplification(tempLhs) || needsSimplification(tempRhs)) steps++;
+
+  // Step 3: eliminate constant from lhs (e.g. −3) if any non-zero constant remains
+  const sl = summarize(expandParens(lhs));
+  const sr = summarize(expandParens(rhs));
+  const hasConstOnLhs = sl.constant !== 0;
+  const hasXOnRhs = sr.xCoeff !== 0;
+  if(hasConstOnLhs || hasXOnRhs) steps++; // one op to move constant or x
+
+  // Step 4: divide/multiply to isolate x if coefficient ≠ 1
+  const xCoeff = sl.xCoeff - sr.xCoeff;
+  if(Math.abs(xCoeff) !== 1) steps++;
+  else if(hasConstOnLhs || hasXOnRhs) {
+    // after moving, xCoeff might already be 1 so check if x needs isolating
+  }
+
+  return Math.max(1, steps);
+}
+
+function markSolved(xValue) {
+  S.solved=true; S.scoreCorrect++; S.scoreTotal++;
+  updateScoreDisplay();
+  document.getElementById('eq-history').style.display='flex';
+  document.getElementById('solved-display').classList.add('visible');
+  document.getElementById('solved-answer-text').textContent=
+    `x = ${Number.isInteger(xValue)?xValue:Math.round(xValue*1000)/1000}`;
+
+  // Step feedback – check for new record BEFORE recording
+  const used = countStudentSteps();
+  const optimal = computeOptimalSteps(S.original);
+  const prevBest = (loadProgress()[S.level] || {}).bestSteps;
+  recordSolve(S.level, used, optimal);
+  const isNewRecord = used > 0 && (prevBest === null || prevBest === undefined || used < prevBest);
+
+  const fb = document.getElementById('solved-steps-feedback');
+  if(fb) {
+    if(used <= optimal) {
+      fb.className='solved-steps-feedback optimal';
+      fb.innerHTML=`✓ Löst på <strong>${used}</strong> steg – det är optimalt! 🌟`;
+    } else {
+      fb.className='solved-steps-feedback';
+      fb.innerHTML=`Löst på <strong>${used}</strong> steg. Kortaste vägen är <strong>${optimal}</strong> steg – kan du klara det?`;
+    }
+    if(isNewRecord && prevBest !== null && prevBest !== undefined) {
+      fb.innerHTML += `<br><span style="color:var(--accent4);font-size:.82rem;">🏆 Nytt personbästa! (tidigare ${prevBest} steg)</span>`;
+    }
+  }
+
+  if(COMP.active) {
+    awardPoints(used, optimal);
+    // In competition mode: short flash then auto-load next
+    setTimeout(() => {
+      if(COMP.active && COMP.timeLeft > 0) loadEquation();
+    }, 900);
+    return;
+  }
+
+  document.getElementById('input-area').innerHTML='';
+  confetti();
+}
+
+// Show step-by-step solution replayed in history panel
+function showSolution() {
+  // Build the optimal solution sequence from the original equation
+  const sol = buildSolutionSteps(cloneEq(S.original));
+  if(!sol || sol.length === 0) return;
+
+  // Replace current history with original + solution steps, animated
+  S.history = [{type:'equation', eq:cloneEq(S.original)}];
+  buildHistory();
+
+  let delay = 300;
+  for(const step of sol) {
+    setTimeout(()=>{
+      S.history.push(step);
+      if(step.type === 'equation') {
+        const eqRows = document.querySelectorAll('#eq-history .eq-row');
+        buildHistory();
+        // Flash the newest row
+        setTimeout(()=>{
+          const rows = document.querySelectorAll('#eq-history .eq-row');
+          if(rows.length) {
+            const last = rows[rows.length-1];
+            last.classList.add('replay-flash');
+            setTimeout(()=>last.classList.remove('replay-flash'), 600);
+          }
+        }, 50);
+      } else {
+        buildHistory();
+      }
+    }, delay);
+    delay += step.type==='equation' ? 700 : 350;
+  }
+}
+
+// Build an optimal solution sequence (list of history entries) for an equation
+function buildSolutionSteps(eq) {
+  const steps = [];
+
+  // Helper: push an op and the resulting equation
+  function applyStep(opType, value, valueIsX=false, xCoeffVal=0) {
+    const sym = {add:'+',sub:'−',mul:'×',div:'÷'}[opType];
+    const valStr = valueIsX ? `${xCoeffVal===1?'':xCoeffVal}x` : `${value}`;
+    const label = opType==='div'
+      ? `<span style="display:inline-flex;flex-direction:column;align-items:center;font-size:.9em;vertical-align:middle;"><span style="padding:0 3px 1px;border-bottom:1.5px solid currentColor;">·</span><span style="padding:1px 3px 0;">${value}</span></span>`
+      : `${sym} ${valStr}`;
+    steps.push({type:'op', opType, label, value, valueIsX, xCoeffVal});
+    eq = applyOperation(eq, opType, value, valueIsX, xCoeffVal);
+    const histEq = cloneEq(eq);
+    steps.push({type:'equation', eq:histEq});
+  }
+
+  // 1. Distribute parentheses if any
+  if(eq.lhsTerms.some(t=>t.paren) || eq.rhsTerms.some(t=>t.paren)) {
+    steps.push({type:'distribute'});
+    eq = {lhsTerms: distributeTerms(eq.lhsTerms), rhsTerms: distributeTerms(eq.rhsTerms)};
+    steps.push({type:'equation', eq:cloneEq(eq)});
+  }
+
+  // 2. Clear compound fractions (multiply by denominator)
+  const comp = eq.lhsTerms.find(t=>t.compound) || eq.rhsTerms.find(t=>t.compound);
+  if(comp) {
+    applyStep('mul', comp.denom);
+  }
+
+  // 3. Simplify if multiple like terms
+  if(needsSimplification(eq.lhsTerms) || needsSimplification(eq.rhsTerms)) {
+    steps.push({type:'simplify'});
+    eq = {lhsTerms: simplifyTerms(eq.lhsTerms), rhsTerms: simplifyTerms(eq.rhsTerms)};
+    steps.push({type:'equation', eq:cloneEq(eq)});
+  }
+
+  // 4. Move x from rhs to lhs (subtract rhs x-term)
+  let sl = summarize(expandParens(eq.lhsTerms));
+  let sr = summarize(expandParens(eq.rhsTerms));
+  if(sr.xCoeff !== 0) {
+    applyStep(sr.xCoeff > 0 ? 'sub' : 'add', Math.abs(sr.xCoeff), true, Math.abs(sr.xCoeff));
+    sl = summarize(expandParens(eq.lhsTerms));
+    sr = summarize(expandParens(eq.rhsTerms));
+  }
+
+  // 5. Move constant from lhs to rhs (subtract lhs constant)
+  if(sl.constant !== 0) {
+    applyStep(sl.constant > 0 ? 'sub' : 'add', Math.abs(sl.constant));
+    sl = summarize(expandParens(eq.lhsTerms));
+    sr = summarize(expandParens(eq.rhsTerms));
+  }
+
+  // 6. Divide or multiply to isolate x
+  const xc = sl.xCoeff || sr.xCoeff;
+  if(xc !== 0 && Math.abs(xc) !== 1) {
+    // If xCoeff is a fraction (e.g. 1/5 from x/5), multiply by its reciprocal
+    if(Math.abs(xc) < 1) {
+      // xc = p/q where |p/q| < 1 → multiply by q/p = 1/xc
+      // Find rational representation
+      let bestP=1, bestQ=1;
+      for(let q=2; q<=100; q++) {
+        const p = Math.round(xc*q);
+        if(Math.abs(p/q - xc) < 1e-9) { bestP=p; bestQ=q; break; }
+      }
+      applyStep('mul', Math.round(bestQ/bestP));
+    } else {
+      applyStep('div', Math.abs(xc));
+    }
+  } else if(xc === -1) {
+    applyStep('mul', -1);
+  }
+
+  // Mark last equation as solved
+  if(steps.length > 0) {
+    const last = steps[steps.length-1];
+    if(last.type==='equation') last.eq.solved = true;
+  }
+
+  return steps;
+}
+
+// Specific error analysis for calc mode wrong answers
+function analyzeCalcError(parsedL, parsedR, expL, expR, opType) {
+  const lhsWrong = !(Math.abs(parsedL.xCoeff-expL.xCoeff)<0.001 && Math.abs(parsedL.constant-expL.constant)<0.001);
+  const rhsWrong = !(Math.abs(parsedR.xCoeff-expR.xCoeff)<0.001 && Math.abs(parsedR.constant-expR.constant)<0.001);
+
+  // Check if they forgot to apply operation to one side
+  const origL = summarize(expandParens(S.equation.lhsTerms));
+  const origR = summarize(expandParens(S.equation.rhsTerms));
+
+  const lhsUnchanged = Math.abs(parsedL.xCoeff-origL.xCoeff)<0.001 && Math.abs(parsedL.constant-origL.constant)<0.001;
+  const rhsUnchanged = Math.abs(parsedR.xCoeff-origR.xCoeff)<0.001 && Math.abs(parsedR.constant-origR.constant)<0.001;
+
+  if(lhsUnchanged && rhsWrong) return 'Det verkar som att vänsterledet är oförändrat – har du glömt att utföra operationen i VL?';
+  if(rhsUnchanged && lhsWrong) return 'Det verkar som att högerledet är oförändrat – har du glömt att utföra operationen i HL?';
+
+  // Check sign errors
+  if(opType==='sub') {
+    const signFlipL = Math.abs(parsedL.constant-expL.constant) > 0.001 &&
+                      Math.abs(parsedL.constant+expL.constant-2*origL.constant) < 0.001;
+    const signFlipR = Math.abs(parsedR.constant-expR.constant) > 0.001 &&
+                      Math.abs(parsedR.constant+expR.constant-2*origR.constant) < 0.001;
+    if(signFlipL || signFlipR) return 'Kolla tecknet – vid subtraktion ska du dra ifrån värdet, inte addera det.';
+  }
+  if(opType==='div') {
+    // Check if they subtracted instead of divided
+    const subL = {xCoeff: origL.xCoeff, constant: origL.constant - expL.constant + origL.constant};
+    if(lhsWrong && Math.abs(parsedL.constant - (origL.constant - (origL.constant/expL.constant))) < 0.001)
+      return 'Det ser ut som du subtraherade istället för att dividera.';
+  }
+
+  // Check if they only applied to one side
+  if(lhsWrong && !rhsWrong) return 'Högerledet ser rätt ut, men vänsterledet stämmer inte – kom ihåg att göra samma operation i båda led!';
+  if(rhsWrong && !lhsWrong) return 'Vänsterledet ser rätt ut, men högerledet stämmer inte – kom ihåg att göra samma operation i båda led!';
+
+  // Both wrong – generic
+  return 'Kontrollera beräkningen i båda leden noggrant.';
+}
+
+function showCalcHint(msg) {
+  const box = document.getElementById('calc-hint-box');
+  if(box) { box.textContent = msg; box.classList.add('visible'); }
+}
+
+
+
+function nextEquation() {
+  S.scoreTotal++; updateScoreDisplay();
+  loadEquation();
+}
+
+function skipEquation() {
+  // Load a fresh equation without counting it as solved or attempted
+  loadEquation();
+}
+
+function updateScoreDisplay() {
+  document.getElementById('score-correct').textContent=S.scoreCorrect;
+  document.getElementById('score-total').textContent=S.scoreTotal;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  GAME FLOW
+// ══════════════════════════════════════════════════════════════
+function selectMode(mode) {
+  S.mode=mode;
+  document.getElementById('mode-strategy-btn').classList.toggle('selected',mode==='strategy');
+  document.getElementById('mode-calc-btn').classList.toggle('selected',mode==='calc');
+  document.getElementById('mode-desc').textContent=mode==='strategy'
+    ?'Du väljer vilken operation som ska göras i båda led — programmet räknar åt dig och visar historiken steg för steg.'
+    :'Du väljer operation och skriver sedan in vad VL och HL blir — precis som med papper och penna.';
+}
+
+function switchInGameMode(mode) {
+  closeModeDropdown();
+  if(S.mode === mode) return;
+  S.mode = mode;
+  updateModeBadge();
+  document.getElementById('input-panel-title').textContent = mode==='strategy' ? '🧠 Välj operation' : '✏️ Din beräkning';
+  // Reset current step state but keep equation and history
+  S.parsedOp=null; S._freeRaw=''; _btnOpType=null; S._btnOpType=null;
+  S.calcStep='op'; S.calcExpectedLhs=null; S.calcExpectedRhs=null; S._calcErrors=0;
+  renderInputUI();
+}
+
+function updateModeBadge() {
+  const sw = document.getElementById('mode-switcher');
+  const badge = document.getElementById('mode-badge');
+  if(!sw||!badge) return;
+  if(COMP.active) {
+    sw.className='mode-switcher competition';
+    badge.textContent='⏱ Tävling';
+    return;
+  }
+  sw.className='mode-switcher';
+  badge.textContent = S.mode==='strategy' ? '🧠 Strategiläge' : '✏️ Beräkningsläge';
+  // Mark active option in dropdown
+  sw.querySelectorAll('.mode-switcher-drop button').forEach(b=>{
+    b.classList.toggle('active-mode', b.textContent.includes(S.mode==='strategy'?'Strategi':'Beräkning'));
+  });
+}
+
+function toggleModeDropdown() {
+  if(COMP.active) return;
+  document.getElementById('mode-switcher').classList.toggle('open');
+}
+function closeModeDropdown() {
+  document.getElementById('mode-switcher').classList.remove('open');
+}
+// Close on outside click
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#mode-switcher')) closeModeDropdown();
+});
+
+function setInputMode(m) {
+  S.inputMode=m;
+  S.parsedOp=null; S._freeRaw=''; _btnOpType=null; S._btnOpType=null;
+  document.getElementById('imt-btn-buttons').classList.toggle('active',m==='buttons');
+  document.getElementById('imt-btn-text').classList.toggle('active',m==='text');
+  renderInputUI();
+}
+
+function startGame(level) {
+  S.level=level; S.scoreCorrect=0; S.scoreTotal=0;
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  document.getElementById('level-badge').textContent='Nivå '+level;
+  document.getElementById('input-panel-title').textContent=S.mode==='strategy'?'🧠 Välj operation':'✏️ Din beräkning';
+  updateModeBadge();
+  updateScoreDisplay();
+  loadEquation();
+}
+
+function loadEquation() {
+  S.equation=genEq(S.level);
+  S.original=cloneEq(S.equation);
+  S.history=[{type:'equation',eq:cloneEq(S.equation)}];
+  S.solved=false; S.parsedOp=null; S._freeRaw=''; _btnOpType=null; S._btnOpType=null;
+  S._calcErrors=0;
+  S.needsSimplify=checkNeedsSimplify();
+
+  // If both sides need simplification, start with that step in calc mode
+  if(S.mode==='calc' && needsSimplifyBothSides(S.equation)) {
+    S.calcStep='simplify-both';
+    S.calcExpectedLhs = simplifyTerms(S.equation.lhsTerms);
+    S.calcExpectedRhs = simplifyTerms(S.equation.rhsTerms);
+  } else {
+    S.calcStep='op'; S.calcExpectedLhs=null; S.calcExpectedRhs=null;
+  }
+
+  document.getElementById('solved-display').classList.remove('visible');
+  document.getElementById('eq-history').style.display='flex';
+  buildHistory();
+  renderInputUI();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  COMPETITION MODE
+// ══════════════════════════════════════════════════════════════
+const COMP = {
+  level: 1, duration: 60,
+  active: false, timeLeft: 60, totalTime: 60,
+  score: 0, solved: 0, optimal: 0,
+  timerInterval: null
+};
+const HS_KEY = 'balansmetoden_hs_v1';
+
+function openCompSetup() {
+  document.getElementById('comp-setup').classList.add('active');
+}
+function closeCompSetup() {
+  document.getElementById('comp-setup').classList.remove('active');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ANALOG MODE
+// ══════════════════════════════════════════════════════════════
+const ANALOG = { level: 1, correct: 0, total: 0, equation: null, original: null, errors: 0 };
+
+function openAnalogSetup() {
+  document.getElementById('analog-setup').classList.add('active');
+}
+function closeAnalogSetup() {
+  document.getElementById('analog-setup').classList.remove('active');
+}
+function setAnalogLevel(lvl) {
+  ANALOG.level = lvl;
+  document.querySelectorAll('#analog-setup .comp-opt-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===lvl-1);
+  });
+}
+function startAnalog() {
+  closeAnalogSetup();
+  ANALOG.correct = 0; ANALOG.total = 0;
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('analog-screen').classList.add('active');
+  document.getElementById('analog-level-badge').textContent = 'Nivå ' + ANALOG.level;
+  updateAnalogScore();
+  loadAnalogEquation();
+}
+function analogHome() {
+  document.getElementById('analog-screen').classList.remove('active');
+  document.getElementById('start-screen').classList.add('active');
+}
+function updateAnalogScore() {
+  document.getElementById('analog-score-correct').textContent = ANALOG.correct;
+  document.getElementById('analog-score-total').textContent = ANALOG.total;
+}
+function loadAnalogEquation() {
+  ANALOG.equation = genEq(ANALOG.level);
+  ANALOG.original = cloneEq(ANALOG.equation);
+  ANALOG.errors = 0;
+
+  // Render equation as plain text for the display
+  const eq = ANALOG.equation;
+  const lhsHtml = renderTerms(eq.lhsTerms);
+  const rhsHtml = renderTerms(eq.rhsTerms);
+  const display = document.getElementById('analog-eq-display');
+  display.innerHTML =
+    `<span class="eq-lhs">${lhsHtml}</span>` +
+    `<span class="eq-equals" style="font-size:1em;color:var(--muted);padding:0 .15rem;">=</span>` +
+    `<span class="eq-rhs">${rhsHtml}</span>`;
+
+  // Reset UI
+  const inp = document.getElementById('analog-answer-inp');
+  inp.value = '';
+  inp.className = 'analog-answer-input';
+  inp.disabled = false;
+
+  document.getElementById('analog-err').classList.remove('visible');
+  document.getElementById('analog-feedback').classList.remove('visible');
+  document.getElementById('analog-check-btn').style.display = '';
+
+  // Remove any shown solution
+  const solBox = document.getElementById('analog-solution-shown');
+  if(solBox) solBox.remove();
+
+  setTimeout(()=>inp.focus(), 80);
+}
+
+function checkAnalogAnswer() {
+  const inp = document.getElementById('analog-answer-inp');
+  const errEl = document.getElementById('analog-err');
+  const raw = inp.value.trim().replace(',', '.');
+  const val = parseFloat(raw);
+
+  if(raw === '' || isNaN(val)) {
+    errEl.textContent = 'Skriv ett tal, t.ex. 5 eller −3';
+    errEl.classList.add('visible');
+    return;
+  }
+  errEl.classList.remove('visible');
+
+  // Compute correct answer
+  const sol = buildSolutionSteps(cloneEq(ANALOG.original));
+  const lastEq = [...sol].reverse().find(s=>s.type==='equation');
+  let correctX = null;
+  if(lastEq) {
+    const l = summarize(expandParens(lastEq.eq.lhsTerms));
+    const r = summarize(expandParens(lastEq.eq.rhsTerms));
+    if(l.xCoeff===1 && l.constant===0) correctX = r.constant;
+    else if(r.xCoeff===1 && r.constant===0) correctX = l.constant;
+    else correctX = r.constant; // fallback
+  }
+
+  if(correctX === null) return;
+
+  if(Math.abs(val - correctX) < 0.001) {
+    // Correct!
+    inp.className = 'analog-answer-input correct';
+    inp.disabled = true;
+    document.getElementById('analog-check-btn').style.display = 'none';
+    ANALOG.correct++; ANALOG.total++;
+    updateAnalogScore();
+    recordSolve(ANALOG.level, 1, true);
+    showAnalogFeedback(true, correctX);
+  } else {
+    // Wrong
+    ANALOG.errors++;
+    inp.className = 'analog-answer-input wrong';
+    setTimeout(()=>inp.className='analog-answer-input', 600);
+    if(ANALOG.errors >= 2) {
+      errEl.textContent = `Inte riktigt – försök igen, eller be om lösningen.`;
+      errEl.classList.add('visible');
+      ANALOG.total++;
+      updateAnalogScore();
+      showAnalogFeedback(false, correctX);
+    } else {
+      errEl.textContent = 'Inte riktigt – försök igen!';
+      errEl.classList.add('visible');
+    }
+  }
+}
+
+function showAnalogFeedback(correct, correctX) {
+  const fb = document.getElementById('analog-feedback');
+  const icon = document.getElementById('analog-feedback-icon');
+  const text = document.getElementById('analog-feedback-text');
+  const actions = document.getElementById('analog-feedback-actions');
+
+  icon.textContent = correct ? '🎉' : '🤔';
+  text.textContent = correct ? 'Rätt svar!' : `Svaret var x = ${correctX}`;
+  text.style.color = correct ? 'var(--success)' : 'var(--accent4)';
+
+  actions.innerHTML = '';
+  if(correct) {
+    // Ask if they want to see the solution
+    const solBtn = document.createElement('button');
+    solBtn.className = 'analog-btn-solution';
+    solBtn.textContent = '📋 Visa lösning';
+    solBtn.onclick = () => { showAnalogSolution(); solBtn.style.display='none'; };
+    actions.appendChild(solBtn);
+  }
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'analog-btn-next';
+  nextBtn.textContent = 'Nästa ekvation →';
+  nextBtn.onclick = loadAnalogEquation;
+  actions.appendChild(nextBtn);
+
+  fb.classList.add('visible');
+}
+
+// ── QUICK ANSWER (in strategy/calc/button modes) ──
+function checkQuickAnswer() {
+  const inp = document.getElementById('quick-ans-inp');
+  const err = document.getElementById('quick-ans-err');
+  if(!inp) return;
+  const raw = inp.value.trim().replace(',','.');
+  const val = parseFloat(raw);
+  if(raw===''||isNaN(val)){
+    err.textContent='Skriv ett tal, t.ex. 5 eller −3';
+    err.classList.add('visible');
+    return;
+  }
+  err.classList.remove('visible');
+
+  // Get correct answer from the current equation
+  const sol = buildSolutionSteps(cloneEq(S.equation));
+  const lastEq = [...sol].reverse().find(s=>s.type==='equation');
+  let correctX = null;
+  if(lastEq){
+    const l=summarize(expandParens(lastEq.eq.lhsTerms));
+    const r=summarize(expandParens(lastEq.eq.rhsTerms));
+    if(l.xCoeff===1&&l.constant===0) correctX=r.constant;
+    else if(r.xCoeff===1&&r.constant===0) correctX=l.constant;
+    else correctX=r.constant;
+  }
+  if(correctX===null) return;
+
+  if(Math.abs(val-correctX)<0.001){
+    inp.className='quick-answer-input correct';
+    inp.disabled=true;
+    document.getElementById('quick-ans-btn').disabled=true;
+    // Mark as solved and show celebration
+    markSolved(correctX);
+  } else {
+    inp.className='quick-answer-input wrong';
+    setTimeout(()=>inp.className='quick-answer-input',600);
+    err.textContent='Inte rätt – försök igen eller lös steg för steg.';
+    err.classList.add('visible');
+  }
+}
+
+function showAnalogSolution() {
+  // Build and render the solution steps inline
+  const sol = buildSolutionSteps(cloneEq(ANALOG.original));
+  const box = document.createElement('div');
+  box.id = 'analog-solution-shown';
+  box.className = 'analog-solution-box';
+
+  // Temporarily hijack history render
+  const savedHistory = S.history;
+  const savedEq = S.equation;
+  S.history = [{type:'equation', eq:cloneEq(ANALOG.original)}, ...sol];
+  S.equation = ANALOG.original;
+  const savedBubbles = S.showBubbles;
+  S.showBubbles = true;
+
+  const c = document.createElement('div');
+  c.style.cssText = 'display:flex;flex-direction:column;gap:.3rem;';
+
+  // Minimal re-render of just the history rows
+  let eqCount = 0;
+  for(let i=0;i<S.history.length;i++) {
+    const e = S.history[i];
+    if(e.type==='equation') {
+      const lh = renderTerms(e.eq.lhsTerms);
+      const rh = renderTerms(e.eq.rhsTerms);
+      const div = document.createElement('div');
+      div.className = 'eq-row' + (e.eq.solved?' solved':'');
+      div.style.fontSize='.9rem';
+      div.innerHTML = `
+        <span class="eq-step-label">${eqCount===0?'Start':'Steg '+eqCount}</span>
+        <span class="eq-expr"><span class="eq-lhs">${lh}</span><span class="eq-equals">=</span><span class="eq-rhs">${rh}</span></span>`;
+      c.appendChild(div);
+      eqCount++;
+    } else if(e.type==='op' && S.showBubbles) {
+      const bubble = document.createElement('div');
+      bubble.className = 'op-row';
+      let lbl = e.label;
+      if(e.opType==='div') {
+        const d = e.value != null ? `${e.value}` : (e.label||'').replace(/^[÷]\s*/,'').trim();
+        lbl = `<span style="display:inline-flex;flex-direction:column;align-items:center;font-size:.82em;line-height:1.1;"><span style="padding:0 4px 2px;border-bottom:1.5px solid currentColor;">·</span><span style="padding:2px 4px 0;">${d}</span></span>`;
+      }
+      bubble.innerHTML = `<span class="op-row-label">båda led</span><span class="op-bubble ${e.opType}">${lbl}</span>`;
+      c.appendChild(bubble);
+    } else if(e.type==='distribute'||e.type==='simplify'||e.type==='simplify-both') {
+      const d = document.createElement('div');
+      d.className='op-row';
+      const lbl = e.type==='distribute'?'⊗ Multiplicera ut':e.type==='simplify-both'?'✦ Förenkla båda led':'✦ Förenkla led';
+      d.innerHTML=`<span class="op-row-label">steg</span><span class="op-bubble simplify">${lbl}</span>`;
+      c.appendChild(d);
+    }
+  }
+
+  S.history = savedHistory;
+  S.equation = savedEq;
+  S.showBubbles = savedBubbles;
+
+  box.appendChild(c);
+
+  // Insert after feedback
+  const fb = document.getElementById('analog-feedback');
+  fb.after(box);
+}
+function setCompLevel(lvl) {
+  COMP.level = lvl;
+  document.querySelectorAll('#comp-level-row .comp-opt-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===lvl-1);
+  });
+}
+function setCompTime(secs) {
+  COMP.duration = secs;
+  document.querySelectorAll('#comp-time-row .comp-opt-btn').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.textContent)===secs);
+  });
+}
+
+function startCompetition() {
+  closeCompSetup();
+  COMP.active = true;
+  COMP.timeLeft = COMP.duration;
+  COMP.totalTime = COMP.duration;
+  COMP.score = 0; COMP.solved = 0; COMP.optimal = 0;
+
+  // Switch to strategy mode for speed (simpler flow)
+  S.mode = 'strategy';
+  S.inputMode = 'text';
+  S.level = COMP.level;
+  S.scoreCorrect = 0; S.scoreTotal = 0;
+
+  // Show game screen
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('result-screen').classList.remove('active');
+  document.getElementById('game-screen').classList.add('active');
+  document.getElementById('level-badge').textContent = 'Nivå ' + COMP.level;
+  document.getElementById('mode-badge').textContent = '⏱ Tävling';
+  document.getElementById('input-panel-title').textContent = '🧠 Välj operation';
+  document.getElementById('score-box') && (document.getElementById('score-box').style.display='none');
+  document.getElementById('timer-box').style.display = 'flex';
+  updateTimerDisplay();
+  updateCompScoreDisplay();
+
+  loadEquation();
+
+  // Start countdown
+  COMP.timerInterval = setInterval(tickTimer, 1000);
+}
+
+function tickTimer() {
+  COMP.timeLeft--;
+  updateTimerDisplay();
+  if(COMP.timeLeft <= 0) {
+    clearInterval(COMP.timerInterval);
+    COMP.timerInterval = null;
+    endCompetition();
+  }
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('timer-display');
+  const bar = document.getElementById('timer-bar');
+  if(!el||!bar) return;
+  el.textContent = COMP.timeLeft;
+  const pct = (COMP.timeLeft / COMP.totalTime) * 100;
+  bar.style.width = pct + '%';
+  const urgent = COMP.timeLeft <= 10;
+  el.classList.toggle('urgent', urgent);
+  bar.classList.toggle('urgent', urgent);
+}
+
+function updateCompScoreDisplay() {
+  const el = document.getElementById('comp-score-val');
+  if(el) el.textContent = COMP.score;
+}
+
+function awardPoints(used, optimal) {
+  const base = 10;
+  const bonus = used <= optimal ? 5 : 0;
+  const total = base + bonus;
+  COMP.score += total;
+  COMP.solved++;
+  if(used <= optimal) COMP.optimal++;
+  updateCompScoreDisplay();
+
+  // Floating points animation
+  const label = bonus > 0 ? `+${total} ⭐` : `+${base}`;
+  showPointsFlash(label, bonus > 0);
+}
+
+function showPointsFlash(text, isBonus) {
+  const el = document.createElement('div');
+  el.className = 'points-flash' + (isBonus ? ' bonus' : '');
+  el.textContent = text;
+  // Position near the score display
+  const box = document.getElementById('timer-box');
+  const rect = box ? box.getBoundingClientRect() : {left:window.innerWidth/2, top:60};
+  el.style.left = (rect.left + rect.width/2 - 30) + 'px';
+  el.style.top = (rect.top + 10) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 950);
+}
+
+function endCompetition() {
+  COMP.active = false;
+  // Hide game screen
+  document.getElementById('game-screen').classList.remove('active');
+  document.getElementById('timer-box').style.display = 'none';
+  const scoreBox = document.getElementById('score-box');
+  if(scoreBox) scoreBox.style.display = 'flex';
+
+  // Check highscore
+  const hsKey = `${COMP.level}_${COMP.totalTime}`;
+  let hs = {};
+  try { hs = JSON.parse(localStorage.getItem(HS_KEY)) || {}; } catch(e){}
+  const prev = hs[hsKey] || 0;
+  const isNew = COMP.score > prev;
+  if(isNew) { hs[hsKey] = COMP.score; try{localStorage.setItem(HS_KEY, JSON.stringify(hs));}catch(e){} }
+
+  // Show result screen
+  document.getElementById('result-screen').classList.add('active');
+  document.getElementById('result-score').textContent = COMP.score;
+  document.getElementById('result-meta').innerHTML =
+    `Nivå ${COMP.level} &nbsp;·&nbsp; ${COMP.totalTime} sekunder`;
+  document.getElementById('result-highscore').classList.toggle('visible', isNew && prev > 0);
+  if(isNew && prev > 0)
+    document.getElementById('result-highscore').textContent = `🎉 Nytt highscore! (förra: ${prev} p)`;
+
+  document.getElementById('result-stats').innerHTML = `
+    <div class="result-stat"><div class="rs-val">${COMP.solved}</div><div class="rs-lbl">Lösta</div></div>
+    <div class="result-stat"><div class="rs-val">${COMP.optimal}</div><div class="rs-lbl">Optimalt</div></div>
+    <div class="result-stat"><div class="rs-val" style="color:var(--accent4)">${prev>0?prev:'–'}</div><div class="rs-lbl">Highscore</div></div>
+  `;
+
+  confetti();
+}
+
+function replayCompetition() {
+  document.getElementById('result-screen').classList.remove('active');
+  openCompSetup();
+}
+
+function goHome() {
+  if(COMP.timerInterval){clearInterval(COMP.timerInterval);COMP.timerInterval=null;}
+  COMP.active=false;
+  document.getElementById('timer-box').style.display='none';
+  const sb=document.getElementById('score-box');if(sb)sb.style.display='flex';
+  document.getElementById('game-screen').classList.remove('active');
+  document.getElementById('result-screen').classList.remove('active');
+  document.getElementById('start-screen').classList.add('active');
+  renderProgressSection();
+}
+
+// Show progress on initial load if any data exists
+renderProgressSection();
+
+// ══════════════════════════════════════════════════════════════
+//  UNDO
+// ══════════════════════════════════════════════════════════════
+function undoStep() {
+  // History is: [eq, op, eq, op, eq, ...]
+  // We want to roll back to before the last op – remove last op+eq pair
+  if(S.history.length <= 1) return; // nothing to undo
+  // Find the last op/simplify/distribute entry and remove it + the equation after it
+  let lastOpIdx = -1;
+  for(let i=S.history.length-1;i>=0;i--) {
+    if(S.history[i].type!=='equation') { lastOpIdx=i; break; }
+  }
+  if(lastOpIdx<0) return;
+  // Remove everything from lastOpIdx onwards
+  S.history = S.history.slice(0, lastOpIdx);
+  // Restore equation state from new last entry
+  const lastEq = [...S.history].reverse().find(h=>h.type==='equation');
+  if(lastEq) S.equation = cloneEq(lastEq.eq);
+  S.solved = false;
+  S.parsedOp = null; S._freeRaw = ''; _btnOpType = null; S._btnOpType = null;
+  S.calcStep = 'op'; S._calcErrors = 0;
+  S.needsSimplify = checkNeedsSimplify();
+  document.getElementById('solved-display').classList.remove('visible');
+  buildHistory();
+  renderInputUI();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('keydown', e=>{
+  // Analog mode Enter
+  if(document.getElementById('analog-screen').classList.contains('active')) {
+    if(e.key==='Enter' && document.activeElement.id==='analog-answer-inp') {
+      checkAnalogAnswer();
+    }
+    return;
+  }
+
+  // Escape = undo last step
+  if(e.key==='Escape' && !S.solved) {
+    undoStep(); return;
+  }
+
+  if(e.key!=='Enter') return;
+  const active = document.activeElement;
+
+  if(e.key==='Enter' && document.activeElement.id==='quick-ans-inp') {
+    checkQuickAnswer(); return;
+  }
+
+  // Solved screen: Enter → next equation
+  if(S.solved) { nextEquation(); return; }
+
+  if(S.mode==='strategy') {
+    // In free-text field: Enter confirms operation
+    if(active && active.id==='free-inp' && S.parsedOp) { doApply(); return; }
+    const btn=document.getElementById('btn-apply');
+    if(btn&&!btn.disabled) doApply();
+    return;
+  }
+
+  // Calc mode
+  if(S.calcStep==='op') {
+    // Enter in free-text or value fields: confirm op if ready
+    if(S.parsedOp) { confirmCalcOp(); return; }
+  } else if(S.calcStep==='answer') {
+    // Enter in LHS field (split): move focus to RHS
+    if(S.splitFields && active && active.id==='calc-lhs-inp') {
+      const rhs = document.getElementById('calc-rhs-inp');
+      if(rhs) { rhs.focus(); return; }
+    }
+    checkCalcStep();
+  } else if(S.calcStep==='simplify-lhs') {
+    checkSimplify();
+  } else if(S.calcStep==='simplify-both') {
+    if(active && active.id==='sb-lhs') {
+      const rhs=document.getElementById('sb-rhs');
+      if(rhs){rhs.focus();return;}
+    }
+    checkSimplifyBoth();
+  } else if(S.calcStep==='distribute') {
+    // Enter in LHS: move to RHS; Enter in RHS: check
+    if(active && active.id==='dist-lhs-inp') {
+      const rhs=document.getElementById('dist-rhs-inp');
+      if(rhs){rhs.focus();return;}
+    }
+    checkDistribute();
+  } else if(S.calcStep==='fracSimplify') {
+    if(active && active.id==='fsimp-lhs-inp') {
+      const rhs=document.getElementById('fsimp-rhs-inp');
+      if(rhs){rhs.focus();return;}
+    }
+    checkFracSimplify();
+  }
+});
+
+// In calc mode, need a "confirm op" button
+function getConfirmOpBtn() {
+  if(S.mode!=='calc'||S.calcStep!=='op') return null;
+  const btn=document.createElement('button');
+  btn.className='btn-primary';
+  btn.id='btn-confirm-op';
+  btn.disabled=!S.parsedOp;
+  btn.textContent='Välj denna operation →';
+  btn.onclick=confirmCalcOp;
+  return btn;
+}
+
+// Ensure confirm op button updates when parsedOp changes
+function updateApplyBtn(){
+  const btn=document.getElementById('btn-apply');
+  if(btn) btn.disabled=!S.parsedOp;
+  const cb=document.getElementById('btn-confirm-op');
+  if(cb) cb.disabled=!S.parsedOp;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PROGRESS (localStorage)
+// ══════════════════════════════════════════════════════════════
+const PROG_KEY = 'balansmetoden_progress_v1';
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(PROG_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+
+function saveProgress(prog) {
+  try { localStorage.setItem(PROG_KEY, JSON.stringify(prog)); } catch(e) {}
+}
+
+function recordSolve(level, steps, optimal) {
+  const prog = loadProgress();
+  if(!prog[level]) prog[level] = { solved: 0, bestSteps: null };
+  prog[level].solved++;
+  // Track best steps only when solved optimally or improving
+  if(prog[level].bestSteps === null || steps < prog[level].bestSteps)
+    prog[level].bestSteps = steps;
+  saveProgress(prog);
+}
+
+function renderProgressSection() {
+  const prog = loadProgress();
+  const hasAny = Object.keys(prog).length > 0;
+  const sec = document.getElementById('progress-section');
+  if(!hasAny) { sec.style.display='none'; return; }
+  sec.style.display='block';
+
+  const grid = document.getElementById('progress-grid');
+  grid.innerHTML = '';
+  const levelColors = ['#6c8bff','#43e8a8','#ff7eb3','#ffd166','#b8a4ff','#ff7eb3'];
+  const MAX_SHOWN = 10; // fill bar at 10 solves
+
+  for(let lvl=1; lvl<=7; lvl++) {
+    const d = prog[lvl] || { solved:0, bestSteps:null };
+    const cell = document.createElement('div');
+    cell.className = 'prog-cell' + (d.solved>0?' has-data':'');
+    const pct = Math.min(100, (d.solved/MAX_SHOWN)*100);
+    const col = levelColors[lvl-1];
+    cell.innerHTML = `
+      <div class="pc-level">Niv${lvl<=3?'å':'å'} ${lvl}</div>
+      <div class="pc-count" style="color:${col}">${d.solved}</div>
+      <div class="pc-best">${d.bestSteps!==null?'bäst: '+d.bestSteps+' steg':'—'}</div>
+      <div class="pc-bar-wrap"><div class="pc-bar" style="width:${pct}%;background:${col}"></div></div>`;
+    grid.appendChild(cell);
+  }
+}
+
+
+function confetti() {
+  const cols=['#6c8bff','#ff7eb3','#43e8a8','#ffd166','#b8a4ff'];
+  const b=document.createElement('div');
+  b.className='confetti-burst'; document.body.appendChild(b);
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div'); p.className='confetti-piece';
+    p.style.left=Math.random()*100+'%'; p.style.top='-10px';
+    p.style.background=cols[Math.floor(Math.random()*cols.length)];
+    p.style.animationDelay=Math.random()*.8+'s';
+    p.style.animationDuration=(.8+Math.random()*.6)+'s';
+    p.style.width=(5+Math.random()*8)+'px'; p.style.height=(5+Math.random()*8)+'px';
+    b.appendChild(p);
+  }
+  setTimeout(()=>b.remove(),2200);
+}
+
+// © 2025 Patrick Tegnefur – Förstelärare i matematik, Alfred Dalinskolan
+// Länken får delas fritt. Koden får ej kopieras eller modifieras utan tillstånd.
+function renderSignature() {
+  const el = document.getElementById('app-signature');
+  if(!el) return;
+  const author = 'Patrick Tegnefur';
+  const title  = 'Förstelärare i matematik\u00b7 Alfred Dalinskolan';
+  const ver    = '';
+  el.style.cssText='width:100%;max-width:900px;margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;';
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:.75rem;">
+      <img src="pt_logo.jpg" alt="Patrick Tegnefur" style="height:36px;width:auto;opacity:.85;">
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6;">
+        <span style="font-weight:700;color:var(--text);">\u00a9 ${new Date().getFullYear()} ${author}</span><br>
+        ${title}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <img src="AD_color.png" alt="Alfred Dalinskolan" style="height:36px;width:auto;opacity:.85;">
+      <div style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--border);letter-spacing:.08em;">${ver}</div>
+    </div>`;
+}
+renderSignature();
+</script>
+</body>
+</html>
