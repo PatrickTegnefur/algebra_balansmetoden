@@ -11,7 +11,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Balansmetoden – Ekvationsträning</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" type="image/x-icon" href="pt_logo.jpg">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -23,6 +22,7 @@
 }
 html,body{height:100%;margin:0;padding:0;}
 body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body.game-active{overflow:hidden;height:100dvh;}
 body::before{content:'';position:fixed;inset:0;background:
   radial-gradient(ellipse 60% 40% at 20% 20%,rgba(108,139,255,.08) 0%,transparent 70%),
   radial-gradient(ellipse 50% 50% at 80% 70%,rgba(67,232,168,.06) 0%,transparent 70%),
@@ -41,23 +41,27 @@ body::before{content:'';position:fixed;inset:0;background:
 .app-title{font-family:'DM Serif Display',serif;font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin-bottom:.5rem;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .app-subtitle{color:var(--muted);font-size:1.1rem;margin-bottom:3rem;}
 .level-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;width:100%;max-width:900px;margin-bottom:1rem;}
-@media(max-width:480px){.level-grid{grid-template-columns:1fr;}}
-.level-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.4rem;cursor:pointer;transition:all .25s ease;text-align:left;position:relative;overflow:hidden;display:flex;align-items:center;gap:1rem;}
+@media(max-width:480px){.level-grid{grid-template-columns:1fr;}.action-banners{grid-template-columns:1fr;}.progress-grid{grid-template-columns:repeat(4,1fr);}}
+.mode-btn.hard-active{border-color:#ffd166;background:rgba(255,209,102,.15);color:#ffd166;box-shadow:0 0 20px rgba(255,209,102,.25);}
 .level-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--lc-color,var(--accent));opacity:.9;}
 .level-card:hover{border-color:var(--lc-color,var(--accent));transform:translateY(-2px);box-shadow:var(--shadow);}
+.level-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;width:100%;max-width:900px;margin-bottom:.75rem;}
+@media(max-width:480px){.level-grid{grid-template-columns:1fr;}.action-banners{grid-template-columns:1fr;}.progress-grid{grid-template-columns:repeat(4,1fr);}}
+.level-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:.65rem 1rem;cursor:pointer;transition:all .25s ease;text-align:left;position:relative;overflow:hidden;display:flex;align-items:center;gap:.75rem;}
+.level-card:hover{border-color:var(--lc-color,var(--accent));transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.25);}
 .level-card .lc-text{flex:1;min-width:0;}
-.level-card .lc-num{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--lc-color,var(--accent));letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem;}
-.level-card .lc-title{font-weight:800;font-size:.92rem;margin-bottom:.2rem;}
-.level-card .lc-desc{font-size:.78rem;color:var(--muted);line-height:1.4;}
-.level-card .lc-example{font-family:'DM Mono',monospace;font-size:.72rem;margin-top:.35rem;color:var(--lc-color,var(--accent));opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.level-card .lc-icon{font-size:1.6rem;flex-shrink:0;opacity:.8;}
+.level-card .lc-num{font-family:'DM Mono',monospace;font-size:.64rem;color:var(--lc-color,var(--accent));letter-spacing:.1em;text-transform:uppercase;margin-bottom:.1rem;}
+.level-card .lc-title{font-weight:800;font-size:.88rem;margin-bottom:.1rem;}
+.level-card .lc-desc{font-size:.78rem;color:var(--muted);line-height:1.35;}
+.level-card .lc-example{font-family:'DM Mono',monospace;font-size:.72rem;margin-top:.25rem;color:var(--lc-color,var(--accent));opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.level-card .lc-icon{font-size:1.35rem;flex-shrink:0;opacity:.8;}
 .mode-select{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;justify-content:center;}
 .mode-btn{padding:.8rem 2rem;border-radius:50px;border:2px solid var(--border);background:var(--card);color:var(--text);font-family:'Nunito',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;transition:all .2s;}
 .mode-btn:hover,.mode-btn.selected{border-color:var(--accent);background:rgba(108,139,255,.15);color:var(--accent);}
 .mode-btn.selected{box-shadow:0 0 20px rgba(108,139,255,.3);}
 
 /* ── GAME SCREEN ── */
-#game-screen{display:none;flex-direction:column;height:100dvh;max-height:100dvh;overflow:hidden;padding:.6rem 1rem;}
+#game-screen{display:none;flex-direction:column;position:fixed;inset:0;overflow:hidden;padding:.6rem 1rem;background:var(--bg);z-index:10;}
 #game-screen.active{display:flex;}
 .topbar{display:flex;align-items:center;gap:.75rem;padding:.35rem 0;margin-bottom:.5rem;flex-shrink:0;}
 .btn-back{background:var(--card);border:1.5px solid var(--border);color:var(--muted);border-radius:8px;padding:.35rem .75rem;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;transition:all .2s;display:flex;align-items:center;gap:.4rem;white-space:nowrap;}
@@ -139,14 +143,15 @@ body::before{content:'';position:fixed;inset:0;background:
 .tok-op-mul{color:var(--op-mul);font-weight:700;}
 .tok-op-div{color:var(--op-div);font-weight:700;}
 .tok-paren{color:var(--muted);}
-.solved-display{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:.8rem;text-align:center;}
+.solved-display{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:.5rem;text-align:center;padding:.5rem;}
 .solved-display.visible{display:flex;animation:solvedPop .5s cubic-bezier(.175,.885,.32,1.4) both;}
 @keyframes solvedPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
-.solved-icon{font-size:3.5rem;animation:iconBounce .6s cubic-bezier(.175,.885,.32,1.4) .1s both;}
+.solved-top-row{display:flex;align-items:center;justify-content:center;gap:.6rem;}
+.solved-icon{font-size:2rem;animation:iconBounce .6s cubic-bezier(.175,.885,.32,1.4) .1s both;}
 @keyframes iconBounce{from{transform:scale(0) rotate(-15deg)}to{transform:none}}
-.solved-title{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--success);}
-.solved-answer{font-family:'DM Mono',monospace;font-size:1.4rem;color:var(--accent4);background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);border-radius:10px;padding:.4rem 1.2rem;}
-.solved-steps-feedback{font-size:.88rem;color:var(--muted);text-align:center;line-height:1.5;max-width:240px;}
+.solved-title{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--success);}
+.solved-answer{font-family:'DM Mono',monospace;font-size:1.2rem;color:var(--accent4);background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);border-radius:10px;padding:.3rem 1rem;}
+.solved-steps-feedback{font-size:.82rem;color:var(--muted);text-align:center;line-height:1.4;max-width:240px;}
 .solved-steps-feedback strong{color:var(--accent4);}
 .solved-steps-feedback.optimal{color:var(--success);}
 .btn-next{margin-top:.5rem;padding:.8rem 2.5rem;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(108,139,255,.4);}
@@ -359,8 +364,8 @@ body::before{content:'';position:fixed;inset:0;background:
 .bubble-toggle-thumb{position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);}
 .bubble-toggle-track.on .bubble-toggle-thumb{transform:translateX(14px);}
 /* Progress bars on start screen */
-.progress-section{width:100%;max-width:860px;margin-bottom:1.5rem;}
-.progress-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:.6rem;text-align:center;}
+.progress-section{width:100%;max-width:900px;margin-bottom:1.5rem;}
+.progress-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:.6rem;}
 .progress-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:.4rem;}
 .prog-cell{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:.5rem .3rem;text-align:center;font-size:.7rem;color:var(--muted);transition:all .3s;}
 .prog-cell.has-data{border-color:rgba(108,139,255,.3);}
@@ -396,7 +401,7 @@ body::before{content:'';position:fixed;inset:0;background:
 .quick-answer-btn:hover{transform:translateY(-1px);}
 
 /* ── ANALOG SCREEN ── */
-#analog-screen{display:none;flex-direction:column;height:100dvh;overflow:hidden;padding:.6rem 1rem;}
+#analog-screen{display:none;flex-direction:column;position:fixed;inset:0;overflow:hidden;padding:.6rem 1rem;background:var(--bg);z-index:10;}
 #analog-screen.active{display:flex;}
 .analog-eq-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:2rem 2.5rem;text-align:center;width:100%;box-shadow:var(--shadow);animation:slideIn .3s ease;}
 .analog-eq-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700;margin-bottom:1rem;}
@@ -457,6 +462,7 @@ body::before{content:'';position:fixed;inset:0;background:
 .btn-result-home{background:transparent;border:2px solid var(--border);color:var(--muted);}
 .btn-result-home:hover{border-color:var(--accent);color:var(--accent);}
 </style>
+<link rel="icon" type="image/jpeg" href="pt_logo.jpg">
 </head>
 <body>
 <div id="app">
@@ -465,22 +471,100 @@ body::before{content:'';position:fixed;inset:0;background:
 <div id="start-screen" class="screen active">
   <div class="logo-mark">⚖️</div>
   <h1 class="app-title">Balansmetoden</h1>
-  <p class="app-subtitle">Välj nivå och läge för att börja träna</p>
+  <p class="app-subtitle">Träna ekvationslösning med balansmetoden – åtta nivåer från det grundläggande till det avancerade.</p>
 
   <!-- Mode selector – compact toggle style -->
   <div style="width:100%;max-width:900px;margin-bottom:1.2rem;">
     <p style="text-align:center;font-size:.68rem;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;">Träningsläge</p>
-    <div style="display:flex;gap:.5rem;justify-content:center;">
+    <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;align-items:center;">
       <button class="mode-btn selected" id="mode-strategy-btn" onclick="selectMode('strategy')">🧠 Strategiläge</button>
       <button class="mode-btn" id="mode-calc-btn" onclick="selectMode('calc')">🖊 Beräkningsläge</button>
+      <button class="mode-btn" id="hard-mode-btn" onclick="toggleHardMode()" title="Större tal – samma procedur">🔢 Utmanande värden</button>
     </div>
     <p id="mode-desc" style="text-align:center;font-size:.8rem;color:var(--muted);max-width:460px;margin:.5rem auto 0;line-height:1.5;">
-      Du väljer vilken operation som ska göras i båda led — programmet räknar åt dig och visar historiken steg för steg.
+      Du väljer vilken operation som ska göras i båda led<br>— programmet räknar åt dig och visar historiken steg för steg.
     </p>
   </div>
 
-  <!-- Analog + Competition banners -->
-  <div style="width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.4rem;">
+  <!-- Level grid -->
+  <div style="width:100%;max-width:900px;" id="bottom-layout">
+    <p style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin:0 0 .6rem;">Välj nivå</p>
+    <div class="level-grid">
+      <div class="level-card" style="--lc-color:#6c8bff" onclick="startGame(1)">
+        <span class="lc-icon">📐</span>
+        <div class="lc-text">
+          <div class="lc-num">Nivå 1</div><div class="lc-title">Linjära ekvationer</div>
+          <div class="lc-desc">Ax ± B = C och varianter med division.</div>
+          <div class="lc-example">2x + 3 = 11 · x/4 − 2 = 6</div>
+        </div>
+      </div>
+      <div class="level-card" style="--lc-color:#5a7aee" onclick="startGame(2)">
+        <span class="lc-icon">✦</span>
+        <div class="lc-text">
+          <div class="lc-num">Nivå 2</div><div class="lc-title">Förenkling i VL</div>
+          <div class="lc-desc">Samla termer i vänsterledet.</div>
+          <div class="lc-example">3x + 5 + x − 2 = 11</div>
+        </div>
+      </div>
+      <div class="level-card" style="--lc-color:#ff7eb3" onclick="startGame(3)">
+        <span class="lc-icon">⚖️</span>
+        <div class="lc-text">
+          <div class="lc-num">Nivå 3</div><div class="lc-title">x i båda led</div>
+          <div class="lc-desc">x-termer på båda sidor.</div>
+          <div class="lc-example">5x + 3 = 2x + 12</div>
+        </div>
+      </div>
+      <div class="level-card" style="--lc-color:#e86da0" onclick="startGame(4)">
+        <span class="lc-icon">✦✦</span>
+        <div class="lc-text">
+          <div class="lc-num">Nivå 4</div><div class="lc-title">Förenkla båda led</div>
+          <div class="lc-desc">Samla termer i båda led.</div>
+          <div class="lc-example">3x + 2x = x + 4 + x</div>
+        </div>
+      </div>
+      <div class="level-card" style="--lc-color:#ff9f4a" onclick="startGame(5)">
+        <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1.1rem;">( )</span>
+        <div class="lc-text">
+          <div class="lc-num">Nivå 5</div><div class="lc-title">Parenteser</div>
+          <div class="lc-desc">Distribuera en positiv faktor.</div>
+          <div class="lc-example">3(x + 4) = 21</div>
+        </div>
+      </div>
+      <div class="level-card" style="--lc-color:#e07a20" onclick="startGame(6)">
+        <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1rem;">−( )</span>
+        <div class="lc-text">
+          <div class="lc-num">Nivå 6</div><div class="lc-title">Negativ distribution</div>
+          <div class="lc-desc">Negativ faktor – passa teckenbytena!</div>
+          <div class="lc-example">−2(x + 3) = −10</div>
+        </div>
+      </div>
+      <div class="level-card" style="--lc-color:#43e8a8;border-color:rgba(67,232,168,.3);background:linear-gradient(135deg,var(--card),rgba(67,232,168,.03));" onclick="startGame(7)">
+        <span class="lc-icon">🔀</span>
+        <div class="lc-text">
+          <div class="lc-num" style="letter-spacing:.05em;">Nivå 7 · Avancerad</div><div class="lc-title">Kombinerat</div>
+          <div class="lc-desc">Bråk, parenteser och x i båda led.</div>
+          <div class="lc-example">3x/2 + 1 = 4x − 5</div>
+        </div>
+      </div>
+      <div class="level-card" style="--lc-color:#ffd166;border-color:rgba(255,209,102,.3);background:linear-gradient(135deg,var(--card),rgba(255,209,102,.03));" onclick="startGame(8)">
+        <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1.1rem;">a/b</span>
+        <div class="lc-text">
+          <div class="lc-num" style="letter-spacing:.05em;">Nivå 8 · Fördjupning</div><div class="lc-title">Bråk i båda led</div>
+          <div class="lc-desc">Rensa alla bråk med LCM.</div>
+          <div class="lc-example">x/2 + 3 = x/3 + 5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Framsteg – full bredd, 8 celler i rad -->
+  <div class="progress-section" id="progress-section" style="display:none;width:100%;max-width:900px;margin-top:.75rem;">
+    <p style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin:0 0 .5rem;">Dina framsteg</p>
+    <div class="progress-grid" id="progress-grid"></div>
+  </div>
+
+  <!-- Analogläge + Tävlingsläge -->
+  <div style="width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.75rem;margin-bottom:.5rem;" class="action-banners">
     <div style="padding:.9rem 1.2rem;background:rgba(108,139,255,.07);border:1.5px solid rgba(108,139,255,.2);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;gap:.8rem;">
       <div>
         <div style="font-weight:800;font-size:.88rem;margin-bottom:.1rem;">✏️ Analogläge</div>
@@ -494,89 +578,6 @@ body::before{content:'';position:fixed;inset:0;background:
         <div style="font-size:.75rem;color:var(--muted);">Lös så många som möjligt på tid.</div>
       </div>
       <button onclick="openCompSetup()" style="padding:.5rem 1.1rem;border-radius:50px;background:linear-gradient(135deg,var(--danger),#ff9f4a);border:none;color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;cursor:pointer;white-space:nowrap;flex-shrink:0;">Starta</button>
-    </div>
-  </div>
-
-  <!-- Progress bars (shown after first solve) -->
-  <div class="progress-section" id="progress-section" style="display:none;">
-    <div class="progress-title">Dina framsteg</div>
-    <div class="progress-grid" id="progress-grid"></div>
-  </div>
-
-  <!-- Section label -->
-  <div style="width:100%;max-width:900px;margin-bottom:.6rem;">
-    <p style="font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin:0;">Välj nivå</p>
-  </div>
-
-  <!-- Level cards 2×4, row colors: row1=#6c8bff, row2=#ff7eb3, row3=#b8a4ff, row4=#43e8a8 -->
-  <div class="level-grid">
-    <!-- Row 1: blå – grundläggande linjärt -->
-    <div class="level-card" style="--lc-color:#6c8bff" onclick="startGame(1)">
-      <span class="lc-icon">📐</span>
-      <div class="lc-text">
-        <div class="lc-num">Nivå 1</div><div class="lc-title">Linjära ekvationer</div>
-        <div class="lc-desc">Ax ± B = C och varianter med division.</div>
-        <div class="lc-example">2x + 3 = 11 · x/4 − 2 = 6</div>
-      </div>
-    </div>
-    <div class="level-card" style="--lc-color:#5a7aee" onclick="startGame(2)">
-      <span class="lc-icon">✦</span>
-      <div class="lc-text">
-        <div class="lc-num">Nivå 2</div><div class="lc-title">Förenkling i VL</div>
-        <div class="lc-desc">Samla termer i vänsterledet.</div>
-        <div class="lc-example">3x + 5 + x − 2 = 11</div>
-      </div>
-    </div>
-    <!-- Row 2: rosa – x i ledet -->
-    <div class="level-card" style="--lc-color:#ff7eb3" onclick="startGame(3)">
-      <span class="lc-icon">⚖️</span>
-      <div class="lc-text">
-        <div class="lc-num">Nivå 3</div><div class="lc-title">x i båda led</div>
-        <div class="lc-desc">x-termer på båda sidor.</div>
-        <div class="lc-example">5x + 3 = 2x + 12</div>
-      </div>
-    </div>
-    <div class="level-card" style="--lc-color:#e86da0" onclick="startGame(4)">
-      <span class="lc-icon">✦✦</span>
-      <div class="lc-text">
-        <div class="lc-num">Nivå 4</div><div class="lc-title">Förenkla båda led</div>
-        <div class="lc-desc">Samla termer i båda led.</div>
-        <div class="lc-example">3x + 2x = x + 4 + x</div>
-      </div>
-    </div>
-    <!-- Row 3: lila – parenteser -->
-    <div class="level-card" style="--lc-color:#ff9f4a" onclick="startGame(5)">
-      <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1.1rem;">( )</span>
-      <div class="lc-text">
-        <div class="lc-num">Nivå 5</div><div class="lc-title">Parenteser</div>
-        <div class="lc-desc">Distribuera en positiv faktor.</div>
-        <div class="lc-example">3(x + 4) = 21</div>
-      </div>
-    </div>
-    <div class="level-card" style="--lc-color:#e07a20" onclick="startGame(6)">
-      <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1rem;">−( )</span>
-      <div class="lc-text">
-        <div class="lc-num">Nivå 6</div><div class="lc-title">Negativ distribution</div>
-        <div class="lc-desc">Negativ faktor – passa teckenbytena!</div>
-        <div class="lc-example">−2(x + 3) = −10</div>
-      </div>
-    </div>
-    <!-- Row 4: unika färger – avancerat -->
-    <div class="level-card" style="--lc-color:#43e8a8;border-color:rgba(67,232,168,.3);background:linear-gradient(135deg,var(--card),rgba(67,232,168,.03));" onclick="startGame(7)">
-      <span class="lc-icon">🔀</span>
-      <div class="lc-text">
-        <div class="lc-num" style="letter-spacing:.05em;">Nivå 7 · Avancerad</div><div class="lc-title">Kombinerat</div>
-        <div class="lc-desc">Bråk, parenteser och x i båda led.</div>
-        <div class="lc-example">3x/2 + 1 = 4x − 5</div>
-      </div>
-    </div>
-    <div class="level-card" style="--lc-color:#ffd166;border-color:rgba(255,209,102,.3);background:linear-gradient(135deg,var(--card),rgba(255,209,102,.03));" onclick="startGame(8)">
-      <span class="lc-icon" style="font-family:'DM Mono',monospace;font-size:1.1rem;">a/b</span>
-      <div class="lc-text">
-        <div class="lc-num" style="letter-spacing:.05em;">Nivå 8 · Fördjupning</div><div class="lc-title">Bråk i båda led</div>
-        <div class="lc-desc">Rensa alla bråk med LCM.</div>
-        <div class="lc-example">x/2 + 3 = x/3 + 5</div>
-      </div>
     </div>
   </div>
 
@@ -736,8 +737,10 @@ body::before{content:'';position:fixed;inset:0;background:
       </div>
       <div class="eq-history" id="eq-history"></div>
       <div class="solved-display" id="solved-display">
-        <div class="solved-icon">🎉</div>
-        <div class="solved-title">Löst!</div>
+        <div class="solved-top-row">
+          <div class="solved-icon">🎉</div>
+          <div class="solved-title">Löst!</div>
+        </div>
         <div class="solved-answer" id="solved-answer-text"></div>
         <div class="solved-steps-feedback" id="solved-steps-feedback"></div>
         <button class="btn-next" onclick="nextEquation()">Nästa ekvation →</button>
@@ -770,15 +773,22 @@ const S = {
   level: 1, mode: 'strategy', inputMode: 'text',
   equation: null, original: null, history: [],
   scoreCorrect: 0, scoreTotal: 0, solved: false,
-  showBubbles: true,   // toggle: show "båda led" bubble rows
-  splitFields: false,  // toggle: split answer into separate VL / HL inputs
-  // parsed op (both modes)
-  parsedOp: null,   // { opType, value, valueIsX, xCoeffVal, label }
-  // calc sequential state: 'op' | 'answer'
+  showBubbles: true,
+  splitFields: false,
+  parsedOp: null,
   calcStep: 'op',
   calcExpectedLhs: null, calcExpectedRhs: null,
   needsSimplify: false,
 };
+
+let hardMode = false;
+function toggleHardMode() {
+  hardMode = !hardMode;
+  const btn = document.getElementById('hard-mode-btn');
+  if(btn) btn.classList.toggle('hard-active', hardMode);
+}
+// Returns a multiplier for number ranges: 1 = normal, 2-3 = hard
+const hM = () => hardMode ? 3 : 1;
 
 // ══════════════════════════════════════════════════════════════
 //  TERM MATH
@@ -1058,190 +1068,193 @@ const rOf=(...a)=>a[Math.floor(Math.random()*a.length)];
 const rNZ=(a,b)=>{let v;do{v=rI(a,b);}while(v===0);return v;}
 
 function genLevel1() {
-  const form=rOf('AxpB','AxmB','xdApB','xdAmB');
-  let lhs,rhs;
-  if(form==='AxpB'){const A=rI(2,6),B=rI(1,10),x=rI(1,10);lhs=[mkT(A,true),mkT(B,false)];rhs=[mkT(A*x+B,false)];}
-  else if(form==='AxmB'){const A=rI(2,6),B=rI(1,9),x=rI(1,10);lhs=[mkT(A,true),mkT(-B,false)];rhs=[mkT(A*x-B,false)];if(rhs[0].coeff<=0)return genLevel1();}
-  else if(form==='xdApB'){const A=rOf(2,3,4,5),x=A*rI(1,8),B=rI(1,10);lhs=[mkT(1,true,A),mkT(B,false)];rhs=[mkT(x/A+B,false)];}
-  else {const A=rOf(2,3,4,5),x=A*rI(2,8),B=rI(1,rI(1,8));lhs=[mkT(1,true,A),mkT(-B,false)];rhs=[mkT(x/A-B,false)];if(rhs[0].coeff<=0)return genLevel1();}
-  return {lhsTerms:lhs,rhsTerms:rhs};
+  for(let i=0;i<100;i++){
+    const m=hM();
+    const form=rOf('AxpB','AxmB','xdApB','xdAmB');
+    let lhs,rhs;
+    if(form==='AxpB'){const A=rI(2,6),B=rI(1,10*m),x=rI(1,10*m);lhs=[mkT(A,true),mkT(B,false)];rhs=[mkT(A*x+B,false)];}
+    else if(form==='AxmB'){const A=rI(2,6),B=rI(1,9*m),x=rI(1,10*m);lhs=[mkT(A,true),mkT(-B,false)];rhs=[mkT(A*x-B,false)];if(rhs[0].coeff<=0)continue;}
+    else if(form==='xdApB'){const A=rOf(2,3,4,5),x=A*rI(1,8*m),B=rI(1,10*m);lhs=[mkT(1,true,A),mkT(B,false)];rhs=[mkT(x/A+B,false)];}
+    else{const A=rOf(2,3,4,5),x=A*rI(2,8*m),B=rI(1,8*m);lhs=[mkT(1,true,A),mkT(-B,false)];rhs=[mkT(x/A-B,false)];if(rhs[0].coeff<=0)continue;}
+    return {lhsTerms:lhs,rhsTerms:rhs};
+  }
+  const A=rI(2,5),x=rI(1,8);return{lhsTerms:[mkT(A,true),mkT(1,false)],rhsTerms:[mkT(A*x+1,false)]};
 }
 function genLevel2() {
-  const a=rI(1,5),c=rI(1,5),b=rOf(1,-1)*rI(1,8),d=rOf(1,-1)*rI(1,8),x=rOf(1,-1)*rI(1,8);
-  const rhs=(a+c)*x+(b+d);
-  if(rhs===0||(a+c)===0) return genLevel2();
-  return {lhsTerms:[mkT(a,true),mkT(b,false),mkT(c,true),mkT(d,false)],rhsTerms:[mkT(rhs,false)]};
+  for(let i=0;i<100;i++){
+    const m=hM();
+    const a=rI(1,5),c=rI(1,5),b=rOf(1,-1)*rI(1,8*m),d=rOf(1,-1)*rI(1,8*m),x=rOf(1,-1)*rI(1,8*m);
+    const rhs=(a+c)*x+(b+d);
+    if(rhs===0||(a+c)===0) continue;
+    return {lhsTerms:[mkT(a,true),mkT(b,false),mkT(c,true),mkT(d,false)],rhsTerms:[mkT(rhs,false)]};
+  }
+  return genLevel1();
 }
 function genLevel3() {
-  let A,B,C,D,x,tries=0;
-  do{
-    A=rI(2,8);C=rI(1,6);if(A===C)continue;
-    x=rOf(1,-1)*rI(1,12);B=rNZ(-8,8);D=B-(A-C)*x;tries++;
-  }while(A===C&&tries<50);
-  if(A*x+B!==C*x+D) return genLevel3();
-  return {lhsTerms:[mkT(A,true),mkT(B,false)],rhsTerms:[mkT(C,true),mkT(D,false)]};
+  for(let i=0;i<100;i++){
+    const m=hM();
+    const A=rI(2,8),C=rI(1,6);if(A===C)continue;
+    const x=rOf(1,-1)*rI(1,12*m),B=rNZ(-8*m,8*m),D=B-(A-C)*x;
+    return {lhsTerms:[mkT(A,true),mkT(B,false)],rhsTerms:[mkT(C,true),mkT(D,false)]};
+  }
+  return genLevel1();
 }
-// Level 4: Förenkla båda led (inga parenteser) – bygger vidare på nivå 3
+// Level 4: Förenkla båda led (inga parenteser)
 function genLevel4() {
-  // Focus: BOTH sides have multiple terms that need collecting before balancing.
-  const form = rOf('both_simple','both_x_heavy','both_constants','both_negative');
-
-  if(form==='both_simple') {
-    const xL=rI(2,6),cL=rNZ(-8,8),xR=rI(1,4),cR=rNZ(-8,8);
-    if(xL===xR) return genLevel4();
-    const a=rI(1,xL-1), c=xL-a;
-    const bVal=rNZ(-6,6), dVal=cL-bVal;
-    const e=rI(1,Math.max(1,xR-1)), g=xR-e;
-    const fVal=rNZ(-6,6), hVal=cR-fVal;
-    return {
-      lhsTerms:[mkT(a,true),mkT(bVal,false),mkT(c,true),mkT(dVal,false)],
-      rhsTerms:[mkT(e,true),mkT(fVal,false),mkT(g,true),mkT(hVal,false)]
-    };
+  for(let i=0;i<100;i++){
+    const m=hM();
+    const form = rOf('both_simple','both_x_heavy','both_constants','both_negative');
+    if(form==='both_simple') {
+      const xL=rI(2,6),cL=rNZ(-8*m,8*m),xR=rI(1,4),cR=rNZ(-8*m,8*m);
+      if(xL===xR) continue;
+      const a=rI(1,xL-1), c=xL-a;
+      const bVal=rNZ(-6*m,6*m), dVal=cL-bVal;
+      const e=rI(1,Math.max(1,xR-1)), g=xR-e;
+      const fVal=rNZ(-6*m,6*m), hVal=cR-fVal;
+      return {lhsTerms:[mkT(a,true),mkT(bVal,false),mkT(c,true),mkT(dVal,false)],rhsTerms:[mkT(e,true),mkT(fVal,false),mkT(g,true),mkT(hVal,false)]};
+    }
+    if(form==='both_x_heavy') {
+      const xL=rI(3,8), xR=rI(1,xL-1), C=rNZ(-8*m,8*m), F=rNZ(-8*m,8*m);
+      if(xL===xR) continue;
+      const a=rI(1,xL-1), b=xL-a, d=rI(1,xR-1)||1, e=xR-d;
+      return {lhsTerms:[mkT(a,true),mkT(b,true),mkT(C,false)],rhsTerms:[mkT(d,true),mkT(e,true),mkT(F,false)]};
+    }
+    if(form==='both_constants') {
+      const xL=rI(3,8), xR=rI(1,xL-1), b=rNZ(-8*m,8*m), c=rNZ(-8*m,8*m), d=rNZ(-8*m,8*m), e=rNZ(-8*m,8*m);
+      if(xL===xR || b+c===d+e) continue;
+      return {lhsTerms:[mkT(xL,true),mkT(b,false),mkT(c,false)],rhsTerms:[mkT(xR,true),mkT(d,false),mkT(e,false)]};
+    }
+    const xL=rI(2,6), xR=rI(1,xL-1);
+    if(xL===xR) continue;
+    const a=rI(2,xL+2), b=-(a-xL);
+    const d=rI(2,xR+2), e=-(d-xR);
+    const C=rNZ(-8*m,8*m), F=rNZ(-8*m,8*m);
+    return {lhsTerms:[mkT(a,true),mkT(b,true),mkT(C,false)],rhsTerms:[mkT(d,true),mkT(e,true),mkT(F,false)]};
   }
-  if(form==='both_x_heavy') {
-    const xL=rI(3,8), xR=rI(1,xL-1), C=rNZ(-8,8), F=rNZ(-8,8);
-    if(xL===xR) return genLevel4();
-    const a=rI(1,xL-1), b=xL-a, d=rI(1,xR-1)||1, e=xR-d;
-    return {
-      lhsTerms:[mkT(a,true),mkT(b,true),mkT(C,false)],
-      rhsTerms:[mkT(d,true),mkT(e,true),mkT(F,false)]
-    };
-  }
-  if(form==='both_constants') {
-    const xL=rI(3,8), xR=rI(1,xL-1), b=rNZ(-8,8), c=rNZ(-8,8), d=rNZ(-8,8), e=rNZ(-8,8);
-    if(xL===xR || b+c===d+e) return genLevel4();
-    return {
-      lhsTerms:[mkT(xL,true),mkT(b,false),mkT(c,false)],
-      rhsTerms:[mkT(xR,true),mkT(d,false),mkT(e,false)]
-    };
-  }
-  // both_negative
-  const xL=rI(2,6), xR=rI(1,xL-1);
-  if(xL===xR) return genLevel4();
-  const a=rI(2,xL+2), b=-(a-xL);
-  const d=rI(2,xR+2), e=-(d-xR);
-  const C=rNZ(-8,8), F=rNZ(-8,8);
-  return {
-    lhsTerms:[mkT(a,true),mkT(b,true),mkT(C,false)],
-    rhsTerms:[mkT(d,true),mkT(e,true),mkT(F,false)]
-  };
+  return genLevel1();
 }
 
 // Level 5: Parenteser – positiv faktor, distribuera och lös
 function genLevel5() {
+  const m=hM();
   const form=rOf('simple','twoterm','neginside');
   if(form==='simple'){
-    const A=rI(2,5),B=rI(1,5),C=rI(1,8),x=rI(1,8);
+    const A=rI(2,5),B=rI(1,5),C=rI(1,8*m),x=rI(1,8*m);
     return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(C,false)]}}],rhsTerms:[mkT(A*(B*x+C),false)]};
   } else if(form==='twoterm'){
-    const A=rI(2,6),C=rI(1,8),x=rI(2,10);
+    const A=rI(2,6),C=rI(1,8*m),x=rI(2,10*m);
     return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(C,false)]}}],rhsTerms:[mkT(A*(x+C),false)]};
   } else {
-    // A(Bx − C) – negativ inre konstant, positiv faktor
-    const A=rI(2,5),B=rI(1,3),C=rI(1,8),x=rI(2,10);
+    const A=rI(2,5),B=rI(1,3),C=rI(1,8*m),x=rI(2,10*m);
     return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(-C,false)]}}],rhsTerms:[mkT(A*(B*x-C),false)]};
   }
 }
 
-// Level 6: Negativ distribution – teckenbyte när negativ faktor multipliceras in
+// Level 6: Negativ distribution
 function genLevel6() {
+  const m=hM();
   const form=rOf('negfactor_simple','negfactor_twoterm','neg_minus_inside','negfactor_rhs');
   if(form==='negfactor_simple'){
-    // −A(Bx + C) = rhs  (x positiv → rhs negativ)
-    const A=rI(2,4),B=rI(1,3),C=rI(1,6),x=rI(1,6);
+    const A=rI(2,4),B=rI(1,3),C=rI(1,6*m),x=rI(1,6*m);
     return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(C,false)]}}],rhsTerms:[mkT(-A*(B*x+C),false)]};
   } else if(form==='negfactor_twoterm'){
-    // −A(x + C) = rhs
-    const A=rI(2,5),C=rI(1,8),x=rI(1,8);
+    const A=rI(2,5),C=rI(1,8*m),x=rI(1,8*m);
     return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(C,false)]}}],rhsTerms:[mkT(-A*(x+C),false)]};
   } else if(form==='neg_minus_inside'){
-    // −A(Bx − C) = rhs  (dubbelt teckenbyte: −·− = +)
-    const A=rI(2,4),B=rI(1,3),C=rI(1,8),x=rI(1,8);
+    const A=rI(2,4),B=rI(1,3),C=rI(1,8*m),x=rI(1,8*m);
     return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(B,true),mkT(-C,false)]}}],rhsTerms:[mkT(-A*(B*x-C),false)]};
   } else {
-    // A(x + B) = −C  (positiv faktor men negativt svar på x)
-    const A=rI(2,4),B=rI(1,6),x=-rI(1,6);
-    const rhs=A*(x+B);
-    return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(B,false)]}}],rhsTerms:[mkT(rhs,false)]};
+    const A=rI(2,4),B=rI(1,6*m),x=-rI(1,6*m);
+    return {lhsTerms:[{coeff:A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(B,false)]}}],rhsTerms:[mkT(A*(x+B),false)]};
   }
 }
 
-// Level 7: Kombinerade utmaningar – bråk + parenteser, x i båda led med bråk, dubbel negation
+// Level 7: Kombinerade utmaningar
 function genLevel7() {
-  const form=rOf('frac_paren','neg_compound','xboth_frac','double_neg_paren');
-  if(form==='frac_paren'){
-    const D=rOf(2,3),A=rI(1,3),B=rI(1,3),C=rI(1,8),x=rI(1,8);
-    const E=A*(B*x+C)/D; if(!Number.isInteger(E)) return genLevel7();
-    return {lhsTerms:[{coeff:1,isX:false,denom:D,compound:{inner:[mkT(A*B,true),mkT(A*C,false)]}}],rhsTerms:[mkT(E,false)]};
-  } else if(form==='neg_compound'){
-    const C=rOf(2,3,4),A=rI(2,5),x=rI(1,8),B=rI(1,10),D=-(A*x+B)/C;
-    if(!Number.isInteger(D)) return genLevel7();
-    return {lhsTerms:[{coeff:-1,isX:false,denom:C,compound:{inner:[mkT(A,true),mkT(B,false)]}}],rhsTerms:[mkT(D,false)]};
-  } else if(form==='xboth_frac'){
-    const B=rOf(2,3),A=rI(2,5),C=rNZ(-6,6),D=rI(1,3),x=B*rI(1,6);
-    const E=A*x/B+C-D*x; if(!Number.isInteger(E)) return genLevel7();
-    return {lhsTerms:[mkT(A,true,B),mkT(C,false)],rhsTerms:[mkT(D,true),mkT(E,false)]};
-  } else {
-    const A=rI(2,4),B=rI(1,8),x=rI(1,8),C=-A*(x-B);
-    return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(-B,false)]}}],rhsTerms:[mkT(C,false)]};
+  for(let i=0;i<100;i++){
+    const form=rOf('frac_paren','neg_compound','xboth_frac','double_neg_paren');
+    if(form==='frac_paren'){
+      const D=rOf(2,3),A=rI(1,3),B=rI(1,3),C=rI(1,8),x=rI(1,8);
+      const E=A*(B*x+C)/D; if(!Number.isInteger(E)) continue;
+      return {lhsTerms:[{coeff:1,isX:false,denom:D,compound:{inner:[mkT(A*B,true),mkT(A*C,false)]}}],rhsTerms:[mkT(E,false)]};
+    } else if(form==='neg_compound'){
+      const C=rOf(2,3,4),A=rI(2,5),x=rI(1,8),B=rI(1,10),D=-(A*x+B)/C;
+      if(!Number.isInteger(D)) continue;
+      return {lhsTerms:[{coeff:-1,isX:false,denom:C,compound:{inner:[mkT(A,true),mkT(B,false)]}}],rhsTerms:[mkT(D,false)]};
+    } else if(form==='xboth_frac'){
+      const B=rOf(2,3),A=rI(2,5),C=rNZ(-6,6),D=rI(1,3),x=B*rI(1,6);
+      const E=A*x/B+C-D*x; if(!Number.isInteger(E)) continue;
+      return {lhsTerms:[mkT(A,true,B),mkT(C,false)],rhsTerms:[mkT(D,true),mkT(E,false)]};
+    } else {
+      const A=rI(2,4),B=rI(1,8),x=rI(1,8),C=-A*(x-B);
+      return {lhsTerms:[{coeff:-A,isX:false,denom:1,paren:{inner:[mkT(1,true),mkT(-B,false)]}}],rhsTerms:[mkT(C,false)]};
+    }
   }
+  return genLevel1();
 }
 
-// Level 8: Bråk i båda led – fördjupning/bonus
+// Level 8: Bråk i båda led
 function genLevel8() {
-  const form = rOf('simple_both', 'const_both', 'mixed_sides', 'three_denoms');
-
-  if(form==='simple_both') {
-    const B=rOf(2,3,4), D=rOf(2,3,5);
-    const A=rI(1,4), C=rI(1,3), x=lcm(B,D)*rI(1,4);
-    const E = A*x/B - C*x/D;
-    if(!Number.isInteger(E) || E===0) return genLevel8();
-    return {lhsTerms:[mkT(A,true,B)], rhsTerms:[mkT(C,true,D),mkT(E,false)]};
+  for(let i=0;i<200;i++){
+    const form = rOf('simple_both','const_both','mixed_sides','three_denoms');
+    if(form==='simple_both') {
+      const B=rOf(2,3,4), D=rOf(2,3,5);
+      const A=rI(1,4), C=rI(1,3), x=lcm(B,D)*rI(1,4);
+      const E = A*x/B - C*x/D;
+      if(!Number.isInteger(E) || E===0) continue;
+      return {lhsTerms:[mkT(A,true,B)], rhsTerms:[mkT(C,true,D),mkT(E,false)]};
+    }
+    if(form==='const_both') {
+      const B=rOf(2,3,4), D=rOf(2,3,5);
+      if(B===D) continue;
+      const A=rI(1,4), C=rI(1,8), x=lcm(B,D)*rI(1,4);
+      const E = A*x/B + C - x/D;
+      if(!Number.isInteger(E)) continue;
+      return {lhsTerms:[mkT(A,true,B),mkT(C,false)], rhsTerms:[mkT(1,true,D),mkT(E,false)]};
+    }
+    if(form==='mixed_sides') {
+      const A=rOf(2,3,4), B=rOf(3,4,5);
+      if(A===B) continue;
+      const L=lcm(A,B), x=L*rI(1,5);
+      const C = x/A + x/B;
+      if(!Number.isInteger(C)) continue;
+      return {lhsTerms:[mkT(1,true,A),mkT(1,true,B)], rhsTerms:[mkT(C,false)]};
+    }
+    // three_denoms
+    const B=rOf(2,3), D=rOf(3,4), F=rOf(4,5);
+    const A=rI(1,3), E=rI(1,2), x=lcm(lcm(B,D),F)*rI(1,3);
+    const diff = A*x/B - E*x/F;
+    const CoverD = rI(1,6);
+    const G = diff + CoverD/D;
+    if(!Number.isInteger(G)) continue;
+    return {lhsTerms:[mkT(A,true,B), mkT(CoverD,false,D)], rhsTerms:[mkT(E,true,F), mkT(G,false)]};
   }
-  if(form==='const_both') {
-    const B=rOf(2,3,4), D=rOf(2,3,5);
-    if(B===D) return genLevel8();
-    const A=rI(1,4), C=rI(1,8), x=lcm(B,D)*rI(1,4);
-    const E = A*x/B + C - x/D;
-    if(!Number.isInteger(E)) return genLevel8();
-    return {lhsTerms:[mkT(A,true,B),mkT(C,false)], rhsTerms:[mkT(1,true,D),mkT(E,false)]};
-  }
-  if(form==='mixed_sides') {
-    const A=rOf(2,3,4), B=rOf(3,4,5);
-    if(A===B) return genLevel8();
-    const L=lcm(A,B), x=L*rI(1,5);
-    const C = x/A + x/B;
-    if(!Number.isInteger(C)) return genLevel8();
-    return {lhsTerms:[mkT(1,true,A),mkT(1,true,B)], rhsTerms:[mkT(C,false)]};
-  }
-  const B=rOf(2,3), D=rOf(3,4), F=rOf(4,5);
-  const A=rI(1,3), E=rI(1,2), x=lcm(lcm(B,D),F)*rI(1,3);
-  const diff = A*x/B - E*x/F;
-  const CoverD = rI(1,6);
-  const G = diff + CoverD/D;
-  if(!Number.isInteger(G)) return genLevel8();
-  return {
-    lhsTerms:[mkT(A,true,B), mkT(CoverD,false,D)],
-    rhsTerms:[mkT(E,true,F), mkT(G,false)]
-  };
+  return genLevel1();
 }
 
 const genEq = lvl => {
   const generators = [null,genLevel1,genLevel2,genLevel3,genLevel4,genLevel5,genLevel6,genLevel7,genLevel8];
-  const gen = generators[lvl];
-  if(!gen) return genLevel1();
-  // Reject identities (infinite solutions) and contradictions (no solutions)
-  for(let tries=0; tries<30; tries++) {
+  const gen = generators[lvl] || genLevel1;
+  for(let tries=0; tries<200; tries++) {
     const eq = gen();
     const l = summarize(expandParens(eq.lhsTerms));
     const r = summarize(expandParens(eq.rhsTerms));
-    // Identity: same x-coeff and same constant → infinite solutions
+    // Reject identities (infinite solutions) and contradictions (no solutions)
     if(Math.abs(l.xCoeff-r.xCoeff)<0.001 && Math.abs(l.constant-r.constant)<0.001) continue;
-    // Contradiction: same x-coeff but different constant → no solution
     if(Math.abs(l.xCoeff-r.xCoeff)<0.001 && Math.abs(l.constant-r.constant)>0.001) continue;
+    // Compute x = (r.constant - l.constant) / (l.xCoeff - r.xCoeff)
+    const xVal = (r.constant - l.constant) / (l.xCoeff - r.xCoeff);
+    // Never allow x = 0
+    if(Math.abs(xVal) < 0.001) continue;
+    // Levels 1–5: only positive x
+    if(lvl <= 5 && xVal < 0) continue;
+    // Ensure net x-coefficient ends up positive on LHS (avoids -x = -1 presentation)
+    if(l.xCoeff - r.xCoeff < 0) continue;
     return eq;
   }
-  return gen(); // fallback after 30 tries
+  // Ultimate fallback: a dead-simple equation that always works
+  const x=rI(1,10);
+  return {lhsTerms:[mkT(2,true),mkT(3,false)],rhsTerms:[mkT(2*x+3,false)]};
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -1729,7 +1742,7 @@ function getDecoySuggestions(eq) {
     return String(Math.round(v*100)/100);
   };
 
-  // Wrong direction: add the constant instead of subtracting it
+  // 1. Wrong direction: add constant instead of subtracting (or vice versa)
   if(l.constant !== 0 && l.xCoeff !== 0) {
     const wrongOp = l.constant > 0 ? '+' : '-';
     const val = Math.abs(l.constant);
@@ -1738,30 +1751,70 @@ function getDecoySuggestions(eq) {
       input: `${wrongOp}${fmt(val)}`,
       color: l.constant > 0 ? 'add' : 'sub',
       isDecoy: true,
-      errorMsg: `${wrongOp}${fmt(val)} flyttar konstanten åt fel håll. Prova att ${l.constant>0?'subtrahera':'addera'} ${fmt(val)} istället – då försvinner konstanten från vänsterledet.`
+      errorMsg: `${wrongOp}${fmt(val)} flyttar konstanten åt fel håll. Prova att ${l.constant>0?'subtrahera':'addera'} ${fmt(val)} istället.`
     });
   }
-  // Divide by rhs constant instead of x-coeff
+
+  // 2. Wrong direction on RHS: subtract x-term instead of adding (when x on both sides)
+  if(l.xCoeff !== 0 && r.xCoeff !== 0 && l.xCoeff > r.xCoeff) {
+    const wrongOp = r.xCoeff > 0 ? '+' : '-';
+    const val = Math.abs(r.xCoeff);
+    const label = val===1 ? `${wrongOp}x` : `${wrongOp}${fmt(val)}x`;
+    decoys.push({
+      label,
+      input: `${wrongOp}${fmt(val)}x`,
+      color: r.xCoeff > 0 ? 'add' : 'sub',
+      isDecoy: true,
+      errorMsg: `${label} ökar x-termen i vänsterledet. Du vill ${r.xCoeff>0?'subtrahera':'addera'} ${fmt(val)}x för att samla x på en sida.`
+    });
+  }
+
+  // 3. Divide by rhs constant instead of x-coeff
   if(l.constant === 0 && l.xCoeff !== 0 && Math.abs(l.xCoeff)!==1 && r.xCoeff===0 && Math.abs(r.constant)>1 && Number.isInteger(r.constant) && r.constant !== l.xCoeff) {
     decoys.push({
       label: `÷${fmt(Math.abs(r.constant))}`,
       input: `/${fmt(Math.abs(r.constant))}`,
       color: 'div',
       isDecoy: true,
-      errorMsg: `÷${fmt(Math.abs(r.constant))} delar inte jämnt – vänsterledet har koefficienten ${fmt(l.xCoeff)} som inte är delbar med ${fmt(Math.abs(r.constant))}. Dividera med ${fmt(Math.abs(l.xCoeff))} för att isolera x.`
+      errorMsg: `÷${fmt(Math.abs(r.constant))} ger inte ett heltal – koefficienten ${fmt(l.xCoeff)} är inte delbar med ${fmt(Math.abs(r.constant))}. Dividera med ${fmt(Math.abs(l.xCoeff))} istället.`
     });
   }
-  // Multiply by xCoeff when it should be divide
+
+  // 4. Multiply by x-coeff when should divide
   if(l.constant === 0 && l.xCoeff > 1 && r.xCoeff === 0 && Number.isInteger(l.xCoeff)) {
     decoys.push({
       label: `×${fmt(l.xCoeff)}`,
       input: `*${fmt(l.xCoeff)}`,
       color: 'mul',
       isDecoy: true,
-      errorMsg: `×${fmt(l.xCoeff)} gör koefficienten ännu större (${fmt(l.xCoeff*l.xCoeff)}x). Du vill istället dividera med ${fmt(l.xCoeff)} så att koefficienten blir 1.`
+      errorMsg: `×${fmt(l.xCoeff)} gör koefficienten ännu större (${fmt(l.xCoeff*l.xCoeff)}x). Dividera med ${fmt(l.xCoeff)} för att isolera x.`
     });
   }
-  return decoys.slice(0,1);
+
+  // 5. Subtract x-value instead of dividing (when only xCoeff remains)
+  if(l.constant === 0 && l.xCoeff > 1 && r.xCoeff === 0 && Number.isInteger(r.constant) && r.constant !== 0) {
+    decoys.push({
+      label: `−${fmt(Math.abs(r.constant))}`,
+      input: `-${fmt(Math.abs(r.constant))}`,
+      color: 'sub',
+      isDecoy: true,
+      errorMsg: `−${fmt(Math.abs(r.constant))} subtraherar högerledets värde, men vänsterledet har ${fmt(l.xCoeff)}x – du behöver dividera med ${fmt(l.xCoeff)} för att lösa ut x.`
+    });
+  }
+
+  // Return at most 2 decoys, prefer ones from different categories
+  const picked = [];
+  for(const d of decoys) {
+    if(picked.length >= 2) break;
+    if(!picked.some(p => p.color === d.color)) picked.push(d);
+  }
+  if(picked.length < 2) {
+    for(const d of decoys) {
+      if(picked.length >= 2) break;
+      if(!picked.includes(d)) picked.push(d);
+    }
+  }
+  return picked;
 }
 
 // Generate smart contextual suggestions based on current equation state.
@@ -1910,12 +1963,12 @@ function renderOpChips() {
   if(!container) return;
   const suggestions = getOpSuggestions(S.equation);
   const decoys = getDecoySuggestions(S.equation);
-  // Shuffle decoys into the list at a random position
+  // Spread decoys into the list at distinct random positions
   const all = [...suggestions];
-  if(decoys.length > 0) {
-    const insertAt = Math.min(Math.floor(Math.random()*3)+1, all.length);
-    all.splice(insertAt, 0, decoys[0]);
-  }
+  decoys.forEach((decoy, i) => {
+    const insertAt = Math.min(Math.floor(Math.random() * (all.length + 1)), all.length);
+    all.splice(insertAt, 0, decoy);
+  });
   container.innerHTML = '';
   if(all.length === 0) {
     container.innerHTML = `<span class="op-chip-hint">T.ex. <code>+5</code> <code>-3</code> <code>*2</code> <code>/4</code> <code>+2x</code></span>`;
@@ -3075,9 +3128,9 @@ function selectMode(mode) {
   S.mode=mode;
   document.getElementById('mode-strategy-btn').classList.toggle('selected',mode==='strategy');
   document.getElementById('mode-calc-btn').classList.toggle('selected',mode==='calc');
-  document.getElementById('mode-desc').textContent=mode==='strategy'
-    ?'Du väljer vilken operation som ska göras i båda led — programmet räknar åt dig och visar historiken steg för steg.'
-    :'Du väljer operation och skriver sedan in vad VL och HL blir — precis som med papper och penna.';
+  document.getElementById('mode-desc').innerHTML=mode==='strategy'
+    ?'Du väljer vilken operation som ska göras i båda led<br>— programmet räknar åt dig och visar historiken steg för steg.'
+    :'Du väljer operation och skriver sedan in vad VL och HL blir<br>— precis som med papper och penna.';
 }
 
 function switchInGameMode(mode) {
@@ -3133,6 +3186,7 @@ function startGame(level) {
   S.level=level; S.scoreCorrect=0; S.scoreTotal=0;
   document.getElementById('start-screen').classList.remove('active');
   document.getElementById('game-screen').classList.add('active');
+  document.body.classList.add('game-active');
   document.getElementById('level-badge').textContent='Nivå '+level;
   document.getElementById('input-panel-title').textContent=S.mode==='strategy'?'🧠 Välj operation':'✏️ Din beräkning';
   updateModeBadge();
@@ -3204,6 +3258,7 @@ function startAnalog() {
   ANALOG.correct = 0; ANALOG.total = 0;
   document.getElementById('start-screen').classList.remove('active');
   document.getElementById('analog-screen').classList.add('active');
+  document.body.classList.add('game-active');
   document.getElementById('analog-level-badge').textContent = 'Nivå ' + ANALOG.level;
   updateAnalogScore();
   window.scrollTo(0,0);
@@ -3212,6 +3267,7 @@ function startAnalog() {
 function analogHome() {
   document.getElementById('analog-screen').classList.remove('active');
   document.getElementById('start-screen').classList.add('active');
+  document.body.classList.remove('game-active');
   window.scrollTo(0,0);
 }
 function updateAnalogScore() {
@@ -3580,6 +3636,7 @@ function goHome() {
   document.getElementById('game-screen').classList.remove('active');
   document.getElementById('result-screen').classList.remove('active');
   document.getElementById('start-screen').classList.add('active');
+  document.body.classList.remove('game-active');
   window.scrollTo(0,0);
   renderProgressSection();
 }
@@ -3737,19 +3794,18 @@ function renderProgressSection() {
 
   const grid = document.getElementById('progress-grid');
   grid.innerHTML = '';
-  const levelColors = ['#6c8bff','#43e8a8','#ff7eb3','#ffd166','#b8a4ff','#ff7eb3'];
-  const MAX_SHOWN = 10; // fill bar at 10 solves
+  const levelColors = ['#6c8bff','#5a7aee','#ff7eb3','#e86da0','#ff9f4a','#e07a20','#43e8a8','#ffd166'];
+  const MAX_SHOWN = 10;
 
-  for(let lvl=1; lvl<=7; lvl++) {
-    const d = prog[lvl] || { solved:0, bestSteps:null };
+  for(let lvl=1; lvl<=8; lvl++) {
+    const d = prog[lvl] || { solved:0 };
     const cell = document.createElement('div');
     cell.className = 'prog-cell' + (d.solved>0?' has-data':'');
     const pct = Math.min(100, (d.solved/MAX_SHOWN)*100);
     const col = levelColors[lvl-1];
     cell.innerHTML = `
-      <div class="pc-level">Niv${lvl<=3?'å':'å'} ${lvl}</div>
-      <div class="pc-count" style="color:${col}">${d.solved}</div>
-      <div class="pc-best">${d.bestSteps!==null?'bäst: '+d.bestSteps+' steg':'—'}</div>
+      <div class="pc-level">Niv${lvl<=9?'å':''} ${lvl}</div>
+      <div class="pc-count" style="color:${col}">${d.solved>0?d.solved:'·'}</div>
       <div class="pc-bar-wrap"><div class="pc-bar" style="width:${pct}%;background:${col}"></div></div>`;
     grid.appendChild(cell);
   }
@@ -3779,7 +3835,7 @@ function renderSignature() {
   if(!el) return;
   const author = 'Patrick Tegnefur';
   const title  = 'Förstelärare i matematik\u00b7 Alfred Dalinskolan';
-  const ver    = '';
+  const ver    = 'BALANSMETODEN v1.0';
   el.style.cssText='width:100%;max-width:900px;margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;';
   el.innerHTML=`
     <div style="display:flex;align-items:center;gap:.75rem;">
@@ -3790,7 +3846,7 @@ function renderSignature() {
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:1rem;">
-      <img src="AD_Color.png" alt="Alfred Dalinskolan" style="height:36px;width:auto;opacity:.85;">
+      <img src="AD_color.png" alt="Alfred Dalinskolan" style="height:36px;width:auto;opacity:.85;">
       <div style="font-family:'DM Mono',monospace;font-size:.68rem;color:var(--border);letter-spacing:.08em;">${ver}</div>
     </div>`;
 }
