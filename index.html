@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
   Balansmetoden – Ekvationsträning
-  © 2025 Patrick Tegnefur, Förstelärare i matematik, Alfred Dalinskolan
+  © 2026 Patrick Tegnefur, Förstelärare i matematik, Alfred Dalinskolan
   Länken får delas fritt. Koden får ej kopieras, modifieras eller
   distribueras utan skriftligt tillstånd från upphovsmannen.
 -->
@@ -36,13 +36,14 @@ body::before{content:'';position:fixed;inset:0;background:
 /* ── START SCREEN ── */
 #start-screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;}
 #start-screen.active{display:flex;}
-.logo-mark{width:80px;height:80px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin-bottom:1.5rem;box-shadow:0 0 40px rgba(108,139,255,.4);animation:pulse 3s ease-in-out infinite;}
-@keyframes pulse{0%,100%{box-shadow:0 0 40px rgba(108,139,255,.4)}50%{box-shadow:0 0 60px rgba(108,139,255,.6),0 0 80px rgba(67,232,168,.2)}}
-.app-title{font-family:'DM Serif Display',serif;font-size:clamp(2.5rem,6vw,4rem);line-height:1.1;margin-bottom:.5rem;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.app-subtitle{color:var(--muted);font-size:1.1rem;margin-bottom:3rem;}
+.logo-mark{width:80px;height:80px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;flex-shrink:0;box-shadow:0 0 40px rgba(108,139,255,.4);animation:pulse 3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 30px rgba(108,139,255,.4)}50%{box-shadow:0 0 50px rgba(108,139,255,.6),0 0 70px rgba(67,232,168,.2)}}
+.app-title{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.1;margin-bottom:.2rem;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.app-subtitle{color:var(--muted);font-size:.88rem;margin-bottom:0;}
 .level-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;width:100%;max-width:900px;margin-bottom:1rem;}
 @media(max-width:480px){.level-grid{grid-template-columns:1fr;}.action-banners{grid-template-columns:1fr;}.progress-grid{grid-template-columns:repeat(4,1fr);}}
-.mode-btn.hard-active{border-color:#ffd166;background:rgba(255,209,102,.15);color:#ffd166;box-shadow:0 0 20px rgba(255,209,102,.25);}
+.mode-btn.hard-active{border-color:#ff9f4a;background:rgba(255,159,74,.15);color:#ff9f4a;box-shadow:0 0 20px rgba(255,159,74,.3);}
+
 .level-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--lc-color,var(--accent));opacity:.9;}
 .level-card:hover{border-color:var(--lc-color,var(--accent));transform:translateY(-2px);box-shadow:var(--shadow);}
 .level-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;width:100%;max-width:900px;margin-bottom:.75rem;}
@@ -157,22 +158,20 @@ body::before{content:'';position:fixed;inset:0;background:
 .tok-op-mul{color:var(--op-mul);font-weight:700;}
 .tok-op-div{color:var(--op-div);font-weight:700;}
 .tok-paren{color:var(--muted);}
-.solved-display{display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;text-align:center;padding:1.5rem;background:var(--card);border-radius:var(--radius);z-index:5;}
-.solved-display.visible{display:flex;animation:solvedPop .5s cubic-bezier(.175,.885,.32,1.4) both;}
-@keyframes solvedPop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
-.solved-top-row{display:flex;align-items:center;justify-content:center;gap:.6rem;}
-.solved-icon{font-size:3rem;animation:iconBounce .6s cubic-bezier(.175,.885,.32,1.4) .1s both;}
-.solved-top-row{display:flex;align-items:center;justify-content:center;gap:.6rem;}
-.solved-title{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--success);}
-.solved-answer{font-family:'DM Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent4);background:rgba(255,209,102,.12);border:2px solid rgba(255,209,102,.35);border-radius:14px;padding:.5rem 1.8rem;}
-@keyframes iconBounce{from{transform:scale(0) rotate(-15deg)}to{transform:none}}
-.solved-title{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--success);}
-.solved-answer{font-family:'DM Mono',monospace;font-size:1.2rem;color:var(--accent4);background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);border-radius:10px;padding:.3rem 1rem;}
-.solved-steps-feedback{font-size:.82rem;color:var(--muted);text-align:center;line-height:1.4;max-width:240px;}
+.solved-display{display:none;flex-direction:row;align-items:center;gap:.75rem;flex-wrap:wrap;
+  margin-top:.5rem;padding:.75rem 1rem;
+  background:rgba(67,232,168,.07);border:2px solid rgba(67,232,168,.35);
+  border-radius:12px;animation:slideIn .35s ease;}
+.solved-display.visible{display:flex;}
+.solved-top-row{display:flex;align-items:center;gap:.4rem;}
+.solved-icon{font-size:1.6rem;}
+.solved-title{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--success);}
+.solved-answer{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--accent4);background:rgba(255,209,102,.12);border:1.5px solid rgba(255,209,102,.35);border-radius:8px;padding:.2rem .8rem;}
+.solved-steps-feedback{font-size:.78rem;color:var(--muted);line-height:1.4;}
 .solved-steps-feedback strong{color:var(--accent4);}
 .solved-steps-feedback.optimal{color:var(--success);}
-.btn-next{margin-top:.5rem;padding:.8rem 2.5rem;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(108,139,255,.4);}
-.btn-next:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(108,139,255,.5);}
+.btn-next{padding:.5rem 1.4rem;border-radius:50px;background:linear-gradient(135deg,var(--accent),var(--accent3));border:none;color:#0f1117;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;box-shadow:0 3px 14px rgba(108,139,255,.35);margin-left:auto;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(108,139,255,.5);}
 
 /* Show-solution button */
 .btn-show-solution{width:100%;padding:.7rem;border-radius:10px;border:2px solid rgba(67,232,168,.5);background:rgba(67,232,168,.1);color:#22a876;font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;letter-spacing:.01em;}
@@ -275,8 +274,29 @@ body::before{content:'';position:fixed;inset:0;background:
 .dist-expand{}
 
 /* Hint button */
-.btn-hint{padding:.55rem 1.1rem;border-radius:8px;border:1.5px solid rgba(255,209,102,.35);background:rgba(255,209,102,.08);color:var(--accent4);font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.4rem;}
-.btn-hint:hover{background:rgba(255,209,102,.15);border-color:var(--accent4);}
+.glossary-item{padding:.7rem 0;border-bottom:1px solid var(--border);}
+.glossary-item:last-child{border-bottom:none;}
+.glossary-term{font-family:'DM Mono',monospace;font-size:.95rem;font-weight:700;color:var(--accent4);margin-bottom:.2rem;}
+.glossary-def{font-size:.85rem;color:var(--text);line-height:1.55;}
+.glossary-ex{font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);margin-top:.3rem;background:rgba(108,139,255,.07);border-left:2px solid rgba(108,139,255,.4);padding:.2rem .6rem;border-radius:0 4px 4px 0;}
+
+border:1.5px solid rgba(255,209,102,.35);border-radius:8px;font-size:1rem;padding:.2rem .45rem;cursor:pointer;transition:all .2s;line-height:1;}
+.btn-help-book:hover{background:rgba(255,209,102,.22);transform:scale(1.08);}
+
+/* Level guide modal */
+.level-guide-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:1rem;}
+.level-guide-backdrop.open{display:flex;animation:fadeIn .2s ease;}
+.level-guide-modal{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:1.5rem;max-width:440px;width:100%;box-shadow:var(--shadow);position:relative;max-height:85vh;overflow-y:auto;}
+.level-guide-modal h2{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--accent4);margin:0 0 .4rem;}
+.level-guide-modal .guide-subtitle{font-size:.8rem;color:var(--muted);margin-bottom:1rem;}
+.level-guide-step{display:flex;gap:.65rem;align-items:flex-start;margin-bottom:.8rem;}
+.guide-step-num{background:rgba(108,139,255,.18);color:var(--accent);border-radius:50%;width:1.6rem;height:1.6rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0;margin-top:.1rem;}
+.guide-step-text{font-size:.88rem;line-height:1.55;color:var(--text);}
+.guide-step-text strong{color:var(--accent4);}
+.guide-example{font-family:'DM Mono',monospace;font-size:.82rem;background:rgba(108,139,255,.08);border:1px solid rgba(108,139,255,.2);border-radius:8px;padding:.5rem .75rem;margin:.6rem 0 0;color:var(--text);}
+.guide-close{position:absolute;top:.75rem;right:.9rem;background:transparent;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;line-height:1;}
+.guide-close:hover{color:var(--text);}
+
 .btn-info-toggle{padding:.45rem 1rem;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .2s;text-align:left;}
 .btn-info-toggle:hover{border-color:var(--accent);color:var(--accent);}
 .info-box{font-size:.8rem;color:var(--muted);background:rgba(108,139,255,.05);border:1px solid rgba(108,139,255,.18);border-radius:8px;padding:.75rem 1rem;display:none;line-height:1.6;margin-top:.1rem;}
@@ -353,6 +373,16 @@ body::before{content:'';position:fixed;inset:0;background:
   .mode-btn{padding:.7rem 1.2rem;font-size:.9rem;}
   .level-grid{grid-template-columns:1fr;}
   .parsed-badge{font-size:.78rem;}
+  /* Inline op: stack below equation on mobile */
+  .eq-row-inner{flex-wrap:wrap;}
+  .eq-row-op-sep{display:none;}
+  .eq-row-op-col{width:100%;margin-top:.3rem;}
+  .eq-op-placeholder{font-size:.8rem;padding:.25rem .5rem;}
+  .eq-op-inp{width:68px;font-size:.88rem;}
+  .panel-header-row{flex-wrap:nowrap;gap:.2rem;}
+  .panel-tabs{flex-shrink:0;}
+  .panel-tab{padding:.35rem .55rem;font-size:.75rem;}
+  .bubble-toggle span{display:none;}
 }
 @media(max-width:400px){
   .answer-fields,.split-fields-row{grid-template-columns:1fr;gap:.3rem;}
@@ -362,7 +392,13 @@ body::before{content:'';position:fixed;inset:0;background:
   .topbar-info .mode-badge{display:none;}
 }
 
-/* ── INLINE OPERATION ON ACTIVE EQ-ROW ── */
+/* ── GLOBAL SITE HEADER ── */
+.site-header{display:flex;align-items:center;justify-content:space-between;padding:.5rem 1.2rem;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;}
+.site-header-title{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--text);opacity:.7;letter-spacing:.01em;}
+.site-header-teacher{background:transparent;border:1.5px solid var(--border);color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;border-radius:50px;padding:.3rem .9rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.35rem;}
+.site-header-teacher:hover{border-color:var(--accent);color:var(--accent);}
+
+
 .eq-row-inner{display:flex;align-items:center;gap:.3rem;flex:1;flex-wrap:nowrap;min-width:0;}
 .eq-row-op-col{display:flex;align-items:center;gap:0;flex-shrink:0;}
 .eq-row-op-sep{width:2px;background:rgba(255,209,102,.7);align-self:stretch;margin:0 1rem;flex-shrink:0;border-radius:1px;}
@@ -397,7 +433,7 @@ body::before{content:'';position:fixed;inset:0;background:
 .inline-action-btn.teal:hover{background:rgba(67,232,168,.38);transform:scale(1.1);}
 .eq-op-parsed{font-size:.72rem;color:var(--muted);white-space:nowrap;}
 /* Inline answer area (calc mode VL/HL) rendered below the active row */
-.inline-answer-area{padding:.5rem .5rem .5rem calc(200px + 2rem + 2px);animation:slideIn .25s ease;}
+.inline-answer-area{padding:.5rem .5rem .5rem .5rem;animation:slideIn .25s ease;}
 /* Slim right panel */
 #input-panel{justify-content:flex-start;}
 #input-panel .panel-title{margin-bottom:.5rem;}
@@ -536,22 +572,34 @@ body::before{content:'';position:fixed;inset:0;background:
 <body>
 <div id="app">
 
+<!-- ═══════ GLOBAL SITE HEADER ═══════ -->
+<div class="site-header">
+  <span class="site-header-title">⚖️ Balansmetoden</span>
+  <div style="display:flex;gap:.5rem;">
+    <button class="site-header-teacher" onclick="openGlossary()">🔤 Begrepp</button>
+    <button class="site-header-teacher" onclick="openTeacher()">📖 Från läraren</button>
+  </div>
+</div>
+
 <!-- ═══════ START SCREEN ═══════ -->
 <div id="start-screen" class="screen active">
-  <div class="logo-mark">⚖️</div>
-  <h1 class="app-title">Balansmetoden</h1>
-  <p class="app-subtitle">Träna ekvationslösning med balansmetoden – åtta nivåer från det grundläggande till det avancerade.</p>
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.75rem;">
+    <div class="logo-mark">⚖️</div>
+    <div>
+      <h1 class="app-title">Balansmetoden</h1>
+    </div>
+  </div>
 
   <!-- Mode selector – compact toggle style -->
-  <div style="width:100%;max-width:900px;margin-bottom:1.2rem;">
-    <p style="text-align:center;font-size:.68rem;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;">Träningsläge</p>
+  <div style="width:100%;max-width:900px;margin-bottom:1.2rem;margin-top:1.4rem;">
+    <p style="text-align:center;font-size:.68rem;color:var(--muted);margin-bottom:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;">Välj träningsläge:</p>
     <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;align-items:center;">
       <button class="mode-btn selected" id="mode-strategy-btn" onclick="selectMode('strategy')">🧠 Strategiläge</button>
       <button class="mode-btn" id="mode-calc-btn" onclick="selectMode('calc')">🖊 Beräkningsläge</button>
-      <button class="mode-btn" id="hard-mode-btn" onclick="toggleHardMode()" title="Större tal – samma procedur">🔢 Utmanande värden</button>
+      <button class="mode-btn mode-btn-hard" id="hard-mode-btn" onclick="toggleHardMode()" title="Större tal – samma procedur">🔢 Utmanande värden</button>
     </div>
-    <p id="mode-desc" style="text-align:center;font-size:.8rem;color:var(--muted);max-width:460px;margin:.5rem auto 0;line-height:1.5;">
-      Du väljer vilken operation som ska göras i båda led<br>— programmet räknar åt dig och visar historiken steg för steg.
+    <p id="mode-desc" style="text-align:center;font-size:.8rem;color:var(--muted);max-width:560px;margin:.5rem auto 0;line-height:1.5;white-space:nowrap;">
+      Du väljer vilken operation som ska göras i båda led — programmet räknar åt dig och visar historiken steg för steg.
     </p>
   </div>
 
@@ -650,13 +698,6 @@ body::before{content:'';position:fixed;inset:0;background:
     </div>
   </div>
 
-  <!-- Lärarknapp -->
-  <div style="width:100%;max-width:900px;margin-top:.5rem;display:flex;justify-content:center;">
-    <button onclick="openTeacher()" style="padding:.5rem 1.4rem;border-radius:50px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.5rem;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
-      📖 Från läraren – så här fungerar det
-    </button>
-  </div>
-
   <!-- Signature rendered by JS – see renderSignature() -->
   <div id="app-signature"></div>
 </div>
@@ -695,16 +736,16 @@ body::before{content:'';position:fixed;inset:0;background:
   <div class="comp-setup-box">
     <div class="comp-setup-title">✏️ Analogläge</div>
     <div class="comp-setup-sub">Lös ekvationerna med papper och penna – skriv in ditt svar för kontroll.</div>
-    <div class="comp-opt-label">Välj nivå</div>
-    <div class="comp-opt-row">
-      <button class="comp-opt-btn active" onclick="setAnalogLevel(1)">Niv 1</button>
-      <button class="comp-opt-btn" onclick="setAnalogLevel(2)">Niv 2</button>
-      <button class="comp-opt-btn" onclick="setAnalogLevel(3)">Niv 3</button>
-      <button class="comp-opt-btn" onclick="setAnalogLevel(4)">Niv 4</button>
-      <button class="comp-opt-btn" onclick="setAnalogLevel(5)">Niv 5</button>
-      <button class="comp-opt-btn" onclick="setAnalogLevel(6)">Niv 6</button>
-      <button class="comp-opt-btn" onclick="setAnalogLevel(7)">Niv 7</button>
-      <button class="comp-opt-btn" onclick="setAnalogLevel(8)">Niv 8</button>
+    <div class="comp-opt-label">Välj nivå(er) – välj en eller flera</div>
+    <div class="comp-opt-row" id="analog-level-row">
+      <button class="comp-opt-btn active" onclick="toggleAnalogLevel(1,this)">Niv 1</button>
+      <button class="comp-opt-btn" onclick="toggleAnalogLevel(2,this)">Niv 2</button>
+      <button class="comp-opt-btn" onclick="toggleAnalogLevel(3,this)">Niv 3</button>
+      <button class="comp-opt-btn" onclick="toggleAnalogLevel(4,this)">Niv 4</button>
+      <button class="comp-opt-btn" onclick="toggleAnalogLevel(5,this)">Niv 5</button>
+      <button class="comp-opt-btn" onclick="toggleAnalogLevel(6,this)">Niv 6</button>
+      <button class="comp-opt-btn" onclick="toggleAnalogLevel(7,this)">Niv 7</button>
+      <button class="comp-opt-btn" onclick="toggleAnalogLevel(8,this)">Niv 8</button>
     </div>
     <div style="display:flex;gap:.6rem;margin-top:.5rem;">
       <button onclick="closeAnalogSetup()" style="flex:1;padding:.7rem;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;">Avbryt</button>
@@ -721,9 +762,12 @@ body::before{content:'';position:fixed;inset:0;background:
       <span class="level-badge" id="analog-level-badge">Nivå 1</span>
       <span class="mode-badge" style="background:rgba(108,139,255,.15);border-color:rgba(108,139,255,.35);color:var(--accent);">✏️ Analogläge</span>
     </div>
-    <div class="score-box">
-      <div class="score-item"><div class="sv" id="analog-score-correct">0</div><div class="sl">Rätt</div></div>
-      <div class="score-item"><div class="sv" id="analog-score-total">0</div><div class="sl">Totalt</div></div>
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <button onclick="analogSkip()" style="padding:.3rem .75rem;border-radius:8px;border:1.5px solid rgba(255,159,74,.4);background:rgba(255,159,74,.1);color:#ff9f4a;font-family:'Nunito',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;white-space:nowrap;">↺ Ny</button>
+      <div class="score-box">
+        <div class="score-item"><div class="sv" id="analog-score-correct">0</div><div class="sl">Rätt</div></div>
+        <div class="score-item"><div class="sv" id="analog-score-total">0</div><div class="sl">Totalt</div></div>
+      </div>
     </div>
   </div>
 
@@ -773,14 +817,7 @@ body::before{content:'';position:fixed;inset:0;background:
     <button class="btn-back" onclick="goHome()">← Hem</button>
     <div class="topbar-info">
       <span class="level-badge" id="level-badge">Nivå 1</span>
-      <div class="mode-switcher" id="mode-switcher" onclick="toggleModeDropdown()" title="Byt läge">
-        <span id="mode-badge">🧠 Strategiläge</span>
-        <span class="mode-switcher-arrow">⌄</span>
-        <div class="mode-switcher-drop" id="mode-switcher-drop">
-          <button onclick="switchInGameMode('strategy')">🧠 Strategiläge</button>
-          <button onclick="switchInGameMode('calc')">✏️ Beräkningsläge</button>
-        </div>
-      </div>
+      <span class="mode-badge" id="mode-badge">🧠 Strategiläge</span>
     </div>
     <div class="score-box">
       <div class="score-item"><div class="sv" id="score-correct">0</div><div class="sl">Rätt</div></div>
@@ -802,34 +839,37 @@ body::before{content:'';position:fixed;inset:0;background:
   <div class="game-area">
     <div class="panel" id="eq-panel">
 
-      <!-- Panel header: tabs + quick answer + utility buttons -->
+      <!-- Panel header: tabs + utility buttons -->
       <div class="panel-header-row">
         <div class="panel-tabs" id="panel-tabs">
           <button class="panel-tab active" id="tab-strategy" onclick="switchInGameMode('strategy')">🧠 Strategi</button>
           <button class="panel-tab" id="tab-calc" onclick="switchInGameMode('calc')">✏️ Beräkning</button>
         </div>
-        <label class="bubble-toggle" title="Visa/dölj bubbla" style="margin-left:auto;">
-          <span>Bubblor</span>
-          <div class="bubble-toggle-track on" id="bubble-toggle-track" onclick="toggleBubbles()">
-            <div class="bubble-toggle-thumb"></div>
-          </div>
-        </label>
+        <div style="display:flex;align-items:center;gap:.4rem;margin-left:auto;">
+          <button class="btn-help-book" id="btn-help-book" onclick="showLevelGuide()" title="Tips för denna nivå">📖</button>
+          <label class="bubble-toggle" title="Visa/dölj bubbla">
+            <span>Bubblor</span>
+            <div class="bubble-toggle-track on" id="bubble-toggle-track" onclick="toggleBubbles()">
+              <div class="bubble-toggle-thumb"></div>
+            </div>
+          </label>
+        </div>
       </div>
 
       <div class="panel-action-row" id="panel-action-row">
         <!-- Filled by renderActionRow() -->
       </div>
 
-      <div class="eq-history" id="eq-history"></div>
-
-      <div class="solved-display" id="solved-display">
-        <div class="solved-top-row">
-          <div class="solved-icon">🎉</div>
-          <div class="solved-title">Löst!</div>
+      <div class="eq-history" id="eq-history">
+        <div class="solved-display" id="solved-display">
+          <div class="solved-top-row">
+            <div class="solved-icon">🎉</div>
+            <div class="solved-title">Löst!</div>
+            <div class="solved-answer" id="solved-answer-text"></div>
+          </div>
+          <div class="solved-steps-feedback" id="solved-steps-feedback"></div>
+          <button class="btn-next" id="btn-next" onclick="nextEquation()">Nästa → <span style="opacity:.5;font-size:.8em;font-weight:400;">(Enter)</span></button>
         </div>
-        <div class="solved-answer" id="solved-answer-text"></div>
-        <div class="solved-steps-feedback" id="solved-steps-feedback"></div>
-        <button class="btn-next" id="btn-next" onclick="nextEquation()">Nästa ekvation → <span style="opacity:.5;font-size:.8em;font-weight:400;">(Enter)</span></button>
       </div>
     </div>
   </div>
@@ -908,7 +948,9 @@ function fracAdd(p1,q1,p2,q2) {
 function fracMul(p1,q1,p2,q2) {
   const p = p1*p2, q = q1*q2;
   const g = gcd(Math.abs(p), Math.abs(q));
-  return {p: p/g, q: q/g};
+  const rp = p/g, rq = q/g;
+  // Always keep sign in numerator, never in denominator
+  return rq < 0 ? {p: -rp, q: -rq} : {p: rp, q: rq};
 }
 function fracDiv(p1,q1,p2,q2) { return fracMul(p1,q1,q2,p2); }
 
@@ -1481,6 +1523,9 @@ function wrapInFraction(innerHTML, divisor, opType) {
 
 function buildHistory() {
   const c=document.getElementById('eq-history');
+  // Preserve solved-display element before clearing
+  const solvedEl = document.getElementById('solved-display');
+  if(solvedEl) solvedEl.remove();
   c.innerHTML='';
   let eqCount=0;
 
@@ -1599,6 +1644,9 @@ function buildHistory() {
   }
 
   c.scrollTop=c.scrollHeight;
+
+  // Re-append solved-display at bottom (was removed before innerHTML clear)
+  if(solvedEl) c.appendChild(solvedEl);
 
   // Stagger slide-in animations for newly added rows
   const newRows = c.querySelectorAll('.new-row');
@@ -1741,7 +1789,7 @@ function renderActionRow() {
 
   row.innerHTML = `
     <div class="panel-row3">
-      <button class="btn-show-solution" id="static-sol-btn" onclick="showSolution()" style="width:auto;padding:.25rem .6rem;font-size:.75rem;"${S.history.length<=1?' disabled':''}>💡 Lösning</button>
+      <button class="btn-show-solution" id="static-sol-btn" onclick="showSolution()" style="width:auto;padding:.25rem .6rem;font-size:.75rem;">💡 Lösning</button>
       <button id="static-skip-btn" onclick="skipEquation()" style="padding:.25rem .6rem;font-size:.75rem;border-radius:8px;border:1.5px solid rgba(255,159,74,.4);background:rgba(255,159,74,.1);color:#ff9f4a;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;">↺ Ny</button>
       <button class="btn-undo" id="panel-undo-btn" onclick="undoStep()" style="width:auto;padding:.25rem .6rem;font-size:.75rem;"${S.history.length<=1?' disabled':''}>↩ Ångra</button>
     </div>
@@ -2502,34 +2550,30 @@ function renderCalcSimplifyBothUI() {
   const area=getInlineArea();
   const sec=document.createElement('div');
   sec.className='answer-section visible';
+  sec.style.cssText='align-items:flex-start;';
   sec.innerHTML=`
-    <div class="section-title">Förenkla – Samla termer i båda led</div>
-    <div class="afield-label" style="margin-bottom:.5rem;">Skriv den förenklade ekvationen:</div>
-    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
-      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:80px;">
-        <div class="afield-label">Vänsterled</div>
-        <input class="afield-input" id="sb-lhs" type="text" placeholder="t.ex. 5x + 3" autocomplete="off" spellcheck="false" style="text-align:center;">
+    <div class="split-fields-row" style="width:100%;">
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;">
+        <div class="afield-label">Nytt VL</div>
+        <input class="afield-input" id="sb-lhs" type="text" placeholder="Nytt VL" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
-      <div style="font-size:1.4rem;font-weight:700;color:var(--muted);margin-top:1.2rem;">=</div>
-      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:80px;">
-        <div class="afield-label">Högerled</div>
-        <input class="afield-input" id="sb-rhs" type="text" placeholder="t.ex. 2x + 9" autocomplete="off" spellcheck="false" style="text-align:center;">
+      <span class="split-eq-sep">=</span>
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;">
+        <div class="afield-label">Nytt HL</div>
+        <input class="afield-input" id="sb-rhs" type="text" placeholder="Nytt HL" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
     </div>
     <div class="err-msg" id="sb-err"></div>
-    <button class="btn-primary green" onclick="checkSimplifyBoth()">Kontrollera ✓</button>`;
+    <button class="btn-primary green" onclick="checkSimplifyBoth()">Kontrollera ✓</button>
+    <div style="font-size:.78rem;color:var(--muted);line-height:1.5;padding-top:.4rem;border-top:1px solid var(--border);width:100%;">
+      Samla ihop likadana termer i båda led.
+    </div>`;
   area.appendChild(sec);
   setTimeout(()=>{const e=document.getElementById('sb-lhs');if(e)e.focus();},60);
-  // Tab from LHS → RHS
   setTimeout(()=>{
-    const l=document.getElementById('sb-lhs');
-    const r=document.getElementById('sb-rhs');
-    if(l&&r) l.addEventListener('keydown',e=>{
-      if(e.key==='Tab'||e.key==='Enter'){e.preventDefault();r.focus();}
-    });
-    if(r) r.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){e.preventDefault();checkSimplifyBoth();}
-    });
+    const l=document.getElementById('sb-lhs'), r=document.getElementById('sb-rhs');
+    if(l&&r) l.addEventListener('keydown',e=>{if(e.key==='Tab'||e.key==='Enter'){e.preventDefault();r.focus();}});
+    if(r) r.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkSimplifyBoth();}});
   },80);
 }
 
@@ -2562,10 +2606,18 @@ function checkSimplifyBoth() {
   } else {
     if(!okL){lInp.className='afield-input wrong';}
     if(!okR){rInp.className='afield-input wrong';}
-    const bad=(!okL?'Vänsterledet':'')+(!okL&&!okR?' och ':'')+(!okR?'Högerledet':'')+' stämmer inte.';
-    errEl.textContent=bad+' Försök igen!';
-    errEl.classList.add('visible');
     setTimeout(()=>{lInp.className='afield-input';rInp.className='afield-input';},700);
+    let msg = (!okL && !okR) ? 'Båda leden stämmer inte.' : (!okL ? 'Vänsterledet stämmer inte.' : 'Högerledet stämmer inte.');
+    // Specific hint: check if they left it unchanged
+    const origL=summarize(expandParens(S.equation.lhsTerms)), origR=summarize(expandParens(S.equation.rhsTerms));
+    if(!okL && Math.abs(gL.xCoeff-origL.xCoeff)<.001 && Math.abs(gL.constant-origL.constant)<.001)
+      msg += ' Vänsterledet verkar oförändrat – har du sammanlagt likadana termer?';
+    else if(!okR && Math.abs(gR.xCoeff-origR.xCoeff)<.001 && Math.abs(gR.constant-origR.constant)<.001)
+      msg += ' Högerledet verkar oförändrat – har du sammanlagt likadana termer?';
+    else if(okL && !okR) msg = 'Vänsterledet ser rätt ut – kolla högerledet igen.';
+    else if(okR && !okL) msg = 'Högerledet ser rätt ut – kolla vänsterledet igen.';
+    errEl.textContent = msg + ' Försök igen!';
+    errEl.classList.add('visible');
   }
 }
 
@@ -2584,32 +2636,30 @@ function renderCalcSimplifyUI() {
   const area=getInlineArea();
   const sec=document.createElement('div');
   sec.className='answer-section visible';
+  sec.style.cssText='align-items:flex-start;';
   sec.innerHTML=`
-    <div class="section-title">Förenkla – Samla termer i vänsterledet</div>
-    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
-      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:80px;">
-        <div class="afield-label">Vänsterled</div>
-        <input class="afield-input" id="sl-lhs" type="text" placeholder="t.ex. 4x + 3" autocomplete="off" spellcheck="false" style="text-align:center;">
+    <div class="split-fields-row" style="width:100%;">
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;">
+        <div class="afield-label">Nytt VL</div>
+        <input class="afield-input" id="sl-lhs" type="text" placeholder="Nytt VL" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
-      <div style="font-size:1.4rem;font-weight:700;color:var(--muted);margin-top:1.2rem;">=</div>
-      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;min-width:80px;">
-        <div class="afield-label">Högerled</div>
-        <input class="afield-input" id="sl-rhs" type="text" placeholder="oförändrat" autocomplete="off" spellcheck="false" style="text-align:center;">
+      <span class="split-eq-sep">=</span>
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;">
+        <div class="afield-label">Nytt HL</div>
+        <input class="afield-input" id="sl-rhs" type="text" placeholder="Oförändrat" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
     </div>
     <div class="err-msg" id="sl-err"></div>
-    <button class="btn-primary green" onclick="checkSimplify()">Kontrollera ✓</button>`;
+    <button class="btn-primary green" onclick="checkSimplify()">Kontrollera ✓</button>
+    <div style="font-size:.78rem;color:var(--muted);line-height:1.5;padding-top:.4rem;border-top:1px solid var(--border);width:100%;">
+      Samla ihop likadana termer i vänsterledet.
+    </div>`;
   area.appendChild(sec);
   setTimeout(()=>{const e=document.getElementById('sl-lhs');if(e)e.focus();},60);
   setTimeout(()=>{
-    const l=document.getElementById('sl-lhs');
-    const r=document.getElementById('sl-rhs');
-    if(l&&r) l.addEventListener('keydown',e=>{
-      if(e.key==='Tab'||e.key==='Enter'){e.preventDefault();r.focus();}
-    });
-    if(r) r.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){e.preventDefault();checkSimplify();}
-    });
+    const l=document.getElementById('sl-lhs'), r=document.getElementById('sl-rhs');
+    if(l&&r) l.addEventListener('keydown',e=>{if(e.key==='Tab'||e.key==='Enter'){e.preventDefault();r.focus();}});
+    if(r) r.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkSimplify();}});
   },80);
 }
 
@@ -2642,15 +2692,16 @@ function checkSimplify() {
   } else {
     if(!okL) lInp.className='afield-input wrong';
     if(!okR) rInp.className='afield-input wrong';
-    const bad=(!okL?'Vänsterledet':'')+(!okL&&!okR?' och ':'')+(!okR?'Högerledet':'')+' stämmer inte.';
-    errEl.textContent=bad+' Försök igen!';
-    errEl.classList.add('visible');
     setTimeout(()=>{lInp.className='afield-input';rInp.className='afield-input';},700);
+    const origL=summarize(expandParens(S.equation.lhsTerms));
+    let msg = !okL ? 'Vänsterledet stämmer inte.' : 'Högerledet stämmer inte.';
+    if(!okL && Math.abs(gL.xCoeff-origL.xCoeff)<.001 && Math.abs(gL.constant-origL.constant)<.001)
+      msg = 'Vänsterledet verkar oförändrat – sammanlägg de likadana termerna.';
+    else if(okL && !okR) msg = 'Vänsterledet ser rätt ut – högerledet ska vara oförändrat, har du skrivit det rätt?';
+    errEl.textContent = msg + ' Försök igen!';
+    errEl.classList.add('visible');
   }
 }
-
-// ══════════════════════════════════════════════════════════════
-//  DISTRIBUTE (multiplicera ut parentesen)
 // ══════════════════════════════════════════════════════════════
 // ══════════════════════════════════════════════════════════════
 //  FRACTION SIMPLIFY (e.g. 4x/2 → 2x, term-by-term)
@@ -2723,29 +2774,31 @@ function renderCalcFracSimplifyUI() {
   const area = getInlineArea();
   const sec = document.createElement('div');
   sec.className = 'answer-section visible';
+  sec.style.cssText = 'align-items:flex-start;';
   sec.innerHTML = `
-    <div class="section-title">Förenkla bråk – skriv den nya ekvationen</div>
-    <div style="font-size:.82rem;color:var(--muted);line-height:1.55;background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.2);border-radius:8px;padding:.6rem .9rem;">
-      Reducera varje bråkterm (t.ex. 4x/2 → 2x). Konstanter och andra termer skriver du oförändrade.
-    </div>
-    <div class="split-fields-row">
-      <div style="display:flex;flex-direction:column;gap:.3rem;">
-        <div class="afield-label">Vänsterled</div>
-        <input class="afield-input" id="fsimp-lhs-inp" type="text" placeholder="t.ex. 2x+3" autocomplete="off" spellcheck="false" style="text-align:center;">
+    <div class="split-fields-row" style="width:100%;">
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;">
+        <div class="afield-label">Nytt VL</div>
+        <input class="afield-input" id="fsimp-lhs-inp" type="text" placeholder="Nytt VL" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
       <span class="split-eq-sep">=</span>
-      <div style="display:flex;flex-direction:column;gap:.3rem;">
-        <div class="afield-label">Högerled</div>
-        <input class="afield-input" id="fsimp-rhs-inp" type="text" placeholder="t.ex. 15" autocomplete="off" spellcheck="false" style="text-align:center;">
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex:1;">
+        <div class="afield-label">Nytt HL</div>
+        <input class="afield-input" id="fsimp-rhs-inp" type="text" placeholder="Nytt HL" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
     </div>
     <div class="err-msg" id="fsimp-err"></div>
-    <button class="btn-primary green" onclick="checkFracSimplify()">Kontrollera ✓</button>`;
+    <button class="btn-primary green" onclick="checkFracSimplify()">Kontrollera ✓</button>
+    <div style="font-size:.78rem;color:var(--muted);line-height:1.5;padding-top:.4rem;border-top:1px solid var(--border);width:100%;">
+      Förenkla varje bråkterm (t.ex. 4x/2 → 2x). Andra termer skriver du oförändrade.
+    </div>`;
   area.appendChild(sec);
-  const skipBtn = document.createElement('button');
-  skipBtn.className='btn-skip'; skipBtn.innerHTML='↺ Ny ekvation'; skipBtn.onclick=skipEquation;
-  area.appendChild(skipBtn);
   setTimeout(()=>{ const e=document.getElementById('fsimp-lhs-inp'); if(e) e.focus(); }, 60);
+  setTimeout(()=>{
+    const l=document.getElementById('fsimp-lhs-inp'), r=document.getElementById('fsimp-rhs-inp');
+    if(l&&r) l.addEventListener('keydown',e=>{if(e.key==='Tab'||e.key==='Enter'){e.preventDefault();r.focus();}});
+    if(r) r.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();checkFracSimplify();}});
+  }, 80);
 }
 
 function checkFracSimplify() {
@@ -2777,10 +2830,22 @@ function checkFracSimplify() {
   } else {
     if(!okL) lEl.className='afield-input wrong';
     if(!okR) rEl.className='afield-input wrong';
-    const e=document.getElementById('fsimp-err');
-    const hints=[]; if(!okL) hints.push('vänsterledet'); if(!okR) hints.push('högerledet');
-    e.textContent=`${hints.join(' och ')} stämmer inte – försök igen!`; e.classList.add('visible');
     setTimeout(()=>{ lEl.className='afield-input'; rEl.className='afield-input'; }, 700);
+    const origL = summarize(expandParens(S.equation.lhsTerms));
+    const origR = summarize(expandParens(S.equation.rhsTerms));
+    const e = document.getElementById('fsimp-err');
+    let msg;
+    if(okL && !okR) {
+      msg = 'Vänsterledet ser rätt ut – högerledet ska vara oförändrat, har du skrivit det rätt?';
+    } else if(!okL && okR) {
+      if(Math.abs(sL.xCoeff-origL.xCoeff)<.001 && Math.abs(sL.constant-origL.constant)<.001)
+        msg = 'Vänsterledet verkar oförändrat – dela täljaren och nämnaren med deras gemensamma faktor.';
+      else msg = 'Högerledet ser rätt ut – kolla bråkförenkling i vänsterledet igen.';
+    } else {
+      msg = 'Kontrollera att du förenklar varje bråkterm för sig.';
+    }
+    e.textContent = msg + ' Försök igen!';
+    e.classList.add('visible');
   }
 }
 
@@ -2811,26 +2876,36 @@ function renderCalcDistributeUI(expLhs, expRhs) {
   const area = getInlineArea();
   const sec = document.createElement('div');
   sec.className = 'answer-section visible';
+  sec.style.cssText = 'align-items:flex-start;';
   sec.innerHTML = `
-    <div class="section-title">Distribuera – Skriv den nya ekvationen</div>
-    <div style="font-size:.82rem;color:var(--muted);line-height:1.55;background:rgba(108,139,255,.07);border:1px solid rgba(108,139,255,.2);border-radius:8px;padding:.6rem .9rem;">
-      Multiplicera in faktorn i parentesen. Du kan lämna kvar andra termer oförenklade eller förenkla hela ledet.
-    </div>
-    <div class="split-fields-row">
-      <div style="display:flex;flex-direction:column;gap:.3rem;">
-        <div class="afield-label">Vänsterled</div>
-        <input class="afield-input" id="dist-lhs-inp" type="text" placeholder="t.ex. 6x+21+8" autocomplete="off" spellcheck="false" style="text-align:center;">
+    <div class="split-fields-row" style="width:100%;">
+      <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;">
+        <div class="afield-label">Nytt VL</div>
+        <input class="afield-input" id="dist-lhs-inp" type="text" placeholder="Nytt VL" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
       <span class="split-eq-sep">=</span>
-      <div style="display:flex;flex-direction:column;gap:.3rem;">
-        <div class="afield-label">Högerled</div>
-        <input class="afield-input" id="dist-rhs-inp" type="text" placeholder="t.ex. 27" autocomplete="off" spellcheck="false" style="text-align:center;">
+      <div style="display:flex;flex-direction:column;gap:.3rem;flex:1;">
+        <div class="afield-label">Nytt HL</div>
+        <input class="afield-input" id="dist-rhs-inp" type="text" placeholder="Nytt HL" autocomplete="off" spellcheck="false" style="text-align:center;">
       </div>
     </div>
     <div class="err-msg" id="dist-err"></div>
-    <button class="btn-primary green" onclick="checkDistribute()">Kontrollera ✓</button>`;
+    <button class="btn-primary green" onclick="checkDistribute()">Kontrollera ✓</button>
+    <div style="font-size:.78rem;color:var(--muted);line-height:1.5;padding-top:.4rem;border-top:1px solid var(--border);width:100%;">
+      Multiplicera in faktorn i parentesen. Andra termer kan lämnas oförenklade.
+    </div>`;
   area.appendChild(sec);
   setTimeout(()=>{ const e=document.getElementById('dist-lhs-inp'); if(e) e.focus(); }, 60);
+  setTimeout(()=>{
+    const l=document.getElementById('dist-lhs-inp');
+    const r=document.getElementById('dist-rhs-inp');
+    if(l&&r) l.addEventListener('keydown',e=>{
+      if(e.key==='Tab'||e.key==='Enter'){e.preventDefault();r.focus();}
+    });
+    if(r) r.addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();checkDistribute();}
+    });
+  }, 80);
 }
 
 function checkDistribute() {
@@ -2872,13 +2947,27 @@ function checkDistribute() {
   } else {
     if(!okL) lEl.className = 'afield-input wrong';
     if(!okR) rEl.className = 'afield-input wrong';
-    const hints = [];
-    if(!okL) hints.push('vänsterledet');
-    if(!okR) hints.push('högerledet');
-    const e = document.getElementById('dist-err');
-    e.textContent = `${hints.join(' och ')} stämmer inte – försök igen!`;
-    e.classList.add('visible');
     setTimeout(()=>{ lEl.className='afield-input'; rEl.className='afield-input'; }, 700);
+    const origL = summarize(expandParens(S.equation.lhsTerms));
+    const origR = summarize(expandParens(S.equation.rhsTerms));
+    const e = document.getElementById('dist-err');
+    let msg;
+    if(okL && !okR) {
+      msg = 'Vänsterledet ser rätt ut – högerledet ska vara oförändrat, har du skrivit det rätt?';
+    } else if(!okL && okR) {
+      // Check if they forgot to distribute one term
+      const lhsXOk = Math.abs(sL.xCoeff - expL.xCoeff) < 0.001;
+      const lhsCOk = Math.abs(sL.constant - expL.constant) < 0.001;
+      if(lhsXOk && !lhsCOk) msg = 'x-termen i VL ser rätt ut – kolla konstanten, har du multiplicerat in faktorn på alla termer?';
+      else if(!lhsXOk && lhsCOk) msg = 'Konstanten i VL ser rätt ut – kolla x-termen, har du multiplicerat in faktorn på alla termer?';
+      else if(Math.abs(sL.xCoeff-origL.xCoeff)<.001 && Math.abs(sL.constant-origL.constant)<.001)
+        msg = 'Vänsterledet verkar oförändrat – multiplicera in faktorn på varje term i parentesen.';
+      else msg = 'Högerledet ser rätt ut – kolla vänsterledet igen.';
+    } else {
+      msg = 'Kontrollera att du multiplicerat in faktorn på alla termer i parentesen.';
+    }
+    e.textContent = msg + ' Försök igen!';
+    e.classList.add('visible');
   }
 }
 function toggleHint() {
@@ -3076,7 +3165,6 @@ function computeOptimalSteps(eq) {
 function markSolved(xValue) {
   S.solved=true; S.scoreCorrect++; S.scoreTotal++;
   updateScoreDisplay();
-  document.getElementById('eq-history').style.display='flex';
   document.getElementById('solved-display').classList.add('visible');
   document.getElementById('solved-answer-text').textContent=
     `x = ${Number.isInteger(xValue)?xValue:Math.round(xValue*1000)/1000}`;
@@ -3113,6 +3201,25 @@ function markSolved(xValue) {
 
   const iaa = document.getElementById('inline-answer-area');
   if(iaa) iaa.remove();
+
+  // Briefly disable "Nästa" so the celebration has time to land
+  const nextBtn = document.getElementById('btn-next');
+  if(nextBtn) {
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = '.4';
+    setTimeout(() => {
+      nextBtn.disabled = false;
+      nextBtn.style.opacity = '';
+      nextBtn.style.animation = 'bubblePop .3s cubic-bezier(.175,.885,.32,1.4) both';
+    }, 1400);
+  }
+  S._solvedAt = Date.now();
+
+  // Scroll to bottom of history panel so solved bar is visible
+  setTimeout(()=>{
+    const hist = document.getElementById('eq-history');
+    if(hist) hist.scrollTop = hist.scrollHeight;
+  }, 150);
   confetti();
 }
 
@@ -3203,13 +3310,23 @@ function buildSolutionSteps(eq) {
     sr = summarize(expandParens(eq.rhsTerms));
   }
 
-  // 6. Divide or multiply to isolate x
-  const xc = sl.xCoeff || sr.xCoeff;
-  if(xc !== 0 && Math.abs(xc) !== 1) {
-    // If xCoeff is a fraction (e.g. 1/5 from x/5), multiply by its reciprocal
-    if(Math.abs(xc) < 1) {
-      // xc = p/q where |p/q| < 1 → multiply by q/p = 1/xc
-      // Find rational representation
+  // 6. Divide or multiply to isolate x – always ensure positive x
+  sl = summarize(expandParens(eq.lhsTerms));
+  sr = summarize(expandParens(eq.rhsTerms));
+  const xcL = sl.xCoeff, xcR = sr.xCoeff;
+  const xc = xcL !== 0 ? xcL : xcR;
+
+  if(xc !== 0 && xc !== 1) {
+    if(xc === -1) {
+      // −x = n  →  ×(−1)
+      applyStep('mul', -1);
+    } else if(xc < 0) {
+      // −ax = n  →  first ×(−1) to get ax = −n, then ÷ a
+      applyStep('mul', -1);
+      const xc2 = summarize(expandParens(eq.lhsTerms)).xCoeff;
+      if(xc2 !== 1) applyStep('div', Math.abs(xc2));
+    } else if(Math.abs(xc) < 1) {
+      // fractional coefficient: multiply by reciprocal
       let bestP=1, bestQ=1;
       for(let q=2; q<=100; q++) {
         const p = Math.round(xc*q);
@@ -3219,8 +3336,20 @@ function buildSolutionSteps(eq) {
     } else {
       applyStep('div', Math.abs(xc));
     }
-  } else if(xc === -1) {
-    applyStep('mul', -1);
+  }
+
+  // 7. If x ended up on rhs (e.g. 5 = x), swap sides by subtracting x and constant
+  //    Simply add a cosmetic note – show as "x = 5" by rewriting final eq
+  sl = summarize(expandParens(eq.lhsTerms));
+  sr = summarize(expandParens(eq.rhsTerms));
+  if(sl.xCoeff === 0 && sr.xCoeff === 1 && sr.constant === 0) {
+    // rhs is just x – rewrite as x = constant
+    const swapped = {
+      lhsTerms: buildFromSummary(1, 0),
+      rhsTerms: buildFromSummary(0, sl.constant)
+    };
+    eq = swapped;
+    steps.push({type:'equation', eq:cloneEq(eq)});
   }
 
   // Mark last equation as solved
@@ -3312,41 +3441,25 @@ function switchInGameMode(mode) {
   // Sync panel tabs
   document.getElementById('tab-strategy').classList.toggle('active', mode==='strategy');
   document.getElementById('tab-calc').classList.toggle('active', mode==='calc');
-  document.getElementById('input-panel-title').textContent = mode==='strategy' ? '🧠 Välj operation' : '✏️ Din beräkning';
   // Reset current step state but keep equation and history
   S.parsedOp=null; S._freeRaw=''; _btnOpType=null; S._btnOpType=null;
   S.calcStep='op'; S.calcExpectedLhs=null; S.calcExpectedRhs=null; S._calcErrors=0;
+  buildHistory();
   renderInputUI();
 }
 
 function updateModeBadge() {
-  const sw = document.getElementById('mode-switcher');
   const badge = document.getElementById('mode-badge');
-  if(!sw||!badge) return;
+  if(!badge) return;
   if(COMP.active) {
-    sw.className='mode-switcher competition';
     badge.textContent='⏱ Tävling';
     return;
   }
-  sw.className='mode-switcher';
   badge.textContent = S.mode==='strategy' ? '🧠 Strategiläge' : '✏️ Beräkningsläge';
-  // Mark active option in dropdown
-  sw.querySelectorAll('.mode-switcher-drop button').forEach(b=>{
-    b.classList.toggle('active-mode', b.textContent.includes(S.mode==='strategy'?'Strategi':'Beräkning'));
-  });
 }
 
-function toggleModeDropdown() {
-  if(COMP.active) return;
-  document.getElementById('mode-switcher').classList.toggle('open');
-}
-function closeModeDropdown() {
-  document.getElementById('mode-switcher').classList.remove('open');
-}
-// Close on outside click
-document.addEventListener('click', e=>{
-  if(!e.target.closest('#mode-switcher')) closeModeDropdown();
-});
+function toggleModeDropdown() {} // no-op, dropdown removed
+function closeModeDropdown() {}  // no-op, dropdown removed
 
 function setInputMode(m) {
   S.inputMode=m;
@@ -3390,7 +3503,6 @@ function loadEquation() {
   }
 
   document.getElementById('solved-display').classList.remove('visible');
-  document.getElementById('eq-history').style.display='flex';
   buildHistory();
   renderInputUI();
 }
@@ -3416,7 +3528,7 @@ function closeCompSetup() {
 // ══════════════════════════════════════════════════════════════
 //  ANALOG MODE
 // ══════════════════════════════════════════════════════════════
-const ANALOG = { level: 1, correct: 0, total: 0, equation: null, original: null, errors: 0 };
+const ANALOG = { levels: [1], correct: 0, total: 0, equation: null, original: null, errors: 0 };
 
 function openAnalogSetup() {
   document.getElementById('analog-setup').classList.add('active');
@@ -3424,11 +3536,21 @@ function openAnalogSetup() {
 function closeAnalogSetup() {
   document.getElementById('analog-setup').classList.remove('active');
 }
-function setAnalogLevel(lvl) {
-  ANALOG.level = lvl;
-  document.querySelectorAll('#analog-setup .comp-opt-btn').forEach((b,i)=>{
-    b.classList.toggle('active', i===lvl-1);
-  });
+function toggleAnalogLevel(lvl, btn) {
+  const idx = ANALOG.levels.indexOf(lvl);
+  if(idx >= 0) {
+    // Don't deselect if it's the only one
+    if(ANALOG.levels.length === 1) return;
+    ANALOG.levels.splice(idx, 1);
+    btn.classList.remove('active');
+  } else {
+    ANALOG.levels.push(lvl);
+    btn.classList.add('active');
+  }
+}
+function getAnalogLevel() {
+  const lvls = ANALOG.levels;
+  return lvls[Math.floor(Math.random() * lvls.length)];
 }
 function startAnalog() {
   closeAnalogSetup();
@@ -3436,9 +3558,19 @@ function startAnalog() {
   document.getElementById('start-screen').classList.remove('active');
   document.getElementById('analog-screen').classList.add('active');
   document.body.classList.add('game-active');
-  document.getElementById('analog-level-badge').textContent = 'Nivå ' + ANALOG.level;
+  updateAnalogLevelBadge();
   updateAnalogScore();
   window.scrollTo(0,0);
+  loadAnalogEquation();
+}
+function updateAnalogLevelBadge() {
+  const lvls = ANALOG.levels.slice().sort((a,b)=>a-b);
+  const badge = document.getElementById('analog-level-badge');
+  badge.textContent = lvls.length === 1 ? 'Nivå ' + lvls[0] : 'Nivå ' + lvls.join(', ');
+}
+function analogSkip() {
+  ANALOG.total++;
+  updateAnalogScore();
   loadAnalogEquation();
 }
 function analogHome() {
@@ -3452,9 +3584,15 @@ function updateAnalogScore() {
   document.getElementById('analog-score-total').textContent = ANALOG.total;
 }
 function loadAnalogEquation() {
-  ANALOG.equation = genEq(ANALOG.level);
+  const lvl = getAnalogLevel();
+  ANALOG.equation = genEq(lvl);
   ANALOG.original = cloneEq(ANALOG.equation);
   ANALOG.errors = 0;
+
+  // Show which level this equation is from if mixing levels
+  if(ANALOG.levels.length > 1) {
+    document.getElementById('analog-level-badge').textContent = 'Nivå ' + lvl;
+  }
 
   // Render equation as plain text for the display
   const eq = ANALOG.equation;
@@ -3700,7 +3838,6 @@ function startCompetition() {
   document.getElementById('game-screen').classList.add('active');
   document.getElementById('level-badge').textContent = 'Nivå ' + COMP.level;
   document.getElementById('mode-badge').textContent = '⏱ Tävling';
-  document.getElementById('input-panel-title').textContent = '🧠 Välj operation';
   document.getElementById('score-box') && (document.getElementById('score-box').style.display='none');
   document.getElementById('timer-box').style.display = 'flex';
   updateTimerDisplay();
@@ -3875,8 +4012,9 @@ document.addEventListener('keydown', e=>{
   // Solved screen: Enter → next equation (but not if we just submitted an answer)
   if(S.solved) {
     const active = document.activeElement;
-    // Don't immediately advance if focus is still on the answer input
     if(active && active.id==='quick-ans-inp') return;
+    // Require at least 1.4s of celebration before Enter advances
+    if(S._solvedAt && Date.now() - S._solvedAt < 1400) return;
     nextEquation(); return;
   }
 
@@ -4036,6 +4174,30 @@ renderSignature();
 </script>
 
 <!-- ═══════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  BEGREPPSLISTA MODAL                                    -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="level-guide-backdrop" id="glossary-backdrop" onclick="if(event.target===this)closeGlossary()">
+  <div class="level-guide-modal" style="max-width:500px;">
+    <button class="guide-close" onclick="closeGlossary()">✕</button>
+    <h2 style="margin-bottom:.2rem;">🔤 Matematiska begrepp</h2>
+    <div class="guide-subtitle">Ord du möter när du löser ekvationer</div>
+    <div id="glossary-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  NIVÅGUIDE MODAL                                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="level-guide-backdrop" id="level-guide-backdrop" onclick="if(event.target===this)closeLevelGuide()">
+  <div class="level-guide-modal">
+    <button class="guide-close" onclick="closeLevelGuide()">✕</button>
+    <h2 id="guide-title">Nivå 1 – Tips</h2>
+    <div class="guide-subtitle" id="guide-subtitle"></div>
+    <div id="guide-steps"></div>
+  </div>
+</div>
+
 <!--  LÄRARGUIDE MODAL                                       -->
 <!-- ═══════════════════════════════════════════════════════ -->
 <div id="teacher-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);overflow-y:auto;padding:2rem 1rem;">
@@ -4237,6 +4399,43 @@ const TEACHER_TOPICS = [
 
 let _teacherTab = 0;
 
+// ── BEGREPPSLISTA ───────────────────────────────────────────
+const GLOSSARY = [
+  { term: 'Ekvation', def: 'Ett matematiskt påstående där två uttryck är lika stora, med ett likhetstecken emellan.', ex: '3x + 2 = 11' },
+  { term: 'Vänsterled (VL)', def: 'Allt som står till vänster om likhetstecknet.', ex: '3x + 2  =  11  ← högerled' },
+  { term: 'Högerled (HL)', def: 'Allt som står till höger om likhetstecknet.', ex: '3x + 2  =  11  ← högerled' },
+  { term: 'Obekant (x)', def: 'Det okända talet vi vill hitta – brukar kallas x.', ex: 'x + 5 = 12  →  x = 7' },
+  { term: 'Koefficient', def: 'Siffran som multipliceras med x. Berättar hur många x vi har.', ex: '4x  →  koefficienten är 4' },
+  { term: 'Konstant', def: 'Ett vanligt tal utan x – det ändrar sig inte.', ex: '3x + 7  →  7 är konstanten' },
+  { term: 'Term', def: 'En del av ett uttryck, separerad av plus eller minus. Kan vara ett tal, ett x eller en kombination.', ex: '3x + 2 har två termer: 3x och 2' },
+  { term: 'Balansmetoden', def: 'Principen att allt man gör på ena sidan av = måste man göra på andra sidan också – som en våg i balans.', ex: 'x + 3 = 8  →  −3 på båda sidor  →  x = 5' },
+  { term: 'Förenkla', def: 'Slå ihop likadana termer så uttrycket blir kortare och enklare.', ex: '3x + x + 2  →  4x + 2' },
+  { term: 'Distribuera / expandera', def: 'Multiplicera in ett tal i en parentes – varje term inuti multipliceras med faktorn utanför.', ex: '2(x + 3)  →  2x + 6' },
+  { term: 'Parentes', def: 'Grupptecken som visar att termerna inuti hänger ihop och behandlas som en enhet.', ex: '3(x + 4) – faktorn 3 gäller hela parentesen' },
+  { term: 'Bråk', def: 'Ett tal skrivet som täljare delat med nämnare. Kan förenklas om täljare och nämnare har gemensam faktor.', ex: '4x/2  →  2x' },
+  { term: 'Täljare', def: 'Det övre talet i ett bråk.', ex: '3/4  →  täljaren är 3' },
+  { term: 'Nämnare', def: 'Det undre talet i ett bråk.', ex: '3/4  →  nämnaren är 4' },
+  { term: 'Isolera x', def: 'Målet med ekvationslösning – att få x helt ensamt på ena sidan.', ex: '2x = 8  →  x = 4' },
+  { term: 'Minsta gemensamma multipel (MGM)', def: 'Det minsta tal som är delbart med två eller flera nämnare. Används för att rensa bråk.', ex: 'MGM av 3 och 4 är 12' },
+];
+
+function openGlossary() {
+  const list = document.getElementById('glossary-list');
+  list.innerHTML = GLOSSARY.map(g => `
+    <div class="glossary-item">
+      <div class="glossary-term">${g.term}</div>
+      <div class="glossary-def">${g.def}</div>
+      ${g.ex ? `<div class="glossary-ex">${g.ex}</div>` : ''}
+    </div>`).join('');
+  document.getElementById('glossary-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGlossary() {
+  document.getElementById('glossary-backdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 function openTeacher() {
   document.getElementById('teacher-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
@@ -4245,6 +4444,98 @@ function openTeacher() {
 
 function closeTeacher() {
   document.getElementById('teacher-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ── NIVÅGUIDE ──────────────────────────────────────────────
+const LEVEL_GUIDES = {
+  1: {
+    subtitle: 'Enkla ekvationer – x på ena sidan',
+    steps: [
+      { text: 'Målet är att få <strong>x ensamt</strong> på vänster sida.', example: 'x + 5 = 12' },
+      { text: 'Vad som finns på ena sidan av = måste du göra <strong>på båda sidor</strong>.', example: 'x + 5 − 5 = 12 − 5' },
+      { text: 'Räkna ut och kvar har du svaret!', example: 'x = 7' },
+    ]
+  },
+  2: {
+    subtitle: 'x på båda sidor – flytta till vänster',
+    steps: [
+      { text: 'Ibland finns x på <strong>båda sidor</strong>. Flytta dem till vänster.', example: '3x = x + 8' },
+      { text: 'Subtrahera x-termen från höger sida <strong>på båda sidor</strong>.', example: '3x − x = x + 8 − x' },
+      { text: 'Förenkla och lös som vanligt.', example: '2x = 8  →  x = 4' },
+    ]
+  },
+  3: {
+    subtitle: 'Parenteser – multiplicera ut',
+    steps: [
+      { text: 'Har du en parentes som <strong>2(x + 3)</strong> måste du multiplicera in siffran framför.', example: '2(x + 3) = 10' },
+      { text: 'Faktorn multipliceras med <strong>varje term</strong> inuti parentesen.', example: '2·x + 2·3 = 10  →  2x + 6 = 10' },
+      { text: 'Nu löser du som en vanlig ekvation.', example: '2x = 4  →  x = 2' },
+    ]
+  },
+  4: {
+    subtitle: 'Konstanter på båda sidor',
+    steps: [
+      { text: 'Flytta alla tal (utan x) till <strong>höger sida</strong>.', example: '3x + 4 = 16' },
+      { text: 'Subtrahera konstanten från vänster sida <strong>på båda sidor</strong>.', example: '3x + 4 − 4 = 16 − 4' },
+      { text: 'Dividera sedan med koefficienten framför x.', example: '3x = 12  →  x = 4' },
+    ]
+  },
+  5: {
+    subtitle: 'Blandade steg – flera operationer',
+    steps: [
+      { text: 'Flytta <strong>x-termer till vänster</strong> och <strong>tal till höger</strong>.', example: '4x + 3 = 2x + 11' },
+      { text: 'Gör en sak i taget – det spelar ingen roll i vilken ordning!', example: '4x − 2x = 11 − 3' },
+      { text: 'Förenkla och dividera.', example: '2x = 8  →  x = 4' },
+    ]
+  },
+  6: {
+    subtitle: 'Negativa koefficienter',
+    steps: [
+      { text: 'Om koefficienten framför x är <strong>negativ</strong> multiplicerar du med −1 på båda sidor, eller dividerar med den negativa siffran.', example: '−2x = 6' },
+      { text: 'Dividera med −2 på båda sidor – tänk på att tecknet ändras!', example: '−2x ÷ (−2) = 6 ÷ (−2)' },
+      { text: '', example: 'x = −3' },
+    ]
+  },
+  7: {
+    subtitle: 'Bråkekvationer',
+    steps: [
+      { text: 'Finns det bråk? Multiplicera <strong>båda sidor</strong> med nämnaren för att slippa bråket.', example: 'x/3 = 5' },
+      { text: 'Multiplicera båda sidor med 3.', example: 'x/3 · 3 = 5 · 3' },
+      { text: 'Bråket försvinner och kvar har du x.', example: 'x = 15' },
+    ]
+  },
+  8: {
+    subtitle: 'Svåra kombinationer',
+    steps: [
+      { text: 'Nu kombineras allt: parenteser, bråk, termer på båda sidor.', example: '2(x + 1)/3 = 4' },
+      { text: '<strong>Steg 1:</strong> Rensa bråk – multiplicera med nämnaren.', example: '2(x + 1) = 12' },
+      { text: '<strong>Steg 2:</strong> Distribuera parentesen.', example: '2x + 2 = 12' },
+      { text: '<strong>Steg 3:</strong> Lös som vanligt.', example: '2x = 10  →  x = 5' },
+    ]
+  },
+};
+
+function showLevelGuide() {
+  const level = S.level || 1;
+  const guide = LEVEL_GUIDES[level] || LEVEL_GUIDES[1];
+  document.getElementById('guide-title').textContent = `Nivå ${level} – Tips`;
+  document.getElementById('guide-subtitle').textContent = guide.subtitle;
+  const stepsEl = document.getElementById('guide-steps');
+  stepsEl.innerHTML = guide.steps.map((s, i) => `
+    <div class="level-guide-step">
+      ${s.text ? `<div class="guide-step-num">${i+1}</div>` : '<div style="width:1.6rem;flex-shrink:0;"></div>'}
+      <div class="guide-step-text">
+        ${s.text}
+        ${s.example ? `<div class="guide-example">${s.example}</div>` : ''}
+      </div>
+    </div>`).join('');
+  document.getElementById('level-guide-backdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLevelGuide() {
+  document.getElementById('level-guide-backdrop').classList.remove('open');
   document.body.style.overflow = '';
 }
 
